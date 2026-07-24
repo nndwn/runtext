@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Runtext" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+    <style name="Theme.Runtext.Splash" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.Runtext</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+</resources>
