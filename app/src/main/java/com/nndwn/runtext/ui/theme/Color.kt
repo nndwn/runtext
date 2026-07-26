@@ -3,6 +3,13 @@ package com.nndwn.runtext.ui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
+
+object Palette {
+    val Black2 = Color(0xFF121219)
+    val Black3 = Color(0xFF262626)
+    val Grey = Color(0xFF414141)
+    val White = Color(0xFFF5F5FF)
+}
 // ── Neon accent colors ──
 
 val NeonGreen = Color(0xFF00FF41)
