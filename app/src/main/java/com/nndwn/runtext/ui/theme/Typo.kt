@@ -31,10 +31,6 @@ val AntonFamily = FontFamily(
     Font(R.font.anton_regular, FontWeight.Normal),
 )
 
-val ShipporiFamily = FontFamily(
-    Font(R.font.shippori_regular, FontWeight.Normal),
-)
-
 val JakartaPlusFamily = FontFamily(
     Font(R.font.plus_jakarta_sans_light, FontWeight.Light),
     Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),

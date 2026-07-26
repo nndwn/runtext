@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RunTxt</string>
+    <string name="placeholder_input_text">Enter your message…</string>
 </resources>

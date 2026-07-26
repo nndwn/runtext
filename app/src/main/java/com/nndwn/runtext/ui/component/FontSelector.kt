@@ -30,7 +30,6 @@ import com.nndwn.runtext.ui.theme.DotGothic16Family
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.JakartaPlusFamily
 import com.nndwn.runtext.ui.theme.ShareTechMonoFamily
-import com.nndwn.runtext.ui.theme.ShipporiFamily
 import com.nndwn.runtext.ui.theme.googleFontFamily
 
 /**
@@ -128,7 +127,6 @@ internal fun fontFamilyFor(fontType: FontType, googleFontName: String) = when (f
     FontType.JAKARTAPLUSBOLD     -> JakartaPlusFamily
     FontType.JAKARTAPLUSLIGHT -> JakartaPlusFamily
     FontType.ANTON            -> AntonFamily
-    FontType.SHIPPORI      -> ShipporiFamily
     FontType.GOOGLE_FONT      -> if (googleFontName.isNotBlank()) googleFontFamily(googleFontName) else JakartaPlusFamily
 }
 

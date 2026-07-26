@@ -19,7 +19,6 @@ enum class FontType(val displayName: String) {
     ANTON("Anton"),
     JAKARTAPLUSBOLD("Plus Jakarta Sans Bold"),
     JAKARTAPLUSLIGHT("Plus Jakarta Sans Light"),
-    SHIPPORI("Shippori"),
     GOOGLE_FONT("Google Font \u2193")
 }
 

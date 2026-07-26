@@ -1,8 +1,8 @@
 package com.nndwn.runtext.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,29 +27,28 @@ import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.Dimens
 
 @Composable
-private fun Header(
-    onMenuClick : () -> Unit
+fun Header(
+    modifier: Modifier = Modifier,
+    withSidebar : Boolean = false,
+    onMenuClick : () -> Unit = {}
 ) {
-    Box( modifier = Modifier
+    Box( modifier = modifier
         .fillMaxWidth()
-        .shadow(elevation = 8.dp)
-        .background(Palette.Black3)
         .statusBarsPadding()
     ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingHorizontal, vertical = 10.dp)
+                .padding(horizontal = Dimens.PaddingHorizontal, vertical = 10.dp)
             ,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "logo",
+                contentDescription = null,
                 tint = Palette.White,
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(48.dp)
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
@@ -57,20 +56,26 @@ private fun Header(
                 color = Palette.White,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Black
-                )
-                ,
-                modifier = Modifier
-                    .weight(1f)
+                ),
+                modifier = Modifier.weight(1f)
             )
-            ThreeDotsHorizontal {
-                onMenuClick()
+            if (withSidebar) {
+                ThreeDotsHorizontal(onClick = onMenuClick)
             }
+
         }
     }
 }
-
 @Preview
 @Composable
 private fun Preview(){
-    Header {  }
+    Column() {
+        Header(
+            withSidebar = true
+        ) {  }
+        Header(
+            withSidebar = false
+        ){}
+    }
+
 }

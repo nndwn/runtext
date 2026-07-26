@@ -77,6 +77,7 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
 import com.nndwn.runtext.ui.component.FontSelector
+import com.nndwn.runtext.ui.component.InputTextPreview
 import com.nndwn.runtext.ui.theme.NeonCyan
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.NeonOrange
@@ -196,33 +197,7 @@ fun InputScreenContent(
                 modifier = Modifier.padding(bottom = 24.dp),
             )
 
-            // ── TEXT INPUT ──
-            OutlinedTextField(
-                value = settings.lastText,
-                onValueChange = onUpdateText,
-                label = { Text("Banner Text") },
-                placeholder = { Text("Enter your message…") },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
-                maxLines = 4,
-                trailingIcon = {
-                    if (settings.lastText.isNotEmpty()) {
-                        IconButton(onClick = onClearText) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear text")
-                        }
-                    }
-                },
-                supportingText = {
-                    Text(
-                        "${settings.lastText.length}/250",
-                        color = if (settings.lastText.length > 240) NeonRed
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = NeonGreen,
-                    cursorColor = NeonGreen,
-                ),
-            )
+
 
             Spacer(Modifier.height(20.dp))
 
