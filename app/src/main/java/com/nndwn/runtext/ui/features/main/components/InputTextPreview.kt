@@ -1,5 +1,6 @@
-package com.nndwn.runtext.ui.component
+package com.nndwn.runtext.ui.features.main.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,16 +49,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.ui.component.fontFamilyFor
+import com.nndwn.runtext.ui.component.fontWeightFor
 import com.nndwn.runtext.ui.theme.NeonRed
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
+import kotlinx.coroutines.isActive
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,44 +158,76 @@ fun InputTextPreview(
 @Composable
 private fun RunningTextPreview(settings: AppSettings) {
     val text = settings.lastText.ifEmpty { "PREVIEW" }
-    var textWidth by remember(text) { mutableFloatStateOf(0f) }
-    
+    val textMeasurer = rememberTextMeasurer()
+
+    val fontFamily = fontFamilyFor(settings.fontType, settings.googleFontName)
+    val fontWeight = fontWeightFor(settings.fontType)
+
+    // RTL detection for consistency
+    val isRtl = remember(text) {
+        if (text.isEmpty()) false
+        else {
+            val bidi = java.text.Bidi(
+                text,
+                java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT,
+            )
+            bidi.isRightToLeft
+        }
+    }
+
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterStart
     ) {
         val containerWidthPx = constraints.maxWidth.toFloat()
 
-        val infiniteTransition = rememberInfiniteTransition(label = "running_text")
-        val xOffset by infiniteTransition.animateFloat(
-            initialValue = containerWidthPx,
-            targetValue = -textWidth,
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = if (settings.speed > 0) 
-                        ((containerWidthPx + textWidth) / settings.speed * 1000).toInt() 
-                    else 5000,
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "offset"
+        val textStyle = TextStyle(
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            fontSize = 40.sp,
+            color = settings.textColorArgb.toComposeColor(),
         )
+
+        val textLayoutResult = remember(text, fontFamily, fontWeight) {
+            textMeasurer.measure(
+                text = text,
+                style = textStyle,
+                maxLines = 1,
+                softWrap = false,
+            )
+        }
+
+        val textWidth = textLayoutResult.size.width.toFloat()
+        
+        val startX = if (isRtl) -textWidth else containerWidthPx
+        val offsetX = remember { Animatable(startX) }
+
+        LaunchedEffect(settings.speed, textWidth, containerWidthPx, isRtl) {
+            val sX = if (isRtl) -textWidth else containerWidthPx
+            val eX = if (isRtl) containerWidthPx else -textWidth
+            val dist = abs(eX - sX)
+            
+            val dur = ((dist / settings.speed.coerceAtLeast(1f)) * 1000).toInt().coerceAtLeast(500)
+
+            offsetX.snapTo(sX)
+            while (isActive) {
+                offsetX.animateTo(
+                    targetValue = eX,
+                    animationSpec = tween(durationMillis = dur, easing = LinearEasing),
+                )
+                offsetX.snapTo(sX)
+            }
+        }
 
         Text(
             text = text,
-            color = settings.textColorArgb.toComposeColor(),
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Bold,
+            style = textStyle,
             maxLines = 1,
             softWrap = false,
-            onTextLayout = {
-                textWidth = it.multiParagraph.width 
-            },
             modifier = Modifier
-                .wrapContentWidth(unbounded = true, align = Alignment.Start) // Biarkan teks melebar keluar layar
+                .wrapContentWidth(unbounded = true, align = Alignment.Start)
                 .graphicsLayer {
-                    translationX = xOffset
+                    translationX = offsetX.value
                     rotationY = if (settings.isMirrorMode) 180f else 0f
                 }
         )

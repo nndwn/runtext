@@ -10,6 +10,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.nndwn.runtext.ui.RunTextApp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.LocalIsTablet
 import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
@@ -33,10 +34,9 @@ class MainActivity : ComponentActivity() {
                 LocalWindowWidthSize provides windowSizeClass.widthSizeClass
             ) {
                 RuntextTheme {
-
+                    RunTextApp()
                 }
             }
-
         }
     }
 }

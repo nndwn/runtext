@@ -5,12 +5,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.nndwn.runtext.ui.viewmodel.RunTextViewModel
+import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.ui.features.main.MainScreen
 
 object Routes {
     const val INPUT = "input"
@@ -19,6 +19,12 @@ object Routes {
 
 @Composable
 fun AppNavigation(
+    settings: AppSettings,
+    onUpdateText: (String) -> Unit,
+    onClearText: () -> Unit,
+    onUpdateMode: (AppMode) -> Unit,
+    onMenuClick: () -> Unit,
+    onUpdateSpeed : (Float) -> Unit,
     navController: NavHostController
 ){
     NavHost (
@@ -40,7 +46,14 @@ fun AppNavigation(
         },
     ){
         composable(Routes.INPUT) {
-
+            MainScreen(
+                settings = settings,
+                onUpdateText = onUpdateText,
+                onClearText = onClearText,
+                onUpdateMode = onUpdateMode,
+                onMenuClick = onMenuClick,
+                onUpdateSpeed =  onUpdateSpeed
+            )
         }
         composable(Routes.DISPLAY) {
 

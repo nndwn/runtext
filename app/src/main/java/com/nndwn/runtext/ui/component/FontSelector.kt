@@ -121,7 +121,7 @@ fun FontSelector(
 }
 
 /** Resolve [FontType] to the matching Compose [FontFamily]. */
-internal fun fontFamilyFor(fontType: FontType, googleFontName: String) = when (fontType) {
+fun fontFamilyFor(fontType: FontType, googleFontName: String) = when (fontType) {
     FontType.SHARE_TECH_MONO -> ShareTechMonoFamily
     FontType.DOT_GOTHIC      -> DotGothic16Family
     FontType.JAKARTAPLUSBOLD     -> JakartaPlusFamily
@@ -130,7 +130,7 @@ internal fun fontFamilyFor(fontType: FontType, googleFontName: String) = when (f
     FontType.GOOGLE_FONT      -> if (googleFontName.isNotBlank()) googleFontFamily(googleFontName) else JakartaPlusFamily
 }
 
-internal fun fontWeightFor(fontType: FontType) = when (fontType) {
+fun fontWeightFor(fontType: FontType) = when (fontType) {
     FontType.JAKARTAPLUSBOLD -> FontWeight.Bold
     FontType.JAKARTAPLUSLIGHT -> FontWeight.Light
     else                     -> FontWeight.Normal

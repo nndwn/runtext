@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.viewmodel
+package com.nndwn.runtext.ui.features.main
 
 import android.content.Context
 import android.hardware.camera2.CameraManager
@@ -25,7 +25,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
-class RunTextViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val repository : SettingsRepository,
     @param:ApplicationContext private val context: Context
 ): ViewModel(){

@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.screen
+package com.nndwn.runtext.ui.sample
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,7 +30,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.TextFields
@@ -40,11 +38,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -77,7 +72,7 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
 import com.nndwn.runtext.ui.component.FontSelector
-import com.nndwn.runtext.ui.component.InputTextPreview
+import com.nndwn.runtext.ui.features.main.ConfigCard
 import com.nndwn.runtext.ui.theme.NeonCyan
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.NeonOrange
@@ -88,11 +83,11 @@ import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.ShareTechMonoFamily
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.viewmodel.RunTextViewModel
+import com.nndwn.runtext.ui.features.main.MainViewModel
 
 @Composable
 fun InputScreen(
-    viewModel: RunTextViewModel,
+    viewModel: MainViewModel,
     onNavigateToDisplay: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -414,16 +409,6 @@ private fun MorseConfigPanel(
 // Shared small components
 // ═══════════════════════════════════════════════════════════════════════════
 
-@Composable
-private fun ConfigCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        shape = RoundedCornerShape(16.dp),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), content = content)
-    }
-}
 
 @Composable
 private fun ColorChip(label: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
