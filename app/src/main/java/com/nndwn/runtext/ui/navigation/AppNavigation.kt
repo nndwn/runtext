@@ -25,9 +25,11 @@ fun AppNavigation(
     onUpdateMode: (AppMode) -> Unit,
     onMenuClick: () -> Unit,
     onUpdateSpeed : (Float) -> Unit,
+    onUpdateBackgroundColor: (Long) -> Unit,
+    onUpdateTextColor: (Long) -> Unit,
     navController: NavHostController
-){
-    NavHost (
+) {
+    NavHost(
         navController = navController,
         startDestination = Routes.INPUT,
         enterTransition = {
@@ -52,7 +54,9 @@ fun AppNavigation(
                 onClearText = onClearText,
                 onUpdateMode = onUpdateMode,
                 onMenuClick = onMenuClick,
-                onUpdateSpeed =  onUpdateSpeed
+                onUpdateSpeed =  onUpdateSpeed,
+                onUpdateBackgroundColor = onUpdateBackgroundColor,
+                onUpdateTextColor = onUpdateTextColor
             )
         }
         composable(Routes.DISPLAY) {

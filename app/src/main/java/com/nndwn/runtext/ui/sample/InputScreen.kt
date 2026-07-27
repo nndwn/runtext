@@ -15,7 +15,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,8 +33,6 @@ import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +69,8 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
 import com.nndwn.runtext.ui.component.FontSelector
+import com.nndwn.runtext.ui.features.main.MainViewModel
+import com.nndwn.runtext.ui.features.main.components.ConfigCard
 import com.nndwn.runtext.ui.theme.NeonCyan
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.NeonOrange
@@ -82,8 +81,6 @@ import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.ShareTechMonoFamily
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.features.main.MainViewModel
-import com.nndwn.runtext.ui.features.main.components.ConfigCard
 
 @Composable
 fun InputScreen(

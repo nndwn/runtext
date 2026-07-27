@@ -40,7 +40,9 @@ fun RunTextApp(
             onUpdateMode = viewModel::updateMode,
             onMenuClick = { isSidebarOpen = !isSidebarOpen },
             navController = navController,
-            onUpdateSpeed = viewModel::updateSpeed
+            onUpdateSpeed = viewModel::updateSpeed,
+            onUpdateBackgroundColor = viewModel::updateBgColor,
+            onUpdateTextColor = viewModel::updateTextColor
         )
     }
 }

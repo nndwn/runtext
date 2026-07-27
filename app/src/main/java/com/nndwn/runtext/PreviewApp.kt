@@ -63,7 +63,9 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                         settings  = settings.copy(
                             speed = it
                         )
-                    }
+                    },
+                    onUpdateBackgroundColor = {},
+                    onUpdateTextColor = {}
                 )
             }
         }
@@ -77,7 +79,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
 //    InteractivePreviewWrapper(false)
 //}
 
-@Preview
+@Preview(device = "spec:width=1080px,height=2340px,dpi=480")
 @Composable
 private fun PreviewTablet(){
     InteractivePreviewWrapper(false)
