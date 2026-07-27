@@ -20,14 +20,14 @@ private val RunTxtColorScheme = darkColorScheme(
     error = NeonRed,
     background = DarkBackground,
     onBackground = DarkOnSurface,
-    surface = DarkSurface,
+    surface = Palette.Grey,
     onSurface = DarkOnSurface,
-    surfaceVariant = DarkSurfaceVariant,
+    surfaceVariant = Palette.Grey,
     onSurfaceVariant = DarkOnSurfaceVariant,
     outline = DarkOnSurfaceVariant.copy(alpha = 0.5f),
-    surfaceContainerLow = DarkSurfaceContainer,
-    surfaceContainer = DarkSurfaceContainer,
-    surfaceContainerHigh = DarkSurfaceVariant,
+    surfaceContainerLow = Palette.Black4,
+    surfaceContainer = Palette.Black4,
+    surfaceContainerHigh = Palette.Grey,
 )
 
 @Composable

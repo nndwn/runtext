@@ -6,8 +6,9 @@ import androidx.compose.ui.graphics.toArgb
 
 object Palette {
     val Black2 = Color(0xFF121219)
+    val Black4 = Color(0xFF16161F)
     val Black3 = Color(0xFF262626)
-    val Grey = Color(0xFF414141)
+    val Grey = Color(0xFF3E3E57)
     val White = Color(0xFFF5F5FF)
 }
 // ── Neon accent colors ──

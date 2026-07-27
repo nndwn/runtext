@@ -72,7 +72,6 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
 import com.nndwn.runtext.ui.component.FontSelector
-import com.nndwn.runtext.ui.features.main.ConfigCard
 import com.nndwn.runtext.ui.theme.NeonCyan
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.NeonOrange
@@ -84,6 +83,7 @@ import com.nndwn.runtext.ui.theme.ShareTechMonoFamily
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.features.main.MainViewModel
+import com.nndwn.runtext.ui.features.main.components.ConfigCard
 
 @Composable
 fun InputScreen(

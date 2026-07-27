@@ -32,7 +32,7 @@ enum class FontType(val displayName: String) {
  * Convert to Compose Color via Color(argbLong.toInt()).
  */
 data class AppSettings(
-    val lastText: String = "HELLO WORLD",
+    val lastText: String = "",
     val mode: AppMode = AppMode.RUNNING_TEXT,
 
     // ── Running Text config ──

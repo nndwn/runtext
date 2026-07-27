@@ -14,19 +14,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -49,10 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.ui.features.main.components.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.InputTextPreview
-import com.nndwn.runtext.ui.theme.NeonCyan
-import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
@@ -68,6 +63,8 @@ fun MainScreen(
 
 ){
     val isTablet = LocalIsTablet.current
+
+
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
         AnimatedVisibility(
@@ -119,7 +116,7 @@ fun MainScreen(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier
                     .fillMaxWidth()) {
                     val customColors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = Palette.Black3,
+                        activeContainerColor = Palette.Black4,
                         activeContentColor = Palette.White,
                         activeBorderColor = Palette.Black3,
                         inactiveContainerColor = Color.Transparent,
@@ -171,13 +168,16 @@ fun MainScreen(
                             ConfigCard {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Speed", style = MaterialTheme.typography.titleSmall)
-                                    Text("${settings.speed.toInt()} px/s", style = MaterialTheme.typography.bodySmall, color = NeonCyan)
+                                    Text("${settings.speed.toInt()} px/s", style = MaterialTheme.typography.bodySmall, color = Palette.Grey)
                                 }
                                 Slider(
                                     value = settings.speed,
                                     onValueChange = onUpdateSpeed,
                                     valueRange = 50f..500f,
-                                    colors = SliderDefaults.colors(thumbColor = NeonGreen, activeTrackColor = NeonGreen),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Palette.White,
+                                        activeTrackColor = Palette.White,
+                                        inactiveTrackColor = Palette.Grey),
                                 )
                             }
                         }
@@ -195,13 +195,3 @@ fun MainScreen(
     }
 }
 
-@Composable
-fun ConfigCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        shape = RoundedCornerShape(16.dp),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), content = content)
-    }
-}

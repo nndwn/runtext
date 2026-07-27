@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -98,34 +97,11 @@ private fun RunningTextDisplay(settings: AppSettings) {
         }
 
         androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-            // Glow layers (outermost → innermost)
-            val glowRadii = listOf(40f, 25f, 12f)
-            for (radius in glowRadii) {
-                drawText(
-                    textMeasurer = textMeasurer,
-                    text = settings.lastText,
-                    topLeft = Offset(offsetX.value, yOffset),
-                    style = textStyle.copy(
-                        color = textColor.copy(alpha = 0.12f),
-                        shadow = Shadow(color = textColor.copy(alpha = 0.35f), blurRadius = radius),
-                    ),
-                    maxLines = 1,
-                    softWrap = false,
-                )
-            }
-
-            // Main text with subtle glow
             drawText(
                 textMeasurer = textMeasurer,
                 text = settings.lastText,
                 topLeft = Offset(offsetX.value, yOffset),
-                style = textStyle.copy(
-                    shadow = Shadow(
-                        color = textColor,
-                        offset = Offset.Zero,
-                        blurRadius = 8f,
-                    ),
-                ),
+                style = textStyle,
                 maxLines = 1,
                 softWrap = false,
             )
