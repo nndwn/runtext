@@ -13,7 +13,10 @@ enum class AppMode {
     MORSE_CODE
 }
 
-enum class FontType(val displayName: String) {
+enum class FontType(
+    val displayName: String,
+    val googleFontName: String = displayName.substringBefore(" (")
+) {
     // ── Modern & Clean ──
     ROBOTO("Roboto"),
     OPEN_SANS("Open Sans"),
@@ -25,25 +28,40 @@ enum class FontType(val displayName: String) {
     RALEWAY("Raleway"),
     QUICKSAND("Quicksand"),
     NUNITO("Nunito"),
+    ABRIL_FATFACE("Abril Fatface"),
 
     // ── Display & Bold ──
     ANTON("Anton"),
     BEBAS_NEUE("Bebas Neue"),
-    ARCHIV_BLACK("Archivo Black"),
+    ARCHIVO_BLACK("Archivo Black"),
     RIGHTEOUS("Righteous"),
     LOBSTER("Lobster"),
     PACIFICO("Pacifico"),
     PERMANENT_MARKER("Permanent Marker"),
-    ABRIL_FATFACE("Abril Fatface"),
     PLAYFAIR_DISPLAY("Playfair Display"),
-    CHRE_TECH_MONO("Share Tech Mono"),
+    SHARE_TECH_MONO("Share Tech Mono"),
+    CREEPSTER("Creepster"),
 
     // ── Retro & Pixel ──
     PRESS_START_2P("Press Start 2P"),
-    SILKSREEN("Silkscreen"),
+    SILKSCREEN("Silkscreen"),
     DOT_GOTHIC("DotGothic16"),
     VT323("VT323"),
     COURIER_PRIME("Courier Prime"),
+
+    // ── Decorative & Fun ──
+    BANGERS("Bangers"),
+    ORBITRON("Orbitron"),
+    FREDOKA("Fredoka"),
+    COMFORTAA("Comfortaa"),
+    PATRICK_HAND("Patrick Hand"),
+    SATISFY("Satisfy"),
+    KAUSHAN_SCRIPT("Kaushan Script"),
+    YELLOWTAIL("Yellowtail"),
+    COURGETTE("Courgette"),
+    DANCING_SCRIPT("Dancing Script"),
+    GREAT_VIBES("Great Vibes"),
+    SACRAMENTO("Sacramento"),
 
     // ── International Support ──
     DELA_GOTHIC_ONE("Dela Gothic One (日本語)"),
@@ -58,21 +76,8 @@ enum class FontType(val displayName: String) {
     RAJDHANI("Rajdhani (हिन्दी)"),
     ZCOOL_XIAOWEI("ZCOOL XiaoWei (站酷小薇体)"),
     MA_SHAN_ZHENG("Ma Shan Zheng (马善政毛笔楷书)"),
-    KOTIERO_SAN_JP("Kosugi Maru (小杉丸ゴシック)"),
-
-    // ── Decorative & Fun ──
-    BANGER("Bangers"),
-    ORBITRON("Orbitron"),
-    FREDOKA_ONE("Fredoka One"),
-    COMFORTAA("Comfortaa"),
-    PATRICK_HAND("Patrick Hand"),
-    SATISFY("Satisfy"),
-    KAUSHAN_SCRIPT("Kaushan Script"),
-    YELLOWTAIL("Yellowtail"),
-    COURGETTE("Courgette"),
-    DANCING_SCRIPT("Dancing Script"),
-    GREAT_VIBES("Great Vibes"),
-    SACRAMENTO("Sacramento")
+    KOSUGI_MARU("Kosugi Maru (小杉丸ゴシック)"),
+    ANKOR("Ankor (សួស្តី)"),
 }
 
 

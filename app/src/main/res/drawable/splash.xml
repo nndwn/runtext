@@ -17,7 +17,7 @@
         android:top="20dp"
         android:start="50dp"
         android:end="50dp"
-        android:height="200dp"
-        android:width="200dp"
+        android:height="150dp"
+        android:width="150dp"
         />
 </layer-list>

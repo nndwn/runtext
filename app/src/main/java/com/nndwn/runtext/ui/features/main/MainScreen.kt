@@ -67,7 +67,6 @@ import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
-import com.nndwn.runtext.ui.component.fontFamilyFor
 import com.nndwn.runtext.ui.component.SlideUpPanel
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.ConfigCard
@@ -80,6 +79,7 @@ import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.utils.fontFamilyFor
 
 @Composable
 fun MainScreen(
@@ -127,7 +127,6 @@ fun MainScreen(
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
                     Header(
-                        colorBackground = Color.Red,
                         withSidebar = true,
                         onMenuClick = onMenuClick
                     )
@@ -369,7 +368,7 @@ fun MainScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        color = Palette.White,
+                        color = Palette.Black2,
                         text = stringResource(R.string.set_config_text_style  ),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,

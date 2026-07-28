@@ -20,15 +20,90 @@ val GoogleFontProvider = GoogleFont.Provider(
 // ── Bundled font families (offline, embedded in APK) ──
 
 val ShareTechMonoFamily = FontFamily(
-    Font(R.font.sharetechmono_regular, FontWeight.Normal),
+    Font(R.font.sharetechmono_regular),
 )
 
 val DotGothic16Family = FontFamily(
-    Font(R.font.dotgothic16_regular, FontWeight.Normal),
+    Font(R.font.dotgothic16_regular),
 )
 
 val AntonFamily = FontFamily(
-    Font(R.font.anton_regular, FontWeight.Normal),
+    Font(R.font.anton_regular),
+)
+
+val LatoFamity = FontFamily(
+    Font(R.font.lato_bold)
+)
+
+val OswaldFamily = FontFamily(
+    Font(R.font.oswald_regular)
+)
+
+val ralewayFamily = FontFamily(
+    Font(R.font.raleway_medium)
+)
+
+val abrilFatFaceFamily = FontFamily(
+    Font(R.font.abrilfatface_regular)
+)
+
+val bebasNeueFamily = FontFamily(
+    Font(R.font.bebasneue_regular)
+)
+
+val archivoBlackFamily = FontFamily(
+    Font(R.font.archivoblack_regular)
+)
+
+val lobsterFamily = FontFamily(
+    Font(R.font.lobster_regular)
+)
+
+val pacificoFamily = FontFamily(
+    Font(R.font.pacifico_regular)
+)
+
+val permanentMarkerFamily = FontFamily(
+    Font(R.font.permanentmarker_regular)
+)
+
+val creepsterFamily = FontFamily(
+    Font(R.font.creepster_regular)
+)
+
+val silkScreenFamily = FontFamily(
+    Font(R.font.silkscreen_regular)
+)
+
+val courierPrimeFamily = FontFamily(
+    Font(R.font.courierprime_regular)
+)
+
+val bangersFamily = FontFamily(
+    Font(R.font.bangers_regular)
+)
+
+val orbitronFamily = FontFamily(
+    Font(R.font.orbitron_medium)
+)
+val fredokaFamily = FontFamily(
+    Font(R.font.fredoka)
+)
+
+val patrickHandFamily = FontFamily(
+    Font(R.font.patrickhand_regular)
+)
+
+val courgetteFamily = FontFamily(
+    Font(R.font.courgette_regular)
+)
+
+val greatVibesFamily = FontFamily(
+    Font(R.font.greatvibes_regular)
+)
+
+val sacremntoFamily = FontFamily(
+    Font(R.font.sacramento_regular)
 )
 
 val JakartaPlusFamily = FontFamily(

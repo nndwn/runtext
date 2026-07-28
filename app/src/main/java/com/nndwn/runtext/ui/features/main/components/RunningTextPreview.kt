@@ -18,8 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.fontFamilyFor
 import com.nndwn.runtext.ui.theme.toComposeColor
+import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
 import kotlin.text.ifEmpty

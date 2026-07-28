@@ -68,7 +68,6 @@ import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
-import com.nndwn.runtext.ui.component.FontSelector
 import com.nndwn.runtext.ui.features.main.MainViewModel
 import com.nndwn.runtext.ui.features.main.components.ConfigCard
 import com.nndwn.runtext.ui.theme.NeonCyan
@@ -312,17 +311,6 @@ private fun RunningTextConfigPanel(
             }
         }
 
-        // Font
-        ConfigCard {
-            Text("Font", style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.height(8.dp))
-            FontSelector(
-                selectedFont = settings.fontType,
-
-                onFontSelected = onUpdateFontType,
-
-            )
-        }
 
         // Mirror mode
         ConfigCard {

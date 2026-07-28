@@ -6,5 +6,5 @@
     <string name="set_config_text_running_text_speed">Speed</string>
     <string name="set_config_color_background">Background</string>
     <string name="set_config_color_running_text">Text Color</string>
-    <string name="set_config_text_style">Style Color</string>
+    <string name="set_config_text_style">Font Style</string>
 </resources>
