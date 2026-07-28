@@ -14,11 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.fontFamilyFor
-import com.nndwn.runtext.ui.component.fontWeightFor
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
@@ -30,8 +30,8 @@ fun RunningTextPreview(settings: AppSettings) {
     val text = settings.lastText.ifEmpty { "PREVIEW" }
     val textMeasurer = rememberTextMeasurer()
 
-    val fontFamily = fontFamilyFor(settings.fontType, settings.googleFontName)
-    val fontWeight = fontWeightFor(settings.fontType)
+    val fontFamily = fontFamilyFor(settings.fontType)
+    val fontWeight = FontWeight.Normal // Default to normal for the new curated fonts
 
     // RTL detection for consistency
     val isRtl = remember(text) {

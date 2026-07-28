@@ -42,7 +42,8 @@ fun RunTextApp(
             navController = navController,
             onUpdateSpeed = viewModel::updateSpeed,
             onUpdateBackgroundColor = viewModel::updateBgColor,
-            onUpdateTextColor = viewModel::updateTextColor
+            onUpdateTextColor = viewModel::updateTextColor,
+            onUpdateFontType = viewModel::updateFontType
         )
     }
 }

@@ -318,9 +318,9 @@ private fun RunningTextConfigPanel(
             Spacer(Modifier.height(8.dp))
             FontSelector(
                 selectedFont = settings.fontType,
-                googleFontName = settings.googleFontName,
+
                 onFontSelected = onUpdateFontType,
-                onGoogleFontNameChanged = onUpdateGoogleFontName,
+
             )
         }
 

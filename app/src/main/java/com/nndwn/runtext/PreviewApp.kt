@@ -65,7 +65,8 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                         )
                     },
                     onUpdateBackgroundColor = {},
-                    onUpdateTextColor = {}
+                    onUpdateTextColor = {},
+                    onUpdateFontType = {}
                 )
             }
         }

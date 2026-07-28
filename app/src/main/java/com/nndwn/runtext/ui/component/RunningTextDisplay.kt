@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.nndwn.runtext.data.model.AppSettings
@@ -26,8 +27,8 @@ private fun RunningTextDisplay(settings: AppSettings) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
 
-    val fontFamily = fontFamilyFor(settings.fontType, settings.googleFontName)
-    val fontWeight = fontWeightFor(settings.fontType)
+    val fontFamily = fontFamilyFor(settings.fontType)
+    val fontWeight = FontWeight.Normal
     val textColor = settings.textColorArgb.toComposeColor()
     val bgColor = settings.bgColorArgb.toComposeColor()
 

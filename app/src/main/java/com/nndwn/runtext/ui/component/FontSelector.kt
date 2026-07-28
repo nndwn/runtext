@@ -1,10 +1,7 @@
 package com.nndwn.runtext.ui.component
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -22,27 +19,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.FontType
-import com.nndwn.runtext.ui.theme.AntonFamily
-import com.nndwn.runtext.ui.theme.DotGothic16Family
+import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.NeonGreen
-import com.nndwn.runtext.ui.theme.JakartaPlusFamily
-import com.nndwn.runtext.ui.theme.ShareTechMonoFamily
 import com.nndwn.runtext.ui.theme.googleFontFamily
 
 /**
- * Dropdown font selector showing bundled fonts with preview text.
- * When [FontType.GOOGLE_FONT] is selected, an extra text field appears for the font name.
+ * Dropdown font selector showing a curated list of fonts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FontSelector(
     selectedFont: FontType,
-    googleFontName: String,
     onFontSelected: (FontType) -> Unit,
-    onGoogleFontNameChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -62,17 +54,19 @@ fun FontSelector(
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = NeonGreen,
+                    unfocusedBorderColor = Palette.Grey.copy(alpha = 0.5f)
                 ),
                 textStyle = TextStyle(
-                    fontFamily = fontFamilyFor(selectedFont, googleFontName),
+                    fontFamily = googleFontFamily(selectedFont.name.replace("_", " ")),
                     fontSize = 16.sp,
+                    color = Palette.White
                 ),
             )
 
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                containerColor = Palette.Black3,
             ) {
                 FontType.entries.forEach { fontType ->
                     DropdownMenuItem(
@@ -80,9 +74,9 @@ fun FontSelector(
                             Text(
                                 text = fontType.displayName,
                                 style = TextStyle(
-                                    fontFamily = fontFamilyFor(fontType, googleFontName),
-                                    fontWeight = fontWeightFor(fontType),
+                                    fontFamily = googleFontFamily(fontType.name.replace("_", " ")),
                                     fontSize = 16.sp,
+                                    color = Palette.White
                                 ),
                             )
                         },
@@ -94,44 +88,8 @@ fun FontSelector(
                 }
             }
         }
-
-        // Google Font name input (shown only when GOOGLE_FONT is selected)
-        AnimatedVisibility(visible = selectedFont == FontType.GOOGLE_FONT) {
-            Column {
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = googleFontName,
-                    onValueChange = onGoogleFontNameChanged,
-                    label = { Text("Google Font name") },
-                    placeholder = { Text("e.g. Lobster, Press Start 2P") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = NeonGreen,
-                    ),
-                )
-                Text(
-                    text = "Requires internet connection",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }
 
 /** Resolve [FontType] to the matching Compose [FontFamily]. */
-fun fontFamilyFor(fontType: FontType, googleFontName: String) = when (fontType) {
-    FontType.SHARE_TECH_MONO -> ShareTechMonoFamily
-    FontType.DOT_GOTHIC      -> DotGothic16Family
-    FontType.JAKARTAPLUSBOLD     -> JakartaPlusFamily
-    FontType.JAKARTAPLUSLIGHT -> JakartaPlusFamily
-    FontType.ANTON            -> AntonFamily
-    FontType.GOOGLE_FONT      -> if (googleFontName.isNotBlank()) googleFontFamily(googleFontName) else JakartaPlusFamily
-}
-
-fun fontWeightFor(fontType: FontType) = when (fontType) {
-    FontType.JAKARTAPLUSBOLD -> FontWeight.Bold
-    FontType.JAKARTAPLUSLIGHT -> FontWeight.Light
-    else                     -> FontWeight.Normal
-}
+fun fontFamilyFor(fontType: FontType) = googleFontFamily(fontType.name.replace("_", " "))

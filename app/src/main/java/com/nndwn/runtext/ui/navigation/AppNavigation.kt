@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.features.main.MainScreen
 
 object Routes {
@@ -27,6 +28,7 @@ fun AppNavigation(
     onUpdateSpeed : (Float) -> Unit,
     onUpdateBackgroundColor: (Long) -> Unit,
     onUpdateTextColor: (Long) -> Unit,
+    onUpdateFontType: (FontType) -> Unit,
     navController: NavHostController
 ) {
     NavHost(
@@ -56,7 +58,8 @@ fun AppNavigation(
                 onMenuClick = onMenuClick,
                 onUpdateSpeed =  onUpdateSpeed,
                 onUpdateBackgroundColor = onUpdateBackgroundColor,
-                onUpdateTextColor = onUpdateTextColor
+                onUpdateTextColor = onUpdateTextColor,
+                onUpdateFontType = onUpdateFontType
             )
         }
         composable(Routes.DISPLAY) {

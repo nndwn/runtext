@@ -11,6 +11,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,14 +33,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +66,11 @@ import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.ui.component.fontFamilyFor
+import com.nndwn.runtext.ui.component.SlideUpPanel
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
+import com.nndwn.runtext.ui.features.main.components.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
 import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
@@ -82,13 +90,15 @@ fun MainScreen(
     onMenuClick: () -> Unit,
     onUpdateSpeed: (Float) -> Unit,
     onUpdateBackgroundColor: (Long) -> Unit,
-    onUpdateTextColor: (Long) -> Unit
+    onUpdateTextColor: (Long) -> Unit,
+    onUpdateFontType: (FontType) -> Unit
 
 ) {
     val isTablet = LocalIsTablet.current
     var isBgColorPickerExpanded by remember { mutableStateOf(false) }
     var isTextColorPickerExpanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+    var showPanelFonts by remember { mutableStateOf(false) }
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -117,10 +127,14 @@ fun MainScreen(
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
                     Header(
+                        colorBackground = Color.Red,
                         withSidebar = true,
                         onMenuClick = onMenuClick
                     )
                 }
+            },
+            floatingActionButton = {
+
             }
         ) { innerPadding ->
             LazyColumn(
@@ -282,13 +296,33 @@ fun MainScreen(
                             Column(
                                 modifier = Modifier.width(localMaxWidth)
                             ) {
+                                ConfigCard {
+                                    Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(
+                                                interactionSource = interactionSource,
+                                                indication = ripple(),
+                                                onClick = { showPanelFonts = !showPanelFonts }
+                                            )
+                                    ){
+                                        Text(
+                                            text = settings.fontType.displayName,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 20.sp
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 SpeedConfig(
                                     speed = settings.speed,
                                     onSpeedChange = onUpdateSpeed
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ColorPickerConfig(
-                                    label = "Background",
+                                    label = stringResource(R.string.set_config_color_background),
                                     currentValue = settings.bgColorArgb,
                                     isExpanded = isBgColorPickerExpanded,
                                     onToggleExpand = {
@@ -299,7 +333,7 @@ fun MainScreen(
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ColorPickerConfig(
-                                    label = "Text Color",
+                                    label = stringResource(R.string.set_config_color_running_text),
                                     currentValue = settings.textColorArgb,
                                     isExpanded = isTextColorPickerExpanded,
                                     onToggleExpand = {
@@ -321,6 +355,64 @@ fun MainScreen(
                 }
                 item {
                     Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
+                }
+            }
+            SlideUpPanel(
+                visible = showPanelFonts,
+                enableDragToDismiss = true,
+                onDismiss = { showPanelFonts = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 500.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        color = Palette.White,
+                        text = stringResource(R.string.set_config_text_style  ),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = 0.5.dp,
+                        color = Palette.Black3.copy(alpha = 0.1f)
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(FontType.entries.size) { index ->
+                            val item = FontType.entries[index]
+                            val isSelected = settings.fontType == item
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        indication = ripple(),
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        onClick = {
+                                            onUpdateFontType(item)
+                                            showPanelFonts = false
+                                        }
+                                    )
+                                    .padding(vertical = 16.dp, horizontal = 24.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Text(
+                                    text = item.displayName,
+                                    fontWeight =if (isSelected) FontWeight.Bold else FontWeight.Normal ,
+                                    style = TextStyle(
+                                        fontFamily = fontFamilyFor(item),
+                                        fontSize = 18.sp,
+                                        color = Palette.Black2
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
