@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.repository.SettingsRepository
 import com.nndwn.runtext.domain.morse.MorseElement
 import com.nndwn.runtext.domain.morse.MorseEngine
@@ -105,6 +106,16 @@ class MainViewModel @Inject constructor(
 
     fun updateTextColor(argb: Long) {
         _settings.update { it.copy(textColorArgb = argb) }
+        save()
+    }
+
+    fun updateTextColorType(type: TextColorType) {
+        _settings.update { it.copy(textColorType = type) }
+        save()
+    }
+
+    fun updateGradientColors(colors: List<Long>) {
+        _settings.update { it.copy(gradientColorsArgb = colors) }
         save()
     }
 

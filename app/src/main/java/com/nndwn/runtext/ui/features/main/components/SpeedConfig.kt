@@ -25,7 +25,6 @@ fun SpeedConfig(
             Text(
                 "${speed.toInt()} px/s",
                 style = MaterialTheme.typography.bodySmall,
-                color = Palette.Grey
             )
         }
         Slider(

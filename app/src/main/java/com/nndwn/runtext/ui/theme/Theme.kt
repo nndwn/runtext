@@ -4,36 +4,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
-private val RunTxtColorScheme = darkColorScheme(
-    primary = NeonGreen,
-    onPrimary = DarkBackground,
-    primaryContainer = NeonGreen.copy(alpha = 0.15f),
-    onPrimaryContainer = NeonGreen,
-    secondary = NeonCyan,
-    onSecondary = DarkBackground,
-    secondaryContainer = NeonCyan.copy(alpha = 0.15f),
-    onSecondaryContainer = NeonCyan,
-    tertiary = NeonPink,
-    onTertiary = DarkBackground,
-    tertiaryContainer = NeonPink.copy(alpha = 0.15f),
-    onTertiaryContainer = NeonPink,
-    error = NeonRed,
-    background = DarkBackground,
-    onBackground = DarkOnSurface,
+
+private val RunTxtDarkColorScheme = darkColorScheme(
+    primary = Palette.NeonGreen,
+    onPrimary = Palette.Black2,
+    primaryContainer = Palette.NeonGreen.copy(alpha = 0.15f),
+    onPrimaryContainer = Palette.NeonGreen,
+    secondary = Palette.NeonCyan,
+    onSecondary = Palette.Black2,
+    secondaryContainer = Palette.NeonCyan.copy(alpha = 0.15f),
+    onSecondaryContainer = Palette.NeonCyan,
+    tertiary = Palette.NeonPink,
+    onTertiary = Palette.Black2,
+    tertiaryContainer = Palette.NeonPink.copy(alpha = 0.15f),
+    onTertiaryContainer = Palette.NeonPink,
+    error = Palette.NeonRed,
+    background = Palette.Black2,
+    onBackground = Palette.White,
     surface = Palette.Grey,
-    onSurface = DarkOnSurface,
+    onSurface = Palette.White,
     surfaceVariant = Palette.Grey,
-    onSurfaceVariant = DarkOnSurfaceVariant,
-    outline = DarkOnSurfaceVariant.copy(alpha = 0.5f),
+    onSurfaceVariant = Palette.Black3,
+    outline = Palette.Black3.copy(alpha = 0.5f),
     surfaceContainerLow = Palette.Black4,
     surfaceContainer = Palette.Black4,
     surfaceContainerHigh = Palette.Grey,
 )
 
 @Composable
-fun RuntextTheme(content: @Composable () -> Unit) {
+fun RuntextTheme(
+    content: @Composable () -> Unit
+) {
     MaterialTheme(
-        colorScheme = RunTxtColorScheme,
+        colorScheme = RunTxtDarkColorScheme,
         typography = AppTypography,
         content = content,
     )

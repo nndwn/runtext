@@ -116,12 +116,10 @@ private fun RGBSlider(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
-                color = Palette.White
             )
             Text(
                 text = value.toString(),
                 style = MaterialTheme.typography.bodySmall,
-                color = Palette.Grey
             )
         }
         Slider(

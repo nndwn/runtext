@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -63,7 +63,11 @@ fun MainLayout(
                 bottomBar = {
                     bottomBarContent()
                 },
-                contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                contentWindowInsets =if (android.os.Build.VERSION.SDK_INT >= 35) {
+                    ScaffoldDefaults.contentWindowInsets
+                } else {
+                    WindowInsets(0, 0, 0, 0)
+                }
             ) { innerPadding ->
                 Box(modifier = Modifier.fillMaxSize()) {
                     content(innerPadding)
@@ -90,7 +94,6 @@ fun MainLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
         ) {
             overlayContent()
         }

@@ -1,6 +1,6 @@
 package com.nndwn.runtext.ui.sample
 
-import android.Manifest
+/*import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -495,4 +495,4 @@ private fun InputScreenMorsePreview() {
             onPlaySOS = {}
         )
     }
-}
+}*/

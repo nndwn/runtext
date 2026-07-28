@@ -1,9 +1,9 @@
 package com.nndwn.runtext
 
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,8 +80,13 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
 //    InteractivePreviewWrapper(false)
 //}
 
-@Preview(device = "spec:width=1080px,height=2340px,dpi=480")
+//@Preview(device = "spec:width=1080px,height=2340px,dpi=480")
+//@Composable
+//private fun PreviewTabletLight(){
+//    InteractivePreviewWrapper(false)
+//}
+@Preview(device = "spec:width=1080px,height=2340px,dpi=480" , uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewTablet(){
+private fun PreviewTabletDark(){
     InteractivePreviewWrapper(false)
 }

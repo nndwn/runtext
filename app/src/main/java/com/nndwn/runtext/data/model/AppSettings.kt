@@ -1,7 +1,9 @@
 package com.nndwn.runtext.data.model
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import com.nndwn.runtext.ui.theme.NeonGreen
+import com.nndwn.runtext.R
+import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
 
 
@@ -11,6 +13,11 @@ import com.nndwn.runtext.ui.theme.toArgbLong
 enum class AppMode {
     RUNNING_TEXT,
     MORSE_CODE
+}
+
+enum class TextColorType( @param:StringRes val displayName: Int){
+    SOLID (R.string.set_config_text_color_type_solid),
+    GRADIENT (R.string.set_config_text_color_type_gradient)
 }
 
 enum class FontType(
@@ -95,7 +102,9 @@ data class AppSettings(
 
     // ── Running Text config ──
     val speed: Float = 150f,                    // pixels per second
-    val textColorArgb: Long = NeonGreen.toArgbLong(),
+    val textColorArgb: Long = Palette.NeonGreen.toArgbLong(),
+    val textColorType: TextColorType = TextColorType.SOLID,
+    val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Color(0xFF00FFFF).toArgbLong()), // Default NeonGreen to Cyan
     val bgColorArgb: Long = Color.Black.toArgbLong(),
     val fontType: FontType = FontType.ROBOTO,
     val googleFontName: String = "",
