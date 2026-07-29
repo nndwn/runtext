@@ -9,6 +9,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.theme.Palette
 
 @Composable

@@ -32,6 +32,9 @@ fun AppNavigation(
     onUpdateGradientColors: (List<Long>) -> Unit,
     onUpdateGradientDistance: (Float) -> Unit,
     onUpdateHorizontalPosition : (Boolean) -> Unit,
+    onToggleStroke: (Boolean) -> Unit,
+    onUpdateStrokeWidth: (Float) -> Unit,
+    onUpdateStrokeColor: (Long) -> Unit,
     onUpdateFontType: (FontType) -> Unit,
     navController: NavHostController
 ) {
@@ -67,7 +70,10 @@ fun AppNavigation(
                 onUpdateGradientColors = onUpdateGradientColors,
                 onUpdateGradientDistance = onUpdateGradientDistance,
                 onUpdateFontType = onUpdateFontType,
-                onToggleHorizontalPosition = onUpdateHorizontalPosition
+                onToggleHorizontalPosition = onUpdateHorizontalPosition,
+                onToggleStroke = onToggleStroke,
+                onUpdateStrokeWidth = onUpdateStrokeWidth,
+                onUpdateStrokeColor = onUpdateStrokeColor
             )
         }
         composable(Routes.DISPLAY) {

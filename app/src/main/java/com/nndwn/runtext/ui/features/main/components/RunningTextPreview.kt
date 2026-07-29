@@ -3,6 +3,7 @@ package com.nndwn.runtext.ui.features.main.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -14,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -120,17 +123,37 @@ fun RunningTextPreview(settings: AppSettings) {
             }
         }
 
-        Text(
-            text = text,
-            style = textStyle,
-            maxLines = 1,
-            softWrap = false,
+        Box(
             modifier = Modifier
                 .wrapContentWidth(unbounded = true, align = Alignment.Start)
                 .graphicsLayer {
                     translationX = offsetX.value
                     rotationY = if (settings.isMirrorMode) 180f else 0f
                 }
-        )
+        ) {
+            if (settings.isStrokeEnabled && settings.strokeWidth > 0) {
+                Text(
+                    text = text,
+                    style = TextStyle(
+                        fontFamily = fontFamily,
+                        fontWeight = fontWeight,
+                        fontSize = 40.sp,
+                        color = settings.strokeColorArgb.toComposeColor(),
+                        drawStyle = Stroke(
+                            width = settings.strokeWidth * 2f,
+                            join = StrokeJoin.Round
+                        )
+                    ),
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+            Text(
+                text = text,
+                style = textStyle,
+                maxLines = 1,
+                softWrap = false
+            )
+        }
     }
 }

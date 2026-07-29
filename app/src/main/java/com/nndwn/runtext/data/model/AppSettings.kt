@@ -108,6 +108,9 @@ data class AppSettings(
     val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Color(0xFF00FFFF).toArgbLong()), // Default NeonGreen to Cyan
     val gradientDistance: Float = 0.5f,
     val gradientPositionHorizontal : Boolean = false,
+    val isStrokeEnabled: Boolean = false,
+    val strokeWidth: Float = 0f,
+    val strokeColorArgb: Long = Color.Black.toArgbLong(),
     val bgColorArgb: Long = Color.Black.toArgbLong(),
     val fontType: FontType = FontType.ROBOTO,
     val googleFontName: String = "",

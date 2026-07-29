@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.features.main.components
+package com.nndwn.runtext.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

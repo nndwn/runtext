@@ -1,14 +1,9 @@
 package com.nndwn.runtext.ui.features.main.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,20 +28,24 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.ui.component.ColorPickerField
+import com.nndwn.runtext.ui.component.ConfigCard
+import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
@@ -60,14 +59,14 @@ fun TextColorPickerConfig(
     horizontalPosition : Boolean,
     gradientColors: List<Long>,
     gradientDistance: Float,
+    expandedPickerId: String?,
+    onPickerToggle: (String) -> Unit,
     onTypeChange: (TextColorType) -> Unit,
     onColorChange: (Long) -> Unit,
     onToggleHorizontalPosition : (Boolean) -> Unit,
     onGradientColorsChange: (List<Long>) -> Unit,
     onGradientDistanceChange: (Float) -> Unit
 ) {
-    var expandedColorIndex by remember { mutableIntStateOf(-1) } // -1: closed, 0: solid/first, 1: second
-
     ConfigCard {
         Column(modifier = Modifier.animateContentSize()) {
             Text(label, style = MaterialTheme.typography.titleSmall)
@@ -78,71 +77,41 @@ fun TextColorPickerConfig(
                 currentType = currentType,
                 onTypeChange = {
                     onTypeChange(it)
-                    expandedColorIndex = -1
                 }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             if (currentType == TextColorType.SOLID) {
-                // Solid Color Box
-                ColorBox(
+                ColorPickerField(
                     color = currentColor.toComposeColor(),
-                    onClick = { expandedColorIndex = if (expandedColorIndex == 0) -1 else 0 }
+                    isExpanded = expandedPickerId == "text_solid",
+                    onToggleExpand = { onPickerToggle("text_solid") },
+                    onColorChange = onColorChange
                 )
-
-                AnimatedVisibility(
-                    visible = expandedColorIndex == 0,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    ColorSliders(
-                        color = currentColor.toComposeColor(),
-                        onColorChange = onColorChange
-                    )
-                }
             } else {
-                // Gradient Mode
                 val color1 = gradientColors.getOrElse(0) { currentColor }.toComposeColor()
                 val color2 = gradientColors.getOrElse(1) { currentColor }.toComposeColor()
 
-                // First Color
-                ColorBox(
+                ColorPickerField(
                     color = color1,
-                    onClick = { expandedColorIndex = if (expandedColorIndex == 0) -1 else 0 }
+                    isExpanded = expandedPickerId == "text_g1",
+                    onToggleExpand = { onPickerToggle("text_g1") },
+                    onColorChange = { newColor ->
+                        onGradientColorsChange(listOf(newColor, color2.toArgbLong()))
+                    }
                 )
-                AnimatedVisibility(
-                    visible = expandedColorIndex == 0,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    ColorSliders(
-                        color = color1,
-                        onColorChange = { newColor ->
-                            onGradientColorsChange(listOf(newColor, color2.toArgbLong()))
-                        }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Second Color
-                ColorBox(
+                ColorPickerField(
                     color = color2,
-                    onClick = { expandedColorIndex = if (expandedColorIndex == 1) -1 else 1 }
+                    isExpanded = expandedPickerId == "text_g2",
+                    onToggleExpand = { onPickerToggle("text_g2") },
+                    onColorChange = { newColor ->
+                        onGradientColorsChange(listOf(color1.toArgbLong(), newColor))
+                    }
                 )
-                AnimatedVisibility(
-                    visible = expandedColorIndex == 1,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    ColorSliders(
-                        color = color2,
-                        onColorChange = { newColor ->
-                            onGradientColorsChange(listOf(color1.toArgbLong(), newColor))
-                        }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -156,8 +125,10 @@ fun TextColorPickerConfig(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SwitchRow(
-                    title = "Horizontal",
-                    subtitle = "Position Gradient Default Vertical",
+                    title = stringResource(R.string.set_config_text_color_type_gradient_direction),
+                    subtitle = if (horizontalPosition)
+                        stringResource(R.string.set_config_text_color_type_gradient_horizontal) else
+                        stringResource(R.string.set_config_text_color_type_gradient_vertical),
                     checked = horizontalPosition,
                     onCheckedChange = onToggleHorizontalPosition,
                     accentColor = Palette.NeonGreen,
@@ -166,6 +137,7 @@ fun TextColorPickerConfig(
         }
     }
 }
+
 
 @Composable
 private fun TextColorTypeSelector(
@@ -249,20 +221,6 @@ private fun TextColorTypeSelector(
     }
 }
 
-@Composable
-private fun ColorBox(
-    color: Color,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(color)
-            .clickable { onClick() }
-    )
-}
 
 @Composable
 private fun GradientDistanceSlider(
@@ -272,27 +230,6 @@ private fun GradientDistanceSlider(
     onDistanceChange: (Float) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(12.dp)
-//                .clip(RoundedCornerShape(6.dp))
-//                .background(
-//                    Brush.linearGradient(
-//                        colors = listOf(color1, color2)
-//                    )
-//                )
-//        )
-//        Slider(
-//            value = value.toFloat(),
-//            onValueChange = { onValueChange(it.toInt()) },
-//            valueRange = 0f..255f,
-//            colors = SliderDefaults.colors(
-//                thumbColor = Palette.White,
-//                activeTrackColor = color,
-//                inactiveTrackColor = Palette.Grey.copy(alpha = 0.3f)
-//            )
-//        )
         Slider(
             value = distance,
             onValueChange = onDistanceChange,

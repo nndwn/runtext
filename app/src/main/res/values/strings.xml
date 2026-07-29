@@ -9,5 +9,9 @@
     <string name="set_config_text_color_text">Text Color</string>
     <string name="set_config_text_color_type_solid">Solid</string>
     <string name="set_config_text_color_type_gradient">Gradient</string>
+    <string name="set_config_text_color_type_gradient_direction">Gradient Direction</string>
     <string name="set_config_text_color_type_gradient_horizontal">Horizontal</string>
+    <string name="set_config_text_color_type_gradient_vertical">Vertical</string>
+    <string name="set_config_text_outline">Outline</string>
+    <string name="set_config_text_outline_desc">Add an outline to the text</string>
 </resources>

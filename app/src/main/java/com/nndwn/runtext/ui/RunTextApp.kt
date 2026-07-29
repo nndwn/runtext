@@ -47,7 +47,10 @@ fun RunTextApp(
             onUpdateGradientColors = viewModel::updateGradientColors,
             onUpdateGradientDistance = viewModel::updateGradientDistance,
             onUpdateFontType = viewModel::updateFontType,
-            onUpdateHorizontalPosition = viewModel::updateHorizontalPosition
+            onUpdateHorizontalPosition = viewModel::updateHorizontalPosition,
+            onToggleStroke = viewModel::toggleStroke,
+            onUpdateStrokeWidth = viewModel::updateStrokeWidth,
+            onUpdateStrokeColor = viewModel::updateStrokeColor
         )
     }
 }

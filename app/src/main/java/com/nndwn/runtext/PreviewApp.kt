@@ -100,6 +100,21 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                         settings = settings.copy(
                             gradientPositionHorizontal = it
                         )
+                    },
+                    onToggleStroke = {
+                        settings = settings.copy(
+                            isStrokeEnabled = it
+                        )
+                    },
+                    onUpdateStrokeWidth = {
+                        settings = settings.copy(
+                            strokeWidth = it
+                        )
+                    },
+                    onUpdateStrokeColor = {
+                        settings = settings.copy(
+                            strokeColorArgb = it
+                        )
                     }
                 )
             }

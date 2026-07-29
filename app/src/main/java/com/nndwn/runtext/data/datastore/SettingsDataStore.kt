@@ -34,6 +34,9 @@ class SettingsDataStore @Inject constructor(
         val GRADIENT_COLORS = stringPreferencesKey("gradient_colors")
         val GRADIENT_DISTANCE = floatPreferencesKey("gradient_distance")
         val GRADIENT_POSITION = booleanPreferencesKey("gradient_position")
+        val IS_STROKE_ENABLED = booleanPreferencesKey("is_stroke_enabled")
+        val STROKE_WIDTH = floatPreferencesKey("stroke_width")
+        val STROKE_COLOR = longPreferencesKey("stroke_color")
         val FONT_TYPE = stringPreferencesKey("font_type")
         val GOOGLE_FONT_NAME = stringPreferencesKey("google_font_name")
         val MIRROR_MODE = booleanPreferencesKey("mirror_mode")
@@ -61,6 +64,9 @@ class SettingsDataStore @Inject constructor(
                 } ?: default.gradientColorsArgb,
                 gradientDistance = prefs[Keys.GRADIENT_DISTANCE] ?: default.gradientDistance,
                 gradientPositionHorizontal = prefs[Keys.GRADIENT_POSITION] ?: default.gradientPositionHorizontal,
+                isStrokeEnabled = prefs[Keys.IS_STROKE_ENABLED] ?: default.isStrokeEnabled,
+                strokeWidth = prefs[Keys.STROKE_WIDTH] ?: default.strokeWidth,
+                strokeColorArgb = prefs[Keys.STROKE_COLOR] ?: default.strokeColorArgb,
                 bgColorArgb = prefs[Keys.BG_COLOR] ?: default.bgColorArgb,
                 fontType = prefs[Keys.FONT_TYPE] ?.let { name ->
                     runCatching { FontType.valueOf(name) }.getOrDefault(default.fontType)
@@ -83,6 +89,9 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.GRADIENT_COLORS] = settings.gradientColorsArgb.joinToString(",")
             prefs[Keys.GRADIENT_DISTANCE] = settings.gradientDistance
             prefs[Keys.GRADIENT_POSITION] = settings.gradientPositionHorizontal
+            prefs[Keys.IS_STROKE_ENABLED] = settings.isStrokeEnabled
+            prefs[Keys.STROKE_WIDTH] = settings.strokeWidth
+            prefs[Keys.STROKE_COLOR] = settings.strokeColorArgb
             prefs[Keys.BG_COLOR] = settings.bgColorArgb
             prefs[Keys.FONT_TYPE] = settings.fontType.name
             prefs[Keys.GOOGLE_FONT_NAME] = settings.googleFontName

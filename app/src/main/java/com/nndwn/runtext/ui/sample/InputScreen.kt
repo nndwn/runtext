@@ -69,7 +69,7 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerDialog
 import com.nndwn.runtext.ui.features.main.MainViewModel
-import com.nndwn.runtext.ui.features.main.components.ConfigCard
+import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.theme.NeonCyan
 import com.nndwn.runtext.ui.theme.NeonGreen
 import com.nndwn.runtext.ui.theme.NeonOrange

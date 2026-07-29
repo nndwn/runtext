@@ -129,6 +129,23 @@ class MainViewModel @Inject constructor(
         save()
     }
 
+    fun toggleStroke(enabled: Boolean) {
+        _settings.update { it.copy(isStrokeEnabled = enabled) }
+        save()
+    }
+
+    fun updateStrokeWidth(width: Float) {
+        // Limit stroke width to a reasonable range (0 to 15)
+        val clampedWidth = width.coerceIn(0f, 15f)
+        _settings.update { it.copy(strokeWidth = clampedWidth) }
+        save()
+    }
+
+    fun updateStrokeColor(argb: Long) {
+        _settings.update { it.copy(strokeColorArgb = argb) }
+        save()
+    }
+
     fun updateBgColor(argb: Long) {
         _settings.update { it.copy(bgColorArgb = argb) }
         save()

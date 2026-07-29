@@ -61,15 +61,18 @@ import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
-import com.nndwn.runtext.ui.features.main.components.ConfigCard
+import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
 import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
+import com.nndwn.runtext.ui.features.main.components.TextInputConfig
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
+import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
@@ -86,27 +89,35 @@ fun MainScreen(
     onUpdateSpeed: (Float) -> Unit,
     onUpdateBackgroundColor: (Long) -> Unit,
     onUpdateTextColor: (Long) -> Unit,
-    onUpdateTextColorType: (com.nndwn.runtext.data.model.TextColorType) -> Unit,
+    onUpdateTextColorType: (TextColorType) -> Unit,
     onUpdateGradientColors: (List<Long>) -> Unit,
     onUpdateGradientDistance: (Float) -> Unit,
     onUpdateFontType: (FontType) -> Unit,
-    onToggleHorizontalPosition : (Boolean) -> Unit
+    onToggleHorizontalPosition : (Boolean) -> Unit,
+    onToggleStroke: (Boolean) -> Unit,
+    onUpdateStrokeWidth: (Float) -> Unit,
+    onUpdateStrokeColor: (Long) -> Unit
 
 ) {
     val isTablet = LocalIsTablet.current
-    var isBgColorPickerExpanded by remember { mutableStateOf(false) }
-    var isTextColorPickerExpanded by remember { mutableStateOf(false) }
+    var expandedPickerId by remember { mutableStateOf<String?>(null) }
     val interactionSource = remember { MutableInteractionSource() }
     var showPanelFonts by remember { mutableStateOf(false) }
-    val scrollState = rememberLazyListState()
+    
+    val closePicker = { expandedPickerId = null }
 
-    LaunchedEffect(isBgColorPickerExpanded, isTextColorPickerExpanded) {
-        if (isBgColorPickerExpanded || isTextColorPickerExpanded) {
-            // Scroll to the end of the list to show the expanded content
-            // Index 6 is roughly where the color pickers are in the current list structure
-            scrollState.animateScrollToItem(index = 6)
-        }
-    }
+    val handleUpdateText: (String) -> Unit = { closePicker(); onUpdateText(it) }
+    val handleClearText: () -> Unit = { closePicker(); onClearText() }
+    val handleUpdateMode: (AppMode) -> Unit = { closePicker(); onUpdateMode(it) }
+    val handleUpdateSpeed: (Float) -> Unit = { closePicker(); onUpdateSpeed(it) }
+    val handleUpdateFontType: (FontType) -> Unit = { closePicker(); onUpdateFontType(it) }
+    val handleUpdateTextColorType: (TextColorType) -> Unit = { closePicker(); onUpdateTextColorType(it) }
+    val handleUpdateGradientDistance: (Float) -> Unit = { closePicker(); onUpdateGradientDistance(it) }
+    val handleToggleHorizontalPosition: (Boolean) -> Unit = { closePicker(); onToggleHorizontalPosition(it) }
+    val handleToggleStroke: (Boolean) -> Unit = { closePicker(); onToggleStroke(it) }
+    val handleUpdateStrokeWidth: (Float) -> Unit = { closePicker(); onUpdateStrokeWidth(it) }
+
+
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -145,7 +156,6 @@ fun MainScreen(
             }
         ) { innerPadding ->
             LazyColumn(
-                state = scrollState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
@@ -178,70 +188,11 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                 }
                 item {
-                    BasicTextField(
-                        value = settings.lastText,
-                        onValueChange = onUpdateText,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 120.dp),
-                        interactionSource = interactionSource,
-                        textStyle = TextStyle(
-                            color = Palette.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Normal
-                        ),
-                        cursorBrush = SolidColor(Palette.White),
-                        decorationBox = { innerTextField ->
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                value = settings.lastText,
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = false,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = interactionSource,
-                                placeholder = {
-                                    Text(
-                                        stringResource(R.string.placeholder_input_text),
-                                        color = Palette.Grey,
-                                    )
-                                },
-                                trailingIcon = {
-                                    if (settings.lastText.isNotEmpty()) {
-                                        IconButton(onClick = onClearText) {
-                                            Icon(
-                                                painterResource(R.drawable.ic_clear),
-                                                "Clear",
-                                                tint = Palette.White,
-                                                modifier = Modifier.size(25.dp))
-                                        }
-                                    }
-                                },
-                                supportingText = {
-                                    Text(
-                                        "${settings.lastText.length}/250",
-                                        color = if (settings.lastText.length > 240) Palette.NeonRed else Palette.Black3,
-                                    )
-                                },
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Palette.White,
-                                    unfocusedBorderColor = Palette.Black3,
-                                ),
-                                container = {
-                                    OutlinedTextFieldDefaults.Container(
-                                        enabled = true,
-                                        isError = false,
-                                        interactionSource = interactionSource,
-                                        colors = OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = Palette.White,
-                                            unfocusedBorderColor = Palette.Black3,
-                                        ),
-                                        shape = RoundedCornerShape(Dimens.RoundedCorner),
-                                        focusedBorderThickness = 1.dp,
-                                        unfocusedBorderThickness = 0.8.dp
-                                    )
-                                }
-                            )
-                        }
+                    TextInputConfig(
+                        text = settings.lastText,
+                        onTextChange = handleUpdateText,
+                        onClearText = handleClearText,
+                        interactionSource = interactionSource
                     )
                 }
                 item {
@@ -250,7 +201,7 @@ fun MainScreen(
                 item {
                     AppModeSettings(
                         currentMode = settings.mode,
-                        onModeChange = onUpdateMode
+                        onModeChange = handleUpdateMode
                     )
                 }
                 item {
@@ -294,7 +245,9 @@ fun MainScreen(
                                             .clickable(
                                                 interactionSource = interactionSource,
                                                 indication = ripple(),
-                                                onClick = { showPanelFonts = !showPanelFonts }
+                                                onClick = {
+                                                    closePicker()
+                                                    showPanelFonts = !showPanelFonts }
                                             )
                                     ){
                                         Text(
@@ -308,16 +261,15 @@ fun MainScreen(
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 SpeedConfig(
                                     speed = settings.speed,
-                                    onSpeedChange = onUpdateSpeed
+                                    onSpeedChange = handleUpdateSpeed
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ColorPickerConfig(
                                     label = stringResource(R.string.set_config_color_background),
                                     currentValue = settings.bgColorArgb,
-                                    isExpanded = isBgColorPickerExpanded,
+                                    isExpanded = expandedPickerId == "bg",
                                     onToggleExpand = {
-                                        isBgColorPickerExpanded = !isBgColorPickerExpanded
-                                        if (isBgColorPickerExpanded) isTextColorPickerExpanded = false
+                                        expandedPickerId = if (expandedPickerId == "bg") null else "bg"
                                     },
                                     onColorChange = onUpdateBackgroundColor
                                 )
@@ -328,13 +280,32 @@ fun MainScreen(
                                     currentColor = settings.textColorArgb,
                                     gradientColors = settings.gradientColorsArgb,
                                     gradientDistance = settings.gradientDistance,
-                                    onTypeChange = onUpdateTextColorType,
+                                    horizontalPosition = settings.gradientPositionHorizontal,
+                                    expandedPickerId = expandedPickerId,
+                                    onPickerToggle = { id ->
+                                        expandedPickerId = if (expandedPickerId == id) null else id
+                                    },
+                                    onTypeChange =  handleUpdateTextColorType,
                                     onColorChange = onUpdateTextColor,
                                     onGradientColorsChange = onUpdateGradientColors,
-                                    onGradientDistanceChange = onUpdateGradientDistance,
-                                    horizontalPosition = settings.gradientPositionHorizontal,
-                                    onToggleHorizontalPosition = onToggleHorizontalPosition
+                                    onGradientDistanceChange = handleUpdateGradientDistance,
+                                    onToggleHorizontalPosition = handleToggleHorizontalPosition
                                 )
+                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
+
+                                TextOutlineConfig(
+                                    outlineEnabled = settings.isStrokeEnabled,
+                                    currentColor = settings.strokeColorArgb,
+                                    onPickerToggle = { id ->
+                                        expandedPickerId = if (expandedPickerId == id) null else id
+                                    },
+                                    expandedPickerId = expandedPickerId,
+                                    width = settings.strokeWidth,
+                                    onWidthChange = handleUpdateStrokeWidth,
+                                    outlineColor = onUpdateStrokeColor,
+                                    onCheckedChange = handleToggleStroke,
+                                )
+
                             }
 
 
@@ -349,7 +320,7 @@ fun MainScreen(
             }
            SelectorFonts(
                settings = settings,
-               onUpdateFontType = onUpdateFontType,
+               onUpdateFontType = handleUpdateFontType,
                showPanelFonts = showPanelFonts,
                dismissPanel = { showPanelFonts = false }
            )
