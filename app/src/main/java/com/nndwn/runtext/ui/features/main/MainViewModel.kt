@@ -119,6 +119,16 @@ class MainViewModel @Inject constructor(
         save()
     }
 
+    fun updateGradientDistance(distance: Float) {
+        _settings.update { it.copy(gradientDistance = distance) }
+        save()
+    }
+
+    fun updateHorizontalPosition(horizontalPosition: Boolean) {
+        _settings.update { it.copy(gradientPositionHorizontal = horizontalPosition) }
+        save()
+    }
+
     fun updateBgColor(argb: Long) {
         _settings.update { it.copy(bgColorArgb = argb) }
         save()

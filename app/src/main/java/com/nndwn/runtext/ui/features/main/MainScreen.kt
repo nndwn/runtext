@@ -27,23 +27,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,10 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,12 +61,14 @@ import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
 import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
+import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
@@ -89,7 +86,11 @@ fun MainScreen(
     onUpdateSpeed: (Float) -> Unit,
     onUpdateBackgroundColor: (Long) -> Unit,
     onUpdateTextColor: (Long) -> Unit,
-    onUpdateFontType: (FontType) -> Unit
+    onUpdateTextColorType: (com.nndwn.runtext.data.model.TextColorType) -> Unit,
+    onUpdateGradientColors: (List<Long>) -> Unit,
+    onUpdateGradientDistance: (Float) -> Unit,
+    onUpdateFontType: (FontType) -> Unit,
+    onToggleHorizontalPosition : (Boolean) -> Unit
 
 ) {
     val isTablet = LocalIsTablet.current
@@ -97,6 +98,15 @@ fun MainScreen(
     var isTextColorPickerExpanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     var showPanelFonts by remember { mutableStateOf(false) }
+    val scrollState = rememberLazyListState()
+
+    LaunchedEffect(isBgColorPickerExpanded, isTextColorPickerExpanded) {
+        if (isBgColorPickerExpanded || isTextColorPickerExpanded) {
+            // Scroll to the end of the list to show the expanded content
+            // Index 6 is roughly where the color pickers are in the current list structure
+            scrollState.animateScrollToItem(index = 6)
+        }
+    }
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -135,6 +145,7 @@ fun MainScreen(
             }
         ) { innerPadding ->
             LazyColumn(
+                state = scrollState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
@@ -197,7 +208,11 @@ fun MainScreen(
                                 trailingIcon = {
                                     if (settings.lastText.isNotEmpty()) {
                                         IconButton(onClick = onClearText) {
-                                            Icon(Icons.Default.Clear, "Clear", tint = Palette.White)
+                                            Icon(
+                                                painterResource(R.drawable.ic_clear),
+                                                "Clear",
+                                                tint = Palette.White,
+                                                modifier = Modifier.size(25.dp))
                                         }
                                     }
                                 },
@@ -233,33 +248,10 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                 }
                 item {
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val customColors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = Palette.Black4,
-                            activeContentColor = Palette.White,
-                            activeBorderColor = Palette.Grey,
-                            inactiveContainerColor = Color.Transparent,
-                            inactiveContentColor = Palette.White,
-                            inactiveBorderColor = Palette.Grey.copy(alpha = 0.5f)
-                        )
-                        SegmentedButton(
-                            selected = settings.mode == AppMode.RUNNING_TEXT,
-                            onClick = { onUpdateMode(AppMode.RUNNING_TEXT) },
-                            colors = customColors,
-                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                            icon = { Icon(Icons.Default.TextFields, null, Modifier.size(18.dp)) },
-                        ) { Text(text = stringResource(R.string.btn_text_running_text)) }
-
-                        SegmentedButton(
-                            selected = settings.mode == AppMode.MORSE_CODE,
-                            onClick = { onUpdateMode(AppMode.MORSE_CODE) },
-                            colors = customColors,
-                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                            icon = { Icon(Icons.Default.FlashOn, null, Modifier.size(18.dp)) },
-                        ) { Text(text = stringResource(R.string.btn_text_morse_code)) }
-                    }
+                    AppModeSettings(
+                        currentMode = settings.mode,
+                        onModeChange = onUpdateMode
+                    )
                 }
                 item {
                     Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
@@ -330,15 +322,18 @@ fun MainScreen(
                                     onColorChange = onUpdateBackgroundColor
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                                ColorPickerConfig(
+                                TextColorPickerConfig(
                                     label = stringResource(R.string.set_config_text_color_text),
-                                    currentValue = settings.textColorArgb,
-                                    isExpanded = isTextColorPickerExpanded,
-                                    onToggleExpand = {
-                                        isTextColorPickerExpanded = !isTextColorPickerExpanded
-                                        if (isTextColorPickerExpanded) isBgColorPickerExpanded = false
-                                    },
-                                    onColorChange = onUpdateTextColor
+                                    currentType = settings.textColorType,
+                                    currentColor = settings.textColorArgb,
+                                    gradientColors = settings.gradientColorsArgb,
+                                    gradientDistance = settings.gradientDistance,
+                                    onTypeChange = onUpdateTextColorType,
+                                    onColorChange = onUpdateTextColor,
+                                    onGradientColorsChange = onUpdateGradientColors,
+                                    onGradientDistanceChange = onUpdateGradientDistance,
+                                    horizontalPosition = settings.gradientPositionHorizontal,
+                                    onToggleHorizontalPosition = onToggleHorizontalPosition
                                 )
                             }
 

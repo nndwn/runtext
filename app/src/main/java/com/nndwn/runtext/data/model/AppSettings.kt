@@ -1,5 +1,6 @@
 package com.nndwn.runtext.data.model
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import com.nndwn.runtext.R
@@ -10,14 +11,14 @@ import com.nndwn.runtext.ui.theme.toArgbLong
 /**
  * Enum for app display mode selection.
  */
-enum class AppMode {
-    RUNNING_TEXT,
-    MORSE_CODE
+enum class AppMode(@param:StringRes val displayName: Int, @param:DrawableRes val icon : Int) {
+    RUNNING_TEXT(R.string.btn_text_running_text, R.drawable.ic_runtext),
+    MORSE_CODE(R.string.btn_text_morse_code, R.drawable.ic_flash)
 }
 
-enum class TextColorType( @param:StringRes val displayName: Int){
-    SOLID (R.string.set_config_text_color_type_solid),
-    GRADIENT (R.string.set_config_text_color_type_gradient)
+enum class TextColorType( @param:StringRes val displayName: Int, @param:DrawableRes val icon : Int){
+    SOLID (R.string.set_config_text_color_type_solid, R.drawable.ic_color_solid),
+    GRADIENT (R.string.set_config_text_color_type_gradient, R.drawable.ic_color_gradient)
 }
 
 enum class FontType(
@@ -105,6 +106,8 @@ data class AppSettings(
     val textColorArgb: Long = Palette.NeonGreen.toArgbLong(),
     val textColorType: TextColorType = TextColorType.SOLID,
     val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Color(0xFF00FFFF).toArgbLong()), // Default NeonGreen to Cyan
+    val gradientDistance: Float = 0.5f,
+    val gradientPositionHorizontal : Boolean = false,
     val bgColorArgb: Long = Color.Black.toArgbLong(),
     val fontType: FontType = FontType.ROBOTO,
     val googleFontName: String = "",

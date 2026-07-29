@@ -12,6 +12,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,23 +53,52 @@ fun RunningTextPreview(settings: AppSettings) {
     ) {
         val containerWidthPx = constraints.maxWidth.toFloat()
 
-        val textStyle = TextStyle(
+        // Measure text first to get width for gradient
+        val measureStyle = TextStyle(
             fontFamily = fontFamily,
             fontWeight = fontWeight,
-            fontSize = 40.sp,
-            color = settings.textColorArgb.toComposeColor(),
+            fontSize = 40.sp
         )
-
-        val textLayoutResult = remember(text, fontFamily, fontWeight) {
+        val initialLayoutResult = remember(text, fontFamily, fontWeight) {
             textMeasurer.measure(
                 text = text,
-                style = textStyle,
+                style = measureStyle,
                 maxLines = 1,
                 softWrap = false,
             )
         }
+        val textWidth = initialLayoutResult.size.width.toFloat()
+        val textHeight = initialLayoutResult.size.height.toFloat()
 
-        val textWidth = textLayoutResult.size.width.toFloat()
+        val textStyle = if (settings.textColorType == com.nndwn.runtext.data.model.TextColorType.GRADIENT) {
+            val color1 = settings.gradientColorsArgb.getOrElse(0) { settings.textColorArgb }.toComposeColor()
+            val color2 = settings.gradientColorsArgb.getOrElse(1) { settings.textColorArgb }.toComposeColor()
+
+            val endOffset = if (settings.gradientPositionHorizontal) {
+                Offset(textWidth, 0f)
+            } else {
+                Offset(0f, textHeight)
+            }
+
+            TextStyle(
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
+                fontSize = 40.sp,
+                brush = Brush.linearGradient(
+                    0.0f to color1,
+                    settings.gradientDistance to color2,
+                    start = Offset(0f, 0f),
+                    end = endOffset
+                )
+            )
+        } else {
+            TextStyle(
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
+                fontSize = 40.sp,
+                color = settings.textColorArgb.toComposeColor(),
+            )
+        }
 
         val startX = if (isRtl) -textWidth else containerWidthPx
         val offsetX = remember { Animatable(startX) }

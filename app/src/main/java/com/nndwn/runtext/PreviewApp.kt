@@ -28,7 +28,9 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
     var isSidebarOpen by remember { mutableStateOf(false) }
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
-    var settings by remember { mutableStateOf(AppSettings()) }
+    var settings by remember { mutableStateOf(AppSettings(
+        lastText = "test"
+    )) }
 
 
     CompositionLocalProvider(LocalIsTablet provides isTablet) {
@@ -60,13 +62,45 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                     onMenuClick = { isSidebarOpen = !isSidebarOpen },
                     navController = navController,
                     onUpdateSpeed = {
-                        settings  = settings.copy(
+                        settings = settings.copy(
                             speed = it
                         )
                     },
-                    onUpdateBackgroundColor = {},
-                    onUpdateTextColor = {},
-                    onUpdateFontType = {}
+                    onUpdateBackgroundColor = {
+                        settings = settings.copy(
+                            bgColorArgb = it
+                        )
+                    },
+                    onUpdateTextColor = {
+                        settings = settings.copy(
+                            textColorArgb = it
+                        )
+                    },
+                    onUpdateFontType = {
+                        settings = settings.copy(
+                            fontType = it
+                        )
+                    },
+                    onUpdateGradientColors = {
+                        settings = settings.copy(
+                            gradientColorsArgb = it
+                        )
+                    },
+                    onUpdateGradientDistance = {
+                        settings = settings.copy(
+                            gradientDistance = it
+                        )
+                    },
+                    onUpdateTextColorType = {
+                        settings = settings.copy(
+                            textColorType = it
+                        )
+                    },
+                    onUpdateHorizontalPosition = {
+                        settings = settings.copy(
+                            gradientPositionHorizontal = it
+                        )
+                    }
                 )
             }
         }

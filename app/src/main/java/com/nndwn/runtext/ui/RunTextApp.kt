@@ -43,7 +43,11 @@ fun RunTextApp(
             onUpdateSpeed = viewModel::updateSpeed,
             onUpdateBackgroundColor = viewModel::updateBgColor,
             onUpdateTextColor = viewModel::updateTextColor,
-            onUpdateFontType = viewModel::updateFontType
+            onUpdateTextColorType = viewModel::updateTextColorType,
+            onUpdateGradientColors = viewModel::updateGradientColors,
+            onUpdateGradientDistance = viewModel::updateGradientDistance,
+            onUpdateFontType = viewModel::updateFontType,
+            onUpdateHorizontalPosition = viewModel::updateHorizontalPosition
         )
     }
 }

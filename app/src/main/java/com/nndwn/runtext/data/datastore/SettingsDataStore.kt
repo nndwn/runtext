@@ -32,6 +32,8 @@ class SettingsDataStore @Inject constructor(
         val BG_COLOR = longPreferencesKey("bg_color")
         val TEXT_COLOR_TYPE = stringPreferencesKey("text_color_type")
         val GRADIENT_COLORS = stringPreferencesKey("gradient_colors")
+        val GRADIENT_DISTANCE = floatPreferencesKey("gradient_distance")
+        val GRADIENT_POSITION = booleanPreferencesKey("gradient_position")
         val FONT_TYPE = stringPreferencesKey("font_type")
         val GOOGLE_FONT_NAME = stringPreferencesKey("google_font_name")
         val MIRROR_MODE = booleanPreferencesKey("mirror_mode")
@@ -57,6 +59,8 @@ class SettingsDataStore @Inject constructor(
                 gradientColorsArgb = prefs[Keys.GRADIENT_COLORS]?.let { str ->
                     str.split(",").mapNotNull { it.toLongOrNull() }.ifEmpty { null }
                 } ?: default.gradientColorsArgb,
+                gradientDistance = prefs[Keys.GRADIENT_DISTANCE] ?: default.gradientDistance,
+                gradientPositionHorizontal = prefs[Keys.GRADIENT_POSITION] ?: default.gradientPositionHorizontal,
                 bgColorArgb = prefs[Keys.BG_COLOR] ?: default.bgColorArgb,
                 fontType = prefs[Keys.FONT_TYPE] ?.let { name ->
                     runCatching { FontType.valueOf(name) }.getOrDefault(default.fontType)
@@ -77,6 +81,8 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.TEXT_COLOR] = settings.textColorArgb
             prefs[Keys.TEXT_COLOR_TYPE] = settings.textColorType.name
             prefs[Keys.GRADIENT_COLORS] = settings.gradientColorsArgb.joinToString(",")
+            prefs[Keys.GRADIENT_DISTANCE] = settings.gradientDistance
+            prefs[Keys.GRADIENT_POSITION] = settings.gradientPositionHorizontal
             prefs[Keys.BG_COLOR] = settings.bgColorArgb
             prefs[Keys.FONT_TYPE] = settings.fontType.name
             prefs[Keys.GOOGLE_FONT_NAME] = settings.googleFontName

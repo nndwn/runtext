@@ -28,6 +28,10 @@ fun AppNavigation(
     onUpdateSpeed : (Float) -> Unit,
     onUpdateBackgroundColor: (Long) -> Unit,
     onUpdateTextColor: (Long) -> Unit,
+    onUpdateTextColorType: (com.nndwn.runtext.data.model.TextColorType) -> Unit,
+    onUpdateGradientColors: (List<Long>) -> Unit,
+    onUpdateGradientDistance: (Float) -> Unit,
+    onUpdateHorizontalPosition : (Boolean) -> Unit,
     onUpdateFontType: (FontType) -> Unit,
     navController: NavHostController
 ) {
@@ -56,10 +60,14 @@ fun AppNavigation(
                 onClearText = onClearText,
                 onUpdateMode = onUpdateMode,
                 onMenuClick = onMenuClick,
-                onUpdateSpeed =  onUpdateSpeed,
+                onUpdateSpeed = onUpdateSpeed,
                 onUpdateBackgroundColor = onUpdateBackgroundColor,
                 onUpdateTextColor = onUpdateTextColor,
-                onUpdateFontType = onUpdateFontType
+                onUpdateTextColorType = onUpdateTextColorType,
+                onUpdateGradientColors = onUpdateGradientColors,
+                onUpdateGradientDistance = onUpdateGradientDistance,
+                onUpdateFontType = onUpdateFontType,
+                onToggleHorizontalPosition = onUpdateHorizontalPosition
             )
         }
         composable(Routes.DISPLAY) {
