@@ -62,6 +62,9 @@ class MainViewModel @Inject constructor(
             is MainUiEvent.ToggleGradientHorizontal -> _settings.update { it.copy(textStyle = it.textStyle.copy(isGradientHorizontal = event.isHorizontal)) }.also { save() }
             is MainUiEvent.UpdateFontType -> _settings.update { it.copy(textStyle = it.textStyle.copy(fontType = event.fontType)) }.also { save() }
             is MainUiEvent.UpdateGoogleFontName -> _settings.update { it.copy(textStyle = it.textStyle.copy(googleFontName = event.fontName)) }.also { save() }
+            is MainUiEvent.UpdateLetterSpacing -> _settings.update { it.copy(textStyle = it.textStyle.copy(letterSpacingSp = event.spacingSp.coerceIn(-2f, 20f))) }.also { save() }
+            is MainUiEvent.UpdateWordSpacing -> _settings.update { it.copy(textStyle = it.textStyle.copy(wordSpacingSp = event.spacingSp.coerceIn(0f, 30f))) }.also { save() }
+
 
             // Stroke
             is MainUiEvent.ToggleStroke -> _settings.update { it.copy(stroke = it.stroke.copy(isEnabled = event.isEnabled)) }.also { save() }

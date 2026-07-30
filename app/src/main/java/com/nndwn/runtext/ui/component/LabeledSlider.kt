@@ -22,7 +22,7 @@ fun LabeledSlider(
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     displayValueText: String = value.toInt().toString(),
-    activeTrackColor: Color = MaterialTheme.colorScheme.primary,
+    activeTrackColor: Color = MaterialTheme.colorScheme.onSurface,
 
 ) {
     Column(modifier = modifier.fillMaxWidth()) {

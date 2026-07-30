@@ -116,7 +116,9 @@ data class TextStyleConfig(
     val gradientDistance: Float = 0.5f,
     val isGradientHorizontal: Boolean = false,
     val fontType: FontType = FontType.ROBOTO,
-    val googleFontName: String = ""
+    val googleFontName: String = "",
+    val letterSpacingSp: Float = 0f,
+    val wordSpacingSp: Float = 0f
 )
 
 data class StrokeConfig(

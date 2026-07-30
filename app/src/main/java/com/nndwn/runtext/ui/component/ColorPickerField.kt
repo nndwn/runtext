@@ -7,12 +7,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.ui.theme.toArgbLong
 
 @Composable
 fun ColorPickerField(
@@ -61,12 +64,77 @@ private fun ColorBox(
     height: Dp = 40.dp,
     onClick: () -> Unit
 ) {
+
+    val shape = RoundedCornerShape(8.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
             .clip(RoundedCornerShape(8.dp))
             .background(color)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                shape = shape
+            )
             .clickable { onClick() }
+    )
+}
+
+@Composable
+private fun ColorSliders(
+    color: Color,
+    onColorChange: (Long) -> Unit
+) {
+    Column(modifier = Modifier.padding(top = 16.dp)) {
+        val r = (color.red * 255).toInt()
+        val g = (color.green * 255).toInt()
+        val b = (color.blue * 255).toInt()
+        val a = color.alpha
+
+        RGBSlider(
+            label = "R",
+            value = r,
+            onValueChange = { newR ->
+                onColorChange(Color(red = newR / 255f, green = g / 255f, blue = b / 255f, alpha = a).toArgbLong())
+            },
+            color = Color.Red
+        )
+        RGBSlider(
+            label = "G",
+            value = g,
+            onValueChange = { newG ->
+                onColorChange(Color(red = r / 255f, green = newG / 255f, blue = b / 255f, alpha = a).toArgbLong())
+            },
+            color = Color.Green
+        )
+        RGBSlider(
+            label = "B",
+            value = b,
+            onValueChange = { newB ->
+                onColorChange(Color(red = r / 255f, green = g / 255f, blue = newB / 255f, alpha = a).toArgbLong())
+            },
+            color = Color.Blue
+        )
+    }
+}
+
+/**
+ * A single RGB slider with a label and value display.
+ */
+@Composable
+private fun RGBSlider(
+    label: String,
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    color: Color
+) {
+    LabeledSlider(
+        label = label,
+        value = value.toFloat(),
+        valueRange = 0f..255f,
+        displayValueText = value.toString(),
+        activeTrackColor = color,
+        onValueChange = { onValueChange(it.toInt()) }
     )
 }

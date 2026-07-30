@@ -20,4 +20,7 @@
     <string name="set_config_text_shadow_distance">Distance</string>
     <string name="set_config_text_shadow_radius">Radius</string>
     <string name="set_config_text_shadow_rotation">Rotation</string>
+    <string name="set_config_text_spacing">Spacing</string>
+    <string name="set_config_text_spacing_text">Letter Spacing</string>
+    <string name="set_config_text_spacing_word">Word Spacing</string>
 </resources>

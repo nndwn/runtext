@@ -19,11 +19,16 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlinx.coroutines.isActive
@@ -35,18 +40,22 @@ import kotlin.text.isEmpty
 
 @Composable
 fun RunningTextPreview(settings: AppSettings) {
-    val text = settings.lastText.ifEmpty { "PREVIEW" }
+    val rawText = settings.lastText.ifEmpty { "PREVIEW" }
     val textMeasurer = rememberTextMeasurer()
 
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
     val fontWeight = FontWeight.Normal
 
+    val annotatedText = remember (rawText, settings.textStyle.wordSpacingSp){
+        rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
+    }
+
     // RTL detection for consistency
-    val isRtl = remember(text) {
-        if (text.isEmpty()) false
+    val isRtl = remember(rawText) {
+        if (rawText.isEmpty()) false
         else {
             val bidi = java.text.Bidi(
-                text,
+                rawText,
                 java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT,
             )
             bidi.isRightToLeft
@@ -66,23 +75,30 @@ fun RunningTextPreview(settings: AppSettings) {
     } else {
         Shadow.None
     }
+    val baseTextStyle = remember(
+        fontFamily,
+        fontWeight,
+        settings.textStyle.letterSpacingSp,
+        textShadow
+    ){
+        TextStyle(
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            fontSize = 40.sp,
+            letterSpacing = settings.textStyle.letterSpacingSp.sp,
+            shadow = textShadow
+        )
+    }
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterStart
     ) {
         val containerWidthPx = constraints.maxWidth.toFloat()
-
-        // Measure text first to get width for gradient
-        val measureStyle = TextStyle(
-            fontFamily = fontFamily,
-            fontWeight = fontWeight,
-            fontSize = 40.sp
-        )
-        val initialLayoutResult = remember(text, fontFamily, fontWeight) {
+        val initialLayoutResult = remember(rawText, fontFamily, fontWeight) {
             textMeasurer.measure(
-                text = text,
-                style = measureStyle,
+                text = annotatedText,
+                style = baseTextStyle,
                 maxLines = 1,
                 softWrap = false,
             )
@@ -90,7 +106,8 @@ fun RunningTextPreview(settings: AppSettings) {
         val textWidth = initialLayoutResult.size.width.toFloat()
         val textHeight = initialLayoutResult.size.height.toFloat()
 
-        val textStyle = if (settings.textStyle.colorType == com.nndwn.runtext.data.model.TextColorType.GRADIENT) {
+
+        val textStyle = if (settings.textStyle.colorType == TextColorType.GRADIENT) {
             val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
             val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb}.toComposeColor()
 
@@ -100,25 +117,17 @@ fun RunningTextPreview(settings: AppSettings) {
                 Offset(0f, textHeight)
             }
 
-            TextStyle(
-                fontFamily = fontFamily,
-                fontWeight = fontWeight,
-                fontSize = 40.sp,
+            baseTextStyle.copy(
                 brush = Brush.linearGradient(
                     0.0f to color1,
                     settings.textStyle.gradientDistance to color2,
                     start = Offset(0f, 0f),
                     end = endOffset
-                ),
-                shadow = textShadow
+                )
             )
         } else {
-            TextStyle(
-                fontFamily = fontFamily,
-                fontWeight = fontWeight,
-                fontSize = 40.sp,
-                color = settings.textStyle.colorArgb.toComposeColor(),
-                shadow = textShadow
+            baseTextStyle.copy(
+                color = settings.textStyle.colorArgb.toComposeColor()
             )
         }
 
@@ -152,11 +161,8 @@ fun RunningTextPreview(settings: AppSettings) {
         ) {
             if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                 Text(
-                    text = text,
-                    style = TextStyle(
-                        fontFamily = fontFamily,
-                        fontWeight = fontWeight,
-                        fontSize = 40.sp,
+                    text = annotatedText,
+                    style = baseTextStyle.copy(
                         color = settings.stroke.colorArgb.toComposeColor(),
                         drawStyle = Stroke(
                             width = settings.stroke.width * 2f,
@@ -168,11 +174,28 @@ fun RunningTextPreview(settings: AppSettings) {
                 )
             }
             Text(
-                text = text,
+                text = annotatedText,
                 style = textStyle,
                 maxLines = 1,
                 softWrap = false
             )
+        }
+    }
+}
+
+private fun String.toWordSpacedAnnotatedString(wordSpacingSp : Float) : AnnotatedString{
+    if (wordSpacingSp <= 0f || !this.contains(" ")){
+        return AnnotatedString(this)
+    }
+    return buildAnnotatedString {
+        for (char in this@toWordSpacedAnnotatedString){
+            if (char == ' '){
+                withStyle(style = SpanStyle(letterSpacing = wordSpacingSp.sp)){
+                    append(char)
+                }
+            }else {
+                append(char)
+            }
         }
     }
 }

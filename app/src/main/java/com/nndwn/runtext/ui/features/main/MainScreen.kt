@@ -11,7 +11,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,13 +39,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.Header
@@ -56,14 +51,15 @@ import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
+import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfig
 import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
+import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
-import com.nndwn.runtext.ui.utils.fontFamilyFor
 
 @Composable
 fun MainScreen(
@@ -206,24 +202,20 @@ fun MainScreen(
                                     onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                                ConfigCard {
-                                    Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                closePicker(); showPanelFonts = !showPanelFonts
-                                            }
-                                    ) {
-                                        Text(
-                                            text = settings.textStyle.fontType.displayName,
-                                            fontFamily = fontFamilyFor(settings.textStyle.fontType),
-                                            fontWeight = FontWeight.Normal,
-                                            fontSize = 20.sp
-                                        )
-                                    }
-                                }
+
+                                TextFontStyleConfig(
+                                  config = settings.textStyle,
+                                  onClick = {
+                                      closePicker(); showPanelFonts = !showPanelFonts
+                                  }
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
+                                TextSpacingConfig(
+                                   config = settings.textStyle,
+                                    expandedPickerId = expandedPickerId,
+                                    onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                    onEvent = dispatch
+                                )
 
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ColorPickerConfig(

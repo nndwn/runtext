@@ -65,6 +65,12 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateGoogleFontName -> settings.copy(
                 textStyle = settings.textStyle.copy(googleFontName = event.fontName)
             )
+            is MainUiEvent.UpdateLetterSpacing -> settings.copy(
+                textStyle = settings.textStyle.copy(letterSpacingSp = event.spacingSp)
+            )
+            is MainUiEvent.UpdateWordSpacing -> settings.copy(
+                textStyle = settings.textStyle.copy(wordSpacingSp = event.spacingSp)
+            )
 
             // Stroke
             is MainUiEvent.ToggleStroke -> settings.copy(
@@ -93,6 +99,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateShadowRotation -> settings.copy(
                 shadow = settings.shadow.copy(rotation = event.rotation)
             )
+
         }
     }
     CompositionLocalProvider(LocalIsTablet provides isTablet) {

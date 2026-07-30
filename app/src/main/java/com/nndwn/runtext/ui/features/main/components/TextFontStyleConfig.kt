@@ -4,12 +4,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -24,9 +27,38 @@ import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.TextStyleConfig
+import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.SlideUpPanel
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.fontFamilyFor
+
+
+
+@Composable
+fun TextFontStyleConfig(
+    config: TextStyleConfig,
+    onClick : () -> Unit,
+){
+    ConfigCard {
+        Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                   onClick()
+                }
+        ) {
+            Text(
+                text = config.fontType.displayName,
+                fontFamily = fontFamilyFor(config.fontType),
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp
+            )
+        }
+    }
+}
 
 @Composable
 fun SelectorFonts(
