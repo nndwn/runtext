@@ -30,7 +30,7 @@ fun MorseFlashPreview(settings: AppSettings) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                settings.textColorArgb
+                settings.bgColorArgb
                     .toComposeColor()
                     .copy(alpha = if (settings.isFlashScreen) alpha else 1f)
             )

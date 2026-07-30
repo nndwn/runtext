@@ -32,20 +32,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.SwitchRow
+import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
@@ -54,18 +53,10 @@ import kotlin.math.roundToInt
 @Composable
 fun TextColorPickerConfig(
     label: String,
-    currentType: TextColorType,
-    currentColor: Long,
-    horizontalPosition : Boolean,
-    gradientColors: List<Long>,
-    gradientDistance: Float,
+    config: TextStyleConfig,
     expandedPickerId: String?,
     onPickerToggle: (String) -> Unit,
-    onTypeChange: (TextColorType) -> Unit,
-    onColorChange: (Long) -> Unit,
-    onToggleHorizontalPosition : (Boolean) -> Unit,
-    onGradientColorsChange: (List<Long>) -> Unit,
-    onGradientDistanceChange: (Float) -> Unit
+    onEvent: (MainUiEvent) -> Unit
 ) {
     ConfigCard {
         Column(modifier = Modifier.animateContentSize()) {
@@ -74,31 +65,29 @@ fun TextColorPickerConfig(
 
             // Segmented Control
             TextColorTypeSelector(
-                currentType = currentType,
-                onTypeChange = {
-                    onTypeChange(it)
-                }
+                currentType = config.colorType,
+                onTypeChange = { onEvent(MainUiEvent.UpdateTextColorType(it)) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (currentType == TextColorType.SOLID) {
+            if (config.colorType == TextColorType.SOLID) {
                 ColorPickerField(
-                    color = currentColor.toComposeColor(),
+                    color = config.colorArgb.toComposeColor(),
                     isExpanded = expandedPickerId == "text_solid",
                     onToggleExpand = { onPickerToggle("text_solid") },
-                    onColorChange = onColorChange
+                    onColorChange = { onEvent(MainUiEvent.UpdateTextColor(it)) }
                 )
             } else {
-                val color1 = gradientColors.getOrElse(0) { currentColor }.toComposeColor()
-                val color2 = gradientColors.getOrElse(1) { currentColor }.toComposeColor()
+                val color1 = config.gradientColorsArgb.getOrElse(0) { config.colorArgb }.toComposeColor()
+                val color2 = config.gradientColorsArgb.getOrElse(1) { config.colorArgb }.toComposeColor()
 
                 ColorPickerField(
                     color = color1,
                     isExpanded = expandedPickerId == "text_g1",
                     onToggleExpand = { onPickerToggle("text_g1") },
                     onColorChange = { newColor ->
-                        onGradientColorsChange(listOf(newColor, color2.toArgbLong()))
+                        onEvent(MainUiEvent.UpdateGradientColors(listOf(newColor, color2.toArgbLong())))
                     }
                 )
 
@@ -109,28 +98,31 @@ fun TextColorPickerConfig(
                     isExpanded = expandedPickerId == "text_g2",
                     onToggleExpand = { onPickerToggle("text_g2") },
                     onColorChange = { newColor ->
-                        onGradientColorsChange(listOf(color1.toArgbLong(), newColor))
+                        onEvent(MainUiEvent.UpdateGradientColors(listOf(color1.toArgbLong(), newColor)))
                     }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Gradient Distance Slider
-                GradientDistanceSlider(
-                    color1 = color1,
-                    color2 = color2,
-                    distance = gradientDistance,
-                    onDistanceChange = onGradientDistanceChange
+                Slider(
+                    value = config.gradientDistance,
+                    onValueChange = { onEvent(MainUiEvent.UpdateGradientDistance(it)) },
+                    valueRange = 0f..1f,
+                    colors = SliderDefaults.colors(
+                        thumbColor = Palette.White,
+                        activeTrackColor = color1,
+                        inactiveTrackColor = color2
+                    )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SwitchRow(
                     title = stringResource(R.string.set_config_text_color_type_gradient_direction),
-                    subtitle = if (horizontalPosition)
+                    subtitle = if (config.isGradientHorizontal)
                         stringResource(R.string.set_config_text_color_type_gradient_horizontal) else
                         stringResource(R.string.set_config_text_color_type_gradient_vertical),
-                    checked = horizontalPosition,
-                    onCheckedChange = onToggleHorizontalPosition,
+                    checked = config.isGradientHorizontal,
+                    onCheckedChange = { onEvent(MainUiEvent.ToggleGradientHorizontal(it)) },
                     accentColor = Palette.NeonGreen,
                 )
             }
@@ -222,23 +214,3 @@ private fun TextColorTypeSelector(
 }
 
 
-@Composable
-private fun GradientDistanceSlider(
-    color1: Color,
-    color2: Color,
-    distance: Float,
-    onDistanceChange: (Float) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Slider(
-            value = distance,
-            onValueChange = onDistanceChange,
-            valueRange = 0f..1f,
-            colors = SliderDefaults.colors(
-                thumbColor = Palette.White,
-                activeTrackColor = color1,
-                inactiveTrackColor = color2
-            )
-        )
-    }
-}

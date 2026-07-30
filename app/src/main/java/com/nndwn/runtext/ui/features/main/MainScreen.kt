@@ -21,24 +21,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,32 +38,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.data.model.FontType
-import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
-import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
 import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
-import com.nndwn.runtext.ui.features.main.components.TextInputConfig
-import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
+import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
+import com.nndwn.runtext.ui.features.main.components.TextInputConfig
 import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
+import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
@@ -82,22 +68,8 @@ import com.nndwn.runtext.ui.utils.fontFamilyFor
 @Composable
 fun MainScreen(
     settings: AppSettings,
-    onUpdateText: (String) -> Unit,
-    onClearText: () -> Unit,
-    onUpdateMode: (AppMode) -> Unit,
-    onMenuClick: () -> Unit,
-    onUpdateSpeed: (Float) -> Unit,
-    onUpdateBackgroundColor: (Long) -> Unit,
-    onUpdateTextColor: (Long) -> Unit,
-    onUpdateTextColorType: (TextColorType) -> Unit,
-    onUpdateGradientColors: (List<Long>) -> Unit,
-    onUpdateGradientDistance: (Float) -> Unit,
-    onUpdateFontType: (FontType) -> Unit,
-    onToggleHorizontalPosition : (Boolean) -> Unit,
-    onToggleStroke: (Boolean) -> Unit,
-    onUpdateStrokeWidth: (Float) -> Unit,
-    onUpdateStrokeColor: (Long) -> Unit
-
+    onEvent: (MainUiEvent) -> Unit,
+    onMenuClick: () -> Unit
 ) {
     val isTablet = LocalIsTablet.current
     var expandedPickerId by remember { mutableStateOf<String?>(null) }
@@ -106,18 +78,14 @@ fun MainScreen(
     
     val closePicker = { expandedPickerId = null }
 
-    val handleUpdateText: (String) -> Unit = { closePicker(); onUpdateText(it) }
-    val handleClearText: () -> Unit = { closePicker(); onClearText() }
-    val handleUpdateMode: (AppMode) -> Unit = { closePicker(); onUpdateMode(it) }
-    val handleUpdateSpeed: (Float) -> Unit = { closePicker(); onUpdateSpeed(it) }
-    val handleUpdateFontType: (FontType) -> Unit = { closePicker(); onUpdateFontType(it) }
-    val handleUpdateTextColorType: (TextColorType) -> Unit = { closePicker(); onUpdateTextColorType(it) }
-    val handleUpdateGradientDistance: (Float) -> Unit = { closePicker(); onUpdateGradientDistance(it) }
-    val handleToggleHorizontalPosition: (Boolean) -> Unit = { closePicker(); onToggleHorizontalPosition(it) }
-    val handleToggleStroke: (Boolean) -> Unit = { closePicker(); onToggleStroke(it) }
-    val handleUpdateStrokeWidth: (Float) -> Unit = { closePicker(); onUpdateStrokeWidth(it) }
+    val dispatch: (MainUiEvent) -> Unit = { event ->
+        onEvent(event)
+    }
 
-
+    val dispatchAndClosePicker: (MainUiEvent) -> Unit = { event ->
+        closePicker()
+        onEvent(event)
+    }
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -150,9 +118,6 @@ fun MainScreen(
                         onMenuClick = onMenuClick
                     )
                 }
-            },
-            floatingActionButton = {
-
             }
         ) { innerPadding ->
             LazyColumn(
@@ -190,8 +155,8 @@ fun MainScreen(
                 item {
                     TextInputConfig(
                         text = settings.lastText,
-                        onTextChange = handleUpdateText,
-                        onClearText = handleClearText,
+                        onTextChange = { dispatchAndClosePicker(MainUiEvent.UpdateText(it)) },
+                        onClearText = { dispatchAndClosePicker(MainUiEvent.ClearText) },
                         interactionSource = interactionSource
                     )
                 }
@@ -201,7 +166,7 @@ fun MainScreen(
                 item {
                     AppModeSettings(
                         currentMode = settings.mode,
-                        onModeChange = handleUpdateMode
+                        onModeChange = { dispatchAndClosePicker(MainUiEvent.UpdateMode(it)) }
                     )
                 }
                 item {
@@ -236,33 +201,30 @@ fun MainScreen(
                             Column(
                                 modifier = Modifier.width(localMaxWidth)
                             ) {
+                                SpeedConfig(
+                                    speed = settings.speed,
+                                    onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ConfigCard {
                                     Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable(
-                                                interactionSource = interactionSource,
-                                                indication = ripple(),
-                                                onClick = {
-                                                    closePicker()
-                                                    showPanelFonts = !showPanelFonts }
-                                            )
-                                    ){
+                                            .clickable {
+                                                closePicker(); showPanelFonts = !showPanelFonts
+                                            }
+                                    ) {
                                         Text(
-                                            text = settings.fontType.displayName,
-                                            fontFamily = fontFamilyFor(settings.fontType),
+                                            text = settings.textStyle.fontType.displayName,
+                                            fontFamily = fontFamilyFor(settings.textStyle.fontType),
                                             fontWeight = FontWeight.Normal,
                                             fontSize = 20.sp
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                                SpeedConfig(
-                                    speed = settings.speed,
-                                    onSpeedChange = handleUpdateSpeed
-                                )
+
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 ColorPickerConfig(
                                     label = stringResource(R.string.set_config_color_background),
@@ -271,44 +233,33 @@ fun MainScreen(
                                     onToggleExpand = {
                                         expandedPickerId = if (expandedPickerId == "bg") null else "bg"
                                     },
-                                    onColorChange = onUpdateBackgroundColor
+                                    onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                 TextColorPickerConfig(
                                     label = stringResource(R.string.set_config_text_color_text),
-                                    currentType = settings.textColorType,
-                                    currentColor = settings.textColorArgb,
-                                    gradientColors = settings.gradientColorsArgb,
-                                    gradientDistance = settings.gradientDistance,
-                                    horizontalPosition = settings.gradientPositionHorizontal,
+                                    config = settings.textStyle,
                                     expandedPickerId = expandedPickerId,
-                                    onPickerToggle = { id ->
-                                        expandedPickerId = if (expandedPickerId == id) null else id
-                                    },
-                                    onTypeChange =  handleUpdateTextColorType,
-                                    onColorChange = onUpdateTextColor,
-                                    onGradientColorsChange = onUpdateGradientColors,
-                                    onGradientDistanceChange = handleUpdateGradientDistance,
-                                    onToggleHorizontalPosition = handleToggleHorizontalPosition
+                                    onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                    onEvent = dispatch
                                 )
                                 Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-
                                 TextOutlineConfig(
-                                    outlineEnabled = settings.isStrokeEnabled,
-                                    currentColor = settings.strokeColorArgb,
+                                    config = settings.stroke,
+                                    expandedPickerId = expandedPickerId,
+                                    onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                    onEvent = dispatch
+                                )
+                                Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
+                                TextShadowConfig(
+                                    config = settings.shadow,
+                                    expandedPickerId = expandedPickerId,
                                     onPickerToggle = { id ->
                                         expandedPickerId = if (expandedPickerId == id) null else id
                                     },
-                                    expandedPickerId = expandedPickerId,
-                                    width = settings.strokeWidth,
-                                    onWidthChange = handleUpdateStrokeWidth,
-                                    outlineColor = onUpdateStrokeColor,
-                                    onCheckedChange = handleToggleStroke,
+                                    onEvent = dispatch
                                 )
-
                             }
-
-
                             Box(
                                 modifier = Modifier.width(localMaxWidth)
                             ) {
@@ -320,7 +271,7 @@ fun MainScreen(
             }
            SelectorFonts(
                settings = settings,
-               onUpdateFontType = handleUpdateFontType,
+               onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },
                showPanelFonts = showPanelFonts,
                dismissPanel = { showPanelFonts = false }
            )

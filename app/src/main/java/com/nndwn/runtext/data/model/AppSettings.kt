@@ -90,34 +90,45 @@ enum class FontType(
 
 
 
-/**
- * Immutable data class holding all app settings.
- * Persisted via Preferences DataStore.
- *
- * Colors are stored as Long (unsigned ARGB value) to avoid Int sign confusion.
- * Convert to Compose Color via Color(argbLong.toInt()).
- */
 data class AppSettings(
     val lastText: String = "",
     val mode: AppMode = AppMode.RUNNING_TEXT,
-
-    // ── Running Text config ──
-    val speed: Float = 150f,                    // pixels per second
-    val textColorArgb: Long = Palette.NeonGreen.toArgbLong(),
-    val textColorType: TextColorType = TextColorType.SOLID,
-    val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Color(0xFF00FFFF).toArgbLong()), // Default NeonGreen to Cyan
-    val gradientDistance: Float = 0.5f,
-    val gradientPositionHorizontal : Boolean = false,
-    val isStrokeEnabled: Boolean = false,
-    val strokeWidth: Float = 0f,
-    val strokeColorArgb: Long = Color.Black.toArgbLong(),
+    val speed: Float = 150f,
     val bgColorArgb: Long = Color.Black.toArgbLong(),
-    val fontType: FontType = FontType.ROBOTO,
-    val googleFontName: String = "",
     val isMirrorMode: Boolean = false,
 
-    // ── Morse Code config ──
+    // Nested Configurations
+    val textStyle: TextStyleConfig = TextStyleConfig(),
+    val stroke: StrokeConfig = StrokeConfig(),
+    val shadow: ShadowConfig = ShadowConfig(),
+
+    // Morse Code config
     val morseWpm: Int = 15,
     val isFlashScreen: Boolean = true,
     val isTorchEnabled: Boolean = false,
+)
+
+
+data class TextStyleConfig(
+    val colorArgb: Long = Palette.NeonGreen.toArgbLong(),
+    val colorType: TextColorType = TextColorType.SOLID,
+    val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Palette.NeonPink.toArgbLong()),
+    val gradientDistance: Float = 0.5f,
+    val isGradientHorizontal: Boolean = false,
+    val fontType: FontType = FontType.ROBOTO,
+    val googleFontName: String = ""
+)
+
+data class StrokeConfig(
+    val isEnabled: Boolean = false,
+    val width: Float = 0f,
+    val colorArgb: Long = Color.Black.toArgbLong()
+)
+
+data class ShadowConfig(
+    val isEnabled: Boolean = false,
+    val colorArgb: Long = Color.Black.copy(alpha = 0.75f).toArgbLong(),
+    val radius: Float = 8f,
+    val distance: Float = 10f,
+    val rotation: Float = 45f
 )

@@ -12,6 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.MainLayout
+import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
@@ -32,7 +33,68 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
         lastText = "test"
     )) }
 
+    val handleEvent: (MainUiEvent) -> Unit = { event ->
+        settings = when (event) {
+            // General
+            is MainUiEvent.UpdateText -> settings.copy(lastText = event.text)
+            is MainUiEvent.ClearText -> settings.copy(lastText = "")
+            is MainUiEvent.UpdateMode -> settings.copy(mode = event.mode)
+            is MainUiEvent.UpdateSpeed -> settings.copy(speed = event.speed)
+            is MainUiEvent.UpdateBgColor -> settings.copy(bgColorArgb = event.colorArgb)
+            is MainUiEvent.ToggleMirrorMode -> settings.copy(isMirrorMode = !settings.isMirrorMode)
 
+            // Text Style
+            is MainUiEvent.UpdateTextColor -> settings.copy(
+                textStyle = settings.textStyle.copy(colorArgb = event.colorArgb)
+            )
+            is MainUiEvent.UpdateTextColorType -> settings.copy(
+                textStyle = settings.textStyle.copy(colorType = event.type)
+            )
+            is MainUiEvent.UpdateGradientColors -> settings.copy(
+                textStyle = settings.textStyle.copy(gradientColorsArgb = event.colors)
+            )
+            is MainUiEvent.UpdateGradientDistance -> settings.copy(
+                textStyle = settings.textStyle.copy(gradientDistance = event.distance)
+            )
+            is MainUiEvent.ToggleGradientHorizontal -> settings.copy(
+                textStyle = settings.textStyle.copy(isGradientHorizontal = event.isHorizontal)
+            )
+            is MainUiEvent.UpdateFontType -> settings.copy(
+                textStyle = settings.textStyle.copy(fontType = event.fontType)
+            )
+            is MainUiEvent.UpdateGoogleFontName -> settings.copy(
+                textStyle = settings.textStyle.copy(googleFontName = event.fontName)
+            )
+
+            // Stroke
+            is MainUiEvent.ToggleStroke -> settings.copy(
+                stroke = settings.stroke.copy(isEnabled = event.isEnabled)
+            )
+            is MainUiEvent.UpdateStrokeWidth -> settings.copy(
+                stroke = settings.stroke.copy(width = event.width)
+            )
+            is MainUiEvent.UpdateStrokeColor -> settings.copy(
+                stroke = settings.stroke.copy(colorArgb = event.colorArgb)
+            )
+
+            // Shadow
+            is MainUiEvent.ToggleShadow -> settings.copy(
+                shadow = settings.shadow.copy(isEnabled = event.isEnabled)
+            )
+            is MainUiEvent.UpdateShadowColor -> settings.copy(
+                shadow = settings.shadow.copy(colorArgb = event.colorArgb)
+            )
+            is MainUiEvent.UpdateShadowRadius -> settings.copy(
+                shadow = settings.shadow.copy(radius = event.radius)
+            )
+            is MainUiEvent.UpdateShadowDistance -> settings.copy(
+                shadow = settings.shadow.copy(distance = event.distance)
+            )
+            is MainUiEvent.UpdateShadowRotation -> settings.copy(
+                shadow = settings.shadow.copy(rotation = event.rotation)
+            )
+        }
+    }
     CompositionLocalProvider(LocalIsTablet provides isTablet) {
         RuntextTheme {
             MainLayout(
@@ -42,80 +104,9 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             ) {
                 AppNavigation(
                     settings = settings,
-                    onUpdateText = { text ->
-                        settings = settings.copy(
-                            lastText = text
-                        )
-                    },
-                    onClearText = {
-                        if (!settings.lastText.isEmpty()){
-                            settings = settings.copy(
-                                lastText = ""
-                            )
-                        }
-                    },
-                    onUpdateMode = {
-                        settings = settings.copy(
-                            mode = it
-                        )
-                    },
+                    onEvent = handleEvent,
                     onMenuClick = { isSidebarOpen = !isSidebarOpen },
-                    navController = navController,
-                    onUpdateSpeed = {
-                        settings = settings.copy(
-                            speed = it
-                        )
-                    },
-                    onUpdateBackgroundColor = {
-                        settings = settings.copy(
-                            bgColorArgb = it
-                        )
-                    },
-                    onUpdateTextColor = {
-                        settings = settings.copy(
-                            textColorArgb = it
-                        )
-                    },
-                    onUpdateFontType = {
-                        settings = settings.copy(
-                            fontType = it
-                        )
-                    },
-                    onUpdateGradientColors = {
-                        settings = settings.copy(
-                            gradientColorsArgb = it
-                        )
-                    },
-                    onUpdateGradientDistance = {
-                        settings = settings.copy(
-                            gradientDistance = it
-                        )
-                    },
-                    onUpdateTextColorType = {
-                        settings = settings.copy(
-                            textColorType = it
-                        )
-                    },
-                    onUpdateHorizontalPosition = {
-                        settings = settings.copy(
-                            gradientPositionHorizontal = it
-                        )
-                    },
-                    onToggleStroke = {
-                        settings = settings.copy(
-                            isStrokeEnabled = it
-                        )
-                    },
-                    onUpdateStrokeWidth = {
-                        settings = settings.copy(
-                            strokeWidth = it
-                        )
-                    },
-                    onUpdateStrokeColor = {
-                        settings = settings.copy(
-                            strokeColorArgb = it
-                        )
-                    }
+                    navController = navController
                 )
             }
         }

@@ -14,4 +14,10 @@
     <string name="set_config_text_color_type_gradient_vertical">Vertical</string>
     <string name="set_config_text_outline">Outline</string>
     <string name="set_config_text_outline_desc">Add an outline to the text</string>
+    <string name="set_config_text_outline_width">Width</string>
+    <string name="set_config_text_shadow">Drop Shadow</string>
+    <string name="set_config_text_shadow_desc">Add a shadow to the text</string>
+    <string name="set_config_text_shadow_distance">Distance</string>
+    <string name="set_config_text_shadow_radius">Radius</string>
+    <string name="set_config_text_shadow_rotation">Rotation</string>
 </resources>

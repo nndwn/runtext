@@ -27,7 +27,6 @@ fun RunTextApp(
     var isSidebarOpen by remember { mutableStateOf(false) }
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
-
     MainLayout(
         isSidebarOpen = sidebarAllowed,
         onCloseSidebar = { isSidebarOpen = false },
@@ -35,22 +34,9 @@ fun RunTextApp(
     ) {
         AppNavigation(
             settings = settings,
-            onUpdateText = viewModel::updateText,
-            onClearText = viewModel::clearText,
-            onUpdateMode = viewModel::updateMode,
+            onEvent = viewModel::onEvent, // CUKUP 1 LINE INI!
             onMenuClick = { isSidebarOpen = !isSidebarOpen },
-            navController = navController,
-            onUpdateSpeed = viewModel::updateSpeed,
-            onUpdateBackgroundColor = viewModel::updateBgColor,
-            onUpdateTextColor = viewModel::updateTextColor,
-            onUpdateTextColorType = viewModel::updateTextColorType,
-            onUpdateGradientColors = viewModel::updateGradientColors,
-            onUpdateGradientDistance = viewModel::updateGradientDistance,
-            onUpdateFontType = viewModel::updateFontType,
-            onUpdateHorizontalPosition = viewModel::updateHorizontalPosition,
-            onToggleStroke = viewModel::toggleStroke,
-            onUpdateStrokeWidth = viewModel::updateStrokeWidth,
-            onUpdateStrokeColor = viewModel::updateStrokeColor
+            navController = navController
         )
     }
 }

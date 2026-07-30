@@ -12,7 +12,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.ShadowConfig
+import com.nndwn.runtext.data.model.StrokeConfig
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.data.model.TextStyleConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -28,74 +31,118 @@ class SettingsDataStore @Inject constructor(
         val LAST_TEXT = stringPreferencesKey("last_text")
         val MODE = stringPreferencesKey("mode")
         val SPEED = floatPreferencesKey("speed")
-        val TEXT_COLOR = longPreferencesKey("text_color")
         val BG_COLOR = longPreferencesKey("bg_color")
+        val MIRROR_MODE = booleanPreferencesKey("mirror_mode")
+
+        // Text style
+        val TEXT_COLOR = longPreferencesKey("text_color")
         val TEXT_COLOR_TYPE = stringPreferencesKey("text_color_type")
         val GRADIENT_COLORS = stringPreferencesKey("gradient_colors")
         val GRADIENT_DISTANCE = floatPreferencesKey("gradient_distance")
         val GRADIENT_POSITION = booleanPreferencesKey("gradient_position")
+        val FONT_TYPE = stringPreferencesKey("font_type")
+        val GOOGLE_FONT_NAME = stringPreferencesKey("google_font_name")
+
+        // Stroke
         val IS_STROKE_ENABLED = booleanPreferencesKey("is_stroke_enabled")
         val STROKE_WIDTH = floatPreferencesKey("stroke_width")
         val STROKE_COLOR = longPreferencesKey("stroke_color")
-        val FONT_TYPE = stringPreferencesKey("font_type")
-        val GOOGLE_FONT_NAME = stringPreferencesKey("google_font_name")
-        val MIRROR_MODE = booleanPreferencesKey("mirror_mode")
+
+        // Shadow
+        val IS_SHADOW_ENABLED = booleanPreferencesKey("is_shadow_enabled")
+        val SHADOW_COLOR = longPreferencesKey("shadow_color")
+        val SHADOW_RADIUS = floatPreferencesKey("shadow_radius")
+        val SHADOW_DISTANCE = floatPreferencesKey("shadow_distance")
+        val SHADOW_ROTATION = floatPreferencesKey("shadow_rotation")
+
+        // Morse
         val MORSE_WPM = intPreferencesKey("morse_wpm")
         val FLASH_SCREEN = booleanPreferencesKey("flash_screen")
         val TORCH_ENABLED = booleanPreferencesKey("torch_enabled")
     }
 
-    val settingsFlow : Flow<AppSettings> = dataStore.data
+    val settingsFlow: Flow<AppSettings> = dataStore.data
         .catch { emit(emptyPreferences()) }
         .map { prefs ->
             val default = AppSettings()
             AppSettings(
-                lastText =  prefs[Keys.LAST_TEXT] ?: default.lastText,
+                lastText = prefs[Keys.LAST_TEXT] ?: default.lastText,
                 mode = prefs[Keys.MODE]?.let { name ->
                     runCatching { AppMode.valueOf(name) }.getOrDefault(default.mode)
-                }?: default.mode,
+                } ?: default.mode,
                 speed = prefs[Keys.SPEED] ?: default.speed,
-                textColorArgb = prefs[Keys.TEXT_COLOR] ?: default.textColorArgb,
-                textColorType = prefs[Keys.TEXT_COLOR_TYPE]?.let { name ->
-                    runCatching { TextColorType.valueOf(name) }.getOrDefault(default.textColorType)
-                } ?: default.textColorType,
-                gradientColorsArgb = prefs[Keys.GRADIENT_COLORS]?.let { str ->
-                    str.split(",").mapNotNull { it.toLongOrNull() }.ifEmpty { null }
-                } ?: default.gradientColorsArgb,
-                gradientDistance = prefs[Keys.GRADIENT_DISTANCE] ?: default.gradientDistance,
-                gradientPositionHorizontal = prefs[Keys.GRADIENT_POSITION] ?: default.gradientPositionHorizontal,
-                isStrokeEnabled = prefs[Keys.IS_STROKE_ENABLED] ?: default.isStrokeEnabled,
-                strokeWidth = prefs[Keys.STROKE_WIDTH] ?: default.strokeWidth,
-                strokeColorArgb = prefs[Keys.STROKE_COLOR] ?: default.strokeColorArgb,
                 bgColorArgb = prefs[Keys.BG_COLOR] ?: default.bgColorArgb,
-                fontType = prefs[Keys.FONT_TYPE] ?.let { name ->
-                    runCatching { FontType.valueOf(name) }.getOrDefault(default.fontType)
-                } ?: default.fontType,
-                googleFontName = prefs[Keys.GOOGLE_FONT_NAME] ?: default.googleFontName,
                 isMirrorMode = prefs[Keys.MIRROR_MODE] ?: default.isMirrorMode,
+
+                textStyle = TextStyleConfig(
+                    colorArgb = prefs[Keys.TEXT_COLOR] ?: default.textStyle.colorArgb,
+                    colorType = prefs[Keys.TEXT_COLOR_TYPE]?.let { name ->
+                        runCatching { TextColorType.valueOf(name) }.getOrDefault(default.textStyle.colorType)
+                    } ?: default.textStyle.colorType,
+                    gradientColorsArgb = prefs[Keys.GRADIENT_COLORS]?.let { str ->
+                        str.split(",").mapNotNull { it.toLongOrNull() }.ifEmpty { null }
+                    } ?: default.textStyle.gradientColorsArgb,
+                    gradientDistance = prefs[Keys.GRADIENT_DISTANCE]
+                        ?: default.textStyle.gradientDistance,
+                    isGradientHorizontal = prefs[Keys.GRADIENT_POSITION]
+                        ?: default.textStyle.isGradientHorizontal,
+                    fontType = prefs[Keys.FONT_TYPE]?.let { name ->
+                        runCatching { FontType.valueOf(name) }.getOrDefault(default.textStyle.fontType)
+                    } ?: default.textStyle.fontType,
+                    googleFontName = prefs[Keys.GOOGLE_FONT_NAME]
+                        ?: default.textStyle.googleFontName
+                ),
+
+                stroke = StrokeConfig(
+                    isEnabled = prefs[Keys.IS_STROKE_ENABLED] ?: default.stroke.isEnabled,
+                    width = prefs[Keys.STROKE_WIDTH] ?: default.stroke.width,
+                    colorArgb = prefs[Keys.STROKE_COLOR] ?: default.stroke.colorArgb
+                ),
+
+                shadow = ShadowConfig(
+                    isEnabled = prefs[Keys.IS_SHADOW_ENABLED] ?: default.shadow.isEnabled,
+                    colorArgb = prefs[Keys.SHADOW_COLOR] ?: default.shadow.colorArgb,
+                    radius = prefs[Keys.SHADOW_RADIUS] ?: default.shadow.radius,
+                    distance = prefs[Keys.SHADOW_DISTANCE] ?: default.shadow.distance,
+                    rotation = prefs[Keys.SHADOW_ROTATION] ?: default.shadow.rotation
+                ),
+
                 morseWpm = prefs[Keys.MORSE_WPM] ?: default.morseWpm,
                 isFlashScreen = prefs[Keys.FLASH_SCREEN] ?: default.isFlashScreen,
-                isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.isTorchEnabled,
+                isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.isTorchEnabled
             )
         }
-    
+
     suspend fun saveSettings(settings: AppSettings) {
         dataStore.edit { prefs ->
             prefs[Keys.LAST_TEXT] = settings.lastText
             prefs[Keys.MODE] = settings.mode.name
             prefs[Keys.SPEED] = settings.speed
-            prefs[Keys.TEXT_COLOR] = settings.textColorArgb
-            prefs[Keys.TEXT_COLOR_TYPE] = settings.textColorType.name
-            prefs[Keys.GRADIENT_COLORS] = settings.gradientColorsArgb.joinToString(",")
-            prefs[Keys.GRADIENT_DISTANCE] = settings.gradientDistance
-            prefs[Keys.GRADIENT_POSITION] = settings.gradientPositionHorizontal
-            prefs[Keys.IS_STROKE_ENABLED] = settings.isStrokeEnabled
-            prefs[Keys.STROKE_WIDTH] = settings.strokeWidth
-            prefs[Keys.STROKE_COLOR] = settings.strokeColorArgb
             prefs[Keys.BG_COLOR] = settings.bgColorArgb
-            prefs[Keys.FONT_TYPE] = settings.fontType.name
-            prefs[Keys.GOOGLE_FONT_NAME] = settings.googleFontName
             prefs[Keys.MIRROR_MODE] = settings.isMirrorMode
+
+            // Text Style
+            prefs[Keys.TEXT_COLOR] = settings.textStyle.colorArgb
+            prefs[Keys.TEXT_COLOR_TYPE] = settings.textStyle.colorType.name
+            prefs[Keys.GRADIENT_COLORS] = settings.textStyle.gradientColorsArgb.joinToString(",")
+            prefs[Keys.GRADIENT_DISTANCE] = settings.textStyle.gradientDistance
+            prefs[Keys.GRADIENT_POSITION] = settings.textStyle.isGradientHorizontal
+            prefs[Keys.FONT_TYPE] = settings.textStyle.fontType.name
+            prefs[Keys.GOOGLE_FONT_NAME] = settings.textStyle.googleFontName
+
+            // Stroke
+            prefs[Keys.IS_STROKE_ENABLED] = settings.stroke.isEnabled
+            prefs[Keys.STROKE_WIDTH] = settings.stroke.width
+            prefs[Keys.STROKE_COLOR] = settings.stroke.colorArgb
+
+            // Shadow
+            prefs[Keys.IS_SHADOW_ENABLED] = settings.shadow.isEnabled
+            prefs[Keys.SHADOW_COLOR] = settings.shadow.colorArgb
+            prefs[Keys.SHADOW_RADIUS] = settings.shadow.radius
+            prefs[Keys.SHADOW_DISTANCE] = settings.shadow.distance
+            prefs[Keys.SHADOW_ROTATION] = settings.shadow.rotation
+
+            // Morse
             prefs[Keys.MORSE_WPM] = settings.morseWpm
             prefs[Keys.FLASH_SCREEN] = settings.isFlashScreen
             prefs[Keys.TORCH_ENABLED] = settings.isTorchEnabled

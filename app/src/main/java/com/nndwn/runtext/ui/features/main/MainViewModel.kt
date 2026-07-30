@@ -1,16 +1,10 @@
 package com.nndwn.runtext.ui.features.main
 
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.data.model.FontType
-import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.repository.SettingsRepository
-import com.nndwn.runtext.domain.morse.MorseElement
-import com.nndwn.runtext.domain.morse.MorseEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -20,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -34,36 +27,14 @@ class MainViewModel @Inject constructor(
     private val _settings = MutableStateFlow(AppSettings())
     val settings: StateFlow<AppSettings> = _settings.asStateFlow()
 
-    // ── Morse playback state ──
-    private val _isMorsePlaying = MutableStateFlow(false)
-    val isMorsePlaying: StateFlow<Boolean> = _isMorsePlaying.asStateFlow()
-
-    private val _morseSignalOn = MutableStateFlow(false)
-    val morseSignalOn: StateFlow<Boolean> = _morseSignalOn.asStateFlow()
-
-    private var morseJob: Job? = null
     private var saveJob: Job? = null
 
-    // ── Camera / Torch ──
-    private var cameraManager: CameraManager? = null
-    private var cameraId: String? = null
-
     init {
-        // Load saved settings once at startup
         viewModelScope.launch {
             _settings.value = repository.settingsFlow.first()
         }
-        initCamera()
     }
 
-    private fun initCamera() {
-        try {
-            cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
-            cameraId = cameraManager?.cameraIdList?.firstOrNull()
-        } catch (_: Exception) { /* device has no camera */ }
-    }
-
-    // ── Debounced save (300 ms) to prevent excessive DataStore writes ──
     private fun save() {
         saveJob?.cancel()
         saveJob = viewModelScope.launch {
@@ -72,175 +43,47 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    /** Force-save immediately (e.g. before navigating away). */
-    fun saveNow() {
-        saveJob?.cancel()
-        viewModelScope.launch {
-            repository.saveSettings(_settings.value)
-        }
-    }
+    // ── Main Event Processor ──
+    fun onEvent(event: MainUiEvent) {
+        when (event) {
+            // General
+            is MainUiEvent.UpdateText -> updateText(event.text)
+            is MainUiEvent.ClearText -> updateText("")
+            is MainUiEvent.UpdateMode -> _settings.update { it.copy(mode = event.mode) }.also { save() }
+            is MainUiEvent.UpdateSpeed -> _settings.update { it.copy(speed = event.speed) }.also { save() }
+            is MainUiEvent.UpdateBgColor -> _settings.update { it.copy(bgColorArgb = event.colorArgb) }.also { save() }
+            is MainUiEvent.ToggleMirrorMode -> _settings.update { it.copy(isMirrorMode = !it.isMirrorMode) }.also { save() }
 
-    // ── Setting updaters ──
+            // Text Style
+            is MainUiEvent.UpdateTextColor -> _settings.update { it.copy(textStyle = it.textStyle.copy(colorArgb = event.colorArgb)) }.also { save() }
+            is MainUiEvent.UpdateTextColorType -> _settings.update { it.copy(textStyle = it.textStyle.copy(colorType = event.type)) }.also { save() }
+            is MainUiEvent.UpdateGradientColors -> _settings.update { it.copy(textStyle = it.textStyle.copy(gradientColorsArgb = event.colors)) }.also { save() }
+            is MainUiEvent.UpdateGradientDistance -> _settings.update { it.copy(textStyle = it.textStyle.copy(gradientDistance = event.distance)) }.also { save() }
+            is MainUiEvent.ToggleGradientHorizontal -> _settings.update { it.copy(textStyle = it.textStyle.copy(isGradientHorizontal = event.isHorizontal)) }.also { save() }
+            is MainUiEvent.UpdateFontType -> _settings.update { it.copy(textStyle = it.textStyle.copy(fontType = event.fontType)) }.also { save() }
+            is MainUiEvent.UpdateGoogleFontName -> _settings.update { it.copy(textStyle = it.textStyle.copy(googleFontName = event.fontName)) }.also { save() }
 
-    fun updateText(text: String) {
-        if (text.length <= 250) {
-            _settings.update { it.copy(lastText = text) }
-            save()
-        }
-    }
+            // Stroke
+            is MainUiEvent.ToggleStroke -> _settings.update { it.copy(stroke = it.stroke.copy(isEnabled = event.isEnabled)) }.also { save() }
+            is MainUiEvent.UpdateStrokeWidth -> _settings.update { it.copy(stroke = it.stroke.copy(width = event.width.coerceIn(0f, 15f))) }.also { save() }
+            is MainUiEvent.UpdateStrokeColor -> _settings.update { it.copy(stroke = it.stroke.copy(colorArgb = event.colorArgb)) }.also { save() }
 
-    fun clearText() {
-        _settings.update { it.copy(lastText = "") }
-        save()
-    }
-
-    fun updateMode(mode: AppMode) {
-        _settings.update { it.copy(mode = mode) }
-        save()
-    }
-
-    fun updateSpeed(speed: Float) {
-        _settings.update { it.copy(speed = speed) }
-        save()
-    }
-
-    fun updateTextColor(argb: Long) {
-        _settings.update { it.copy(textColorArgb = argb) }
-        save()
-    }
-
-    fun updateTextColorType(type: TextColorType) {
-        _settings.update { it.copy(textColorType = type) }
-        save()
-    }
-
-    fun updateGradientColors(colors: List<Long>) {
-        _settings.update { it.copy(gradientColorsArgb = colors) }
-        save()
-    }
-
-    fun updateGradientDistance(distance: Float) {
-        _settings.update { it.copy(gradientDistance = distance) }
-        save()
-    }
-
-    fun updateHorizontalPosition(horizontalPosition: Boolean) {
-        _settings.update { it.copy(gradientPositionHorizontal = horizontalPosition) }
-        save()
-    }
-
-    fun toggleStroke(enabled: Boolean) {
-        _settings.update { it.copy(isStrokeEnabled = enabled) }
-        save()
-    }
-
-    fun updateStrokeWidth(width: Float) {
-        // Limit stroke width to a reasonable range (0 to 15)
-        val clampedWidth = width.coerceIn(0f, 15f)
-        _settings.update { it.copy(strokeWidth = clampedWidth) }
-        save()
-    }
-
-    fun updateStrokeColor(argb: Long) {
-        _settings.update { it.copy(strokeColorArgb = argb) }
-        save()
-    }
-
-    fun updateBgColor(argb: Long) {
-        _settings.update { it.copy(bgColorArgb = argb) }
-        save()
-    }
-
-    fun updateFontType(fontType: FontType) {
-        _settings.update { it.copy(fontType = fontType) }
-        save()
-    }
-
-    fun updateGoogleFontName(name: String) {
-        _settings.update { it.copy(googleFontName = name) }
-        save()
-    }
-
-    fun toggleMirrorMode() {
-        _settings.update { it.copy(isMirrorMode = !it.isMirrorMode) }
-        save()
-    }
-
-    fun updateMorseWpm(wpm: Int) {
-        _settings.update { it.copy(morseWpm = wpm) }
-        save()
-    }
-
-    fun toggleFlashScreen() {
-        _settings.update { it.copy(isFlashScreen = !it.isFlashScreen) }
-        save()
-    }
-
-    fun toggleTorch() {
-        _settings.update { it.copy(isTorchEnabled = !it.isTorchEnabled) }
-        save()
-    }
-
-    // ── Morse playback ──
-
-    /** Start playing morse for the current [lastText]. */
-    fun playMorse() {
-        val elements = MorseEngine.textToMorseElements(_settings.value.lastText)
-        if (elements.isEmpty()) return
-        playMorseElements(elements)
-    }
-
-    /** Instantly play the SOS pattern (···−−−···). */
-    fun playSOS() {
-        playMorseElements(MorseEngine.SOS_PATTERN)
-    }
-
-    private fun playMorseElements(elements: List<MorseElement>) {
-        stopMorse()
-        val unitMs = MorseEngine.getUnitDurationMs(_settings.value.morseWpm)
-
-        morseJob = viewModelScope.launch {
-            _isMorsePlaying.value = true
-            try {
-                for (element in elements) {
-                    if (!isActive) break
-                    val isSignal = MorseEngine.isSignalElement(element)
-                    _morseSignalOn.value = isSignal
-
-                    if (isSignal && _settings.value.isTorchEnabled) {
-                        setTorch(true)
-                    }
-
-                    delay((unitMs * element.durationMultiplier).milliseconds)
-
-                    if (isSignal) {
-                        if (_settings.value.isTorchEnabled) setTorch(false)
-                        _morseSignalOn.value = false
-                    }
-                }
-            } finally {
-                _morseSignalOn.value = false
-                _isMorsePlaying.value = false
-                setTorch(false)
+            // Shadow
+            is MainUiEvent.ToggleShadow -> _settings.update { it.copy(shadow = it.shadow.copy(isEnabled = event.isEnabled)) }.also { save() }
+            is MainUiEvent.UpdateShadowColor -> _settings.update { it.copy(shadow = it.shadow.copy(colorArgb = event.colorArgb)) }.also { save() }
+            is MainUiEvent.UpdateShadowRadius -> _settings.update { it.copy(shadow = it.shadow.copy(radius = event.radius.coerceIn(0f, 25f))) }.also { save() }
+            is MainUiEvent.UpdateShadowDistance -> _settings.update { it.copy(shadow = it.shadow.copy(distance = event.distance.coerceIn(0f, 50f))) }.also { save() }
+            is MainUiEvent.UpdateShadowRotation -> {
+                val normalizedRotation = (event.rotation % 360f + 360f) % 360f
+                _settings.update { it.copy(shadow = it.shadow.copy(rotation = normalizedRotation)) }.also { save() }
             }
         }
     }
 
-    fun stopMorse() {
-        morseJob?.cancel()
-        morseJob = null
-        _isMorsePlaying.value = false
-        _morseSignalOn.value = false
-        setTorch(false)
-    }
-
-    private fun setTorch(on: Boolean) {
-        try {
-            cameraId?.let { id -> cameraManager?.setTorchMode(id, on) }
-        } catch (_: Exception) { /* ignore if torch unavailable */ }
-    }
-
-    override fun onCleared() {
-        stopMorse()
+    private fun updateText(text: String) {
+        if (text.length <= 250) {
+            _settings.update { it.copy(lastText = text) }
+            save()
+        }
     }
 }

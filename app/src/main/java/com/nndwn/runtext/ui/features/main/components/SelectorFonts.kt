@@ -66,7 +66,7 @@ fun SelectorFonts(
             ) {
                 items(FontType.entries.size) { index ->
                     val item = FontType.entries[index]
-                    val isSelected = settings.fontType == item
+                    val isSelected = settings.textStyle.fontType == item
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

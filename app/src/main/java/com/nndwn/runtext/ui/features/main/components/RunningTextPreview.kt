@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -27,6 +28,8 @@ import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.text.ifEmpty
 import kotlin.text.isEmpty
 
@@ -35,8 +38,8 @@ fun RunningTextPreview(settings: AppSettings) {
     val text = settings.lastText.ifEmpty { "PREVIEW" }
     val textMeasurer = rememberTextMeasurer()
 
-    val fontFamily = fontFamilyFor(settings.fontType)
-    val fontWeight = FontWeight.Normal // Default to normal for the new curated fonts
+    val fontFamily = fontFamilyFor(settings.textStyle.fontType)
+    val fontWeight = FontWeight.Normal
 
     // RTL detection for consistency
     val isRtl = remember(text) {
@@ -48,6 +51,20 @@ fun RunningTextPreview(settings: AppSettings) {
             )
             bidi.isRightToLeft
         }
+    }
+
+    val textShadow = if (settings.shadow.isEnabled){
+        val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
+        val offsetX = (settings.shadow.distance * cos(angleInRadians)).toFloat()
+        val offsetY = (settings.shadow.distance * sin(angleInRadians)).toFloat()
+
+        Shadow(
+            color = settings.shadow.colorArgb.toComposeColor(),
+            offset = Offset(x = offsetX, y = offsetY),
+            blurRadius = settings.shadow.radius
+        )
+    } else {
+        Shadow.None
     }
 
     BoxWithConstraints(
@@ -73,11 +90,11 @@ fun RunningTextPreview(settings: AppSettings) {
         val textWidth = initialLayoutResult.size.width.toFloat()
         val textHeight = initialLayoutResult.size.height.toFloat()
 
-        val textStyle = if (settings.textColorType == com.nndwn.runtext.data.model.TextColorType.GRADIENT) {
-            val color1 = settings.gradientColorsArgb.getOrElse(0) { settings.textColorArgb }.toComposeColor()
-            val color2 = settings.gradientColorsArgb.getOrElse(1) { settings.textColorArgb }.toComposeColor()
+        val textStyle = if (settings.textStyle.colorType == com.nndwn.runtext.data.model.TextColorType.GRADIENT) {
+            val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
+            val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb}.toComposeColor()
 
-            val endOffset = if (settings.gradientPositionHorizontal) {
+            val endOffset = if (settings.textStyle.isGradientHorizontal) {
                 Offset(textWidth, 0f)
             } else {
                 Offset(0f, textHeight)
@@ -89,17 +106,19 @@ fun RunningTextPreview(settings: AppSettings) {
                 fontSize = 40.sp,
                 brush = Brush.linearGradient(
                     0.0f to color1,
-                    settings.gradientDistance to color2,
+                    settings.textStyle.gradientDistance to color2,
                     start = Offset(0f, 0f),
                     end = endOffset
-                )
+                ),
+                shadow = textShadow
             )
         } else {
             TextStyle(
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
                 fontSize = 40.sp,
-                color = settings.textColorArgb.toComposeColor(),
+                color = settings.textStyle.colorArgb.toComposeColor(),
+                shadow = textShadow
             )
         }
 
@@ -131,16 +150,16 @@ fun RunningTextPreview(settings: AppSettings) {
                     rotationY = if (settings.isMirrorMode) 180f else 0f
                 }
         ) {
-            if (settings.isStrokeEnabled && settings.strokeWidth > 0) {
+            if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                 Text(
                     text = text,
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = fontWeight,
                         fontSize = 40.sp,
-                        color = settings.strokeColorArgb.toComposeColor(),
+                        color = settings.stroke.colorArgb.toComposeColor(),
                         drawStyle = Stroke(
-                            width = settings.strokeWidth * 2f,
+                            width = settings.stroke.width * 2f,
                             join = StrokeJoin.Round
                         )
                     ),
