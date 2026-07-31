@@ -1,7 +1,11 @@
 package com.nndwn.runtext.ui.features.main.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -11,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -34,10 +39,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.extentions.shimmer
+import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.RuntextTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -142,6 +151,50 @@ private fun AppModeItem(
                 fontSize = 14.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
             )
+        }
+    }
+}
+
+@Composable
+fun AppModeSettingsSkeleton(
+    shimmerProgress: Float,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .shimmer(
+                progress = shimmerProgress,
+                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                shimmerColor = Palette.Grey,
+                shape = RoundedCornerShape(12.dp)
+            )
+    )
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    val transition = rememberInfiniteTransition(label = "Preview")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Progress"
+    )
+
+    RuntextTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            AppModeSettings(
+                currentMode = AppMode.RUNNING_TEXT,
+                onModeChange = {}
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            AppModeSettingsSkeleton(shimmerProgress = progress)
         }
     }
 }

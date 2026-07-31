@@ -5,22 +5,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.ui.component.MainLayout
-import com.nndwn.runtext.ui.features.main.MainViewModel
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
 
 @Composable
 fun RunTextApp(
     navController: NavHostController = rememberNavController(),
-    viewModel: MainViewModel = hiltViewModel()
 ) {
-    val settings by viewModel.settings.collectAsStateWithLifecycle()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
@@ -33,9 +28,7 @@ fun RunTextApp(
         sideBarRight = { }
     ) {
         AppNavigation(
-            settings = settings,
-            onEvent = viewModel::onEvent, // CUKUP 1 LINE INI!
-            onMenuClick = { isSidebarOpen = !isSidebarOpen },
+            sidebarEnd = { isSidebarOpen = !isSidebarOpen },
             navController = navController
         )
     }

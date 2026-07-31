@@ -109,12 +109,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                 onCloseSidebar = { isSidebarOpen = false },
                 sideBarRight = { }
             ) {
-                AppNavigation(
-                    settings = settings,
-                    onEvent = handleEvent,
-                    onMenuClick = { isSidebarOpen = !isSidebarOpen },
-                    navController = navController
-                )
+
             }
         }
 

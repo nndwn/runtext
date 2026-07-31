@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.features.main.MainScreen
-import com.nndwn.runtext.ui.features.main.MainUiEvent
 
 object Routes {
     const val INPUT = "input"
@@ -15,9 +13,7 @@ object Routes {
 
 @Composable
 fun AppNavigation(
-    settings: AppSettings,
-    onEvent: (MainUiEvent) -> Unit,
-    onMenuClick: () -> Unit,
+    sidebarEnd: () -> Unit,
     navController: NavHostController
 ) {
     NavHost(
@@ -25,11 +21,7 @@ fun AppNavigation(
         startDestination = Routes.INPUT
     ) {
         composable(Routes.INPUT) {
-            MainScreen(
-                settings = settings,
-                onEvent = onEvent,
-                onMenuClick = onMenuClick
-            )
+            MainScreen(sideBarEnd = sidebarEnd)
         }
         composable(Routes.DISPLAY) {
             // Display Screen
