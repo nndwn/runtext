@@ -13,11 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppSettings
@@ -37,6 +38,7 @@ import com.nndwn.runtext.ui.component.SlideUpPanel
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
+import com.nndwn.runtext.ui.utils.fontFamilyFor
 
 data class TextPreset(
     val name: String,
@@ -44,6 +46,92 @@ data class TextPreset(
 )
 
 val Presets = listOf(
+    // 7. Caution Alert - Bold Warning Sign
+    TextPreset(
+        name = "Caution Alert",
+        settings = AppSettings(
+            bgColorArgb = Color(0xFFFFCC00).toArgbLong(), // Caution Yellow
+            textStyle = TextStyleConfig(
+                colorType = TextColorType.SOLID,
+                colorArgb = Color(0xFF111111).toArgbLong(),
+                fontType = FontType.ARCHIVO_BLACK,
+                letterSpacingSp = 2f
+            ),
+            stroke = StrokeConfig(
+                isEnabled = true,
+                width = 3f,
+                colorArgb = Color(0xFF111111).toArgbLong()
+            )
+        )
+    ),
+    // 9. Comic Pop - Fun Animated Vibe
+    TextPreset(
+        name = "Comic Pop",
+        settings = AppSettings(
+            bgColorArgb = Color(0xFF2979FF).toArgbLong(), // Bright Blue
+            textStyle = TextStyleConfig(
+                colorType = TextColorType.SOLID,
+                colorArgb = Color(0xFFFFEA00).toArgbLong(), // Yellow
+                fontType = FontType.BANGERS,
+                letterSpacingSp = 2f
+            ),
+            stroke = StrokeConfig(
+                isEnabled = true,
+                width = 4f,
+                colorArgb = Color(0xFF000000).toArgbLong()
+            ),
+            shadow = ShadowConfig(
+                isEnabled = true,
+                colorArgb = Color(0xFF000000).toArgbLong(),
+                radius = 2f,
+                distance = 6f,
+                rotation = 45f
+            )
+        )
+    ),
+    // 10. Cute Pastel - Soft Handwriting
+    TextPreset(
+        name = "Cute Pastel",
+        settings = AppSettings(
+            bgColorArgb = Color(0xFF3A2E39).toArgbLong(),
+            textStyle = TextStyleConfig(
+                colorType = TextColorType.GRADIENT,
+                gradientColorsArgb = listOf(
+                    Color(0xFFF8BBD0).toArgbLong(), // Soft Pink
+                    Color(0xFFE1BEE7).toArgbLong()  // Soft Purple
+                ),
+                fontType = FontType.PACIFICO,
+                letterSpacingSp = 1f
+            ),
+            shadow = ShadowConfig(
+                isEnabled = true,
+                colorArgb = Color(0xFFFFFFFF).toArgbLong(),
+                radius = 6f,
+                distance = 3f,
+                rotation = 45f
+            )
+        )
+    ),
+    // 5. Electric EDM - High Contrast Party
+    TextPreset(
+        name = "Electric EDM",
+        settings = AppSettings(
+            bgColorArgb = Color(0xFF4A00E0).toArgbLong(), // Electric Purple
+            textStyle = TextStyleConfig(
+                colorType = TextColorType.SOLID,
+                colorArgb = Color(0xFF8E2DE2).toArgbLong(), // Bright Yellow
+                fontType = FontType.ANTON,
+                letterSpacingSp = 2f
+            ),
+            shadow = ShadowConfig(
+                isEnabled = true,
+                colorArgb = Color(0xFF000000).toArgbLong(),
+                radius = 4f,
+                distance = 8f,
+                rotation = 90f
+            )
+        )
+    ),
     // 1. Cyber Neon - Modern Cyberpunk
     TextPreset(
         name = "Cyber Neon",
@@ -138,26 +226,7 @@ val Presets = listOf(
         )
     ),
 
-    // 5. Electric EDM - High Contrast Party
-    TextPreset(
-        name = "Electric EDM",
-        settings = AppSettings(
-            bgColorArgb = Color(0xFF4A00E0).toArgbLong(), // Electric Purple
-            textStyle = TextStyleConfig(
-                colorType = TextColorType.SOLID,
-                colorArgb = Color(0xFF8E2DE2).toArgbLong(), // Bright Yellow
-                fontType = FontType.ANTON,
-                letterSpacingSp = 2f
-            ),
-            shadow = ShadowConfig(
-                isEnabled = true,
-                colorArgb = Color(0xFF000000).toArgbLong(),
-                radius = 4f,
-                distance = 8f,
-                rotation = 90f
-            )
-        )
-    ),
+
 
     // 6. Gold Luxury - Premium Elegant
     TextPreset(
@@ -182,24 +251,7 @@ val Presets = listOf(
         )
     ),
 
-    // 7. Caution Alert - Bold Warning Sign
-    TextPreset(
-        name = "Caution Alert",
-        settings = AppSettings(
-            bgColorArgb = Color(0xFFFFCC00).toArgbLong(), // Caution Yellow
-            textStyle = TextStyleConfig(
-                colorType = TextColorType.SOLID,
-                colorArgb = Color(0xFF111111).toArgbLong(),
-                fontType = FontType.ARCHIVO_BLACK,
-                letterSpacingSp = 2f
-            ),
-            stroke = StrokeConfig(
-                isEnabled = true,
-                width = 3f,
-                colorArgb = Color(0xFF111111).toArgbLong()
-            )
-        )
-    ),
+
 
     // 8. Frozen Ice - Cool Frosty Vibe
     TextPreset(
@@ -229,55 +281,9 @@ val Presets = listOf(
         )
     ),
 
-    // 9. Comic Pop - Fun Animated Vibe
-    TextPreset(
-        name = "Comic Pop",
-        settings = AppSettings(
-            bgColorArgb = Color(0xFF2979FF).toArgbLong(), // Bright Blue
-            textStyle = TextStyleConfig(
-                colorType = TextColorType.SOLID,
-                colorArgb = Color(0xFFFFEA00).toArgbLong(), // Yellow
-                fontType = FontType.BANGERS,
-                letterSpacingSp = 2f
-            ),
-            stroke = StrokeConfig(
-                isEnabled = true,
-                width = 4f,
-                colorArgb = Color(0xFF000000).toArgbLong()
-            ),
-            shadow = ShadowConfig(
-                isEnabled = true,
-                colorArgb = Color(0xFF000000).toArgbLong(),
-                radius = 2f,
-                distance = 6f,
-                rotation = 45f
-            )
-        )
-    ),
 
-    // 10. Cute Pastel - Soft Handwriting
-    TextPreset(
-        name = "Cute Pastel",
-        settings = AppSettings(
-            bgColorArgb = Color(0xFF3A2E39).toArgbLong(),
-            textStyle = TextStyleConfig(
-                colorType = TextColorType.GRADIENT,
-                gradientColorsArgb = listOf(
-                    Color(0xFFF8BBD0).toArgbLong(), // Soft Pink
-                    Color(0xFFE1BEE7).toArgbLong()  // Soft Purple
-                ),
-                fontType = FontType.PACIFICO,
-                letterSpacingSp = 1f
-            ),
-            shadow = ShadowConfig(
-                isEnabled = true,
-                colorArgb = Color(0xFFFFFFFF).toArgbLong(),
-                radius = 6f,
-                distance = 3f,
-                rotation = 45f
-            )
-        )
-    ),
+
+
 
     // 11. Minimal Dark - Modern Clean
     TextPreset(
@@ -362,7 +368,7 @@ fun PresetItem(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(100.dp)
+
             .clickable(onClick = onClick)
     ) {
         Box(
@@ -381,6 +387,7 @@ fun PresetItem(
             // Menggunakan Text preview biasa / RunningTextPreview mini
             Text(
                 text = "Aa",
+                fontFamily = fontFamilyFor(preset.settings.textStyle.fontType),
                 color = if (preset.settings.textStyle.colorType == TextColorType.SOLID) {
                     preset.settings.textStyle.colorArgb.toComposeColor()
                 } else {
@@ -393,10 +400,10 @@ fun PresetItem(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = preset.name,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = Palette.White,
-            fontWeight = FontWeight.Medium,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

@@ -17,11 +17,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,8 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -64,8 +60,6 @@ import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.Header
 import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
-import com.nndwn.runtext.ui.features.main.components.PresetItem
-import com.nndwn.runtext.ui.features.main.components.Presets
 import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.SelectorPresets
@@ -76,6 +70,7 @@ import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
+import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.theme.Palette
@@ -93,11 +88,16 @@ fun MainScreen(
 
     val isTablet = LocalIsTablet.current
     val focusManager = LocalFocusManager.current
-    var expandedPickerId by remember { mutableStateOf<String?>(null) }
+    var expandedPickerId by remember { mutableStateOf<String?>("text_presets") }
     var showPanelFonts by remember { mutableStateOf(false) }
     var showPanelPresets by remember { mutableStateOf(false) }
     
     val closePicker = { expandedPickerId = null }
+
+    val togglePicker: (String) -> Unit = { id ->
+        expandedPickerId = if (expandedPickerId == id) null else id
+        focusManager.clearFocus()
+    }
 
     val dispatch: (MainUiEvent) -> Unit = { event ->
         if (event !is MainUiEvent.UpdateText && event !is MainUiEvent.ClearText) {
@@ -250,35 +250,7 @@ fun MainScreen(
                         item {
                             Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                         }
-                        item {
-                            Column(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = "Presets",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(horizontal = Dimens.PaddingHorizontal)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
 
-                                LazyRow(
-                                    contentPadding = PaddingValues(horizontal = Dimens.PaddingHorizontal),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    items(Presets) { preset ->
-                                        PresetItem(
-                                            preset = preset,
-                                            onClick = {
-                                                dispatch(MainUiEvent.ApplyPreset(preset.settings))
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                        }
                         item {
                             BoxWithConstraints(
                                 modifier = Modifier
@@ -308,6 +280,12 @@ fun MainScreen(
                                     Column(
                                         modifier = Modifier.width(localMaxWidth)
                                     ) {
+                                       TextPresetConfig(
+                                           expandedId = expandedPickerId,
+                                           onToggle = togglePicker,
+                                           onEvent = dispatch
+                                       )
+                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         SpeedConfig(
                                             speed = settings.speed,
                                             onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
@@ -334,8 +312,8 @@ fun MainScreen(
                                         Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextSpacingConfig(
                                             config = settings.textStyle,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                            expandedId = expandedPickerId,
+                                            onToggle = togglePicker,
                                             onEvent = dispatch
                                         )
 
@@ -344,9 +322,7 @@ fun MainScreen(
                                             label = stringResource(R.string.set_config_color_background),
                                             currentValue = settings.bgColorArgb,
                                             isExpanded = expandedPickerId == "bg",
-                                            onToggleExpand = {
-                                                expandedPickerId = if (expandedPickerId == "bg") null else "bg"
-                                            },
+                                            onToggleExpand = { togglePicker("bg") },
                                             onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
                                         )
                                         Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
@@ -354,23 +330,21 @@ fun MainScreen(
                                             label = stringResource(R.string.set_config_text_color_text),
                                             config = settings.textStyle,
                                             expandedPickerId = expandedPickerId,
-                                            onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                            onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
                                         Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextOutlineConfig(
                                             config = settings.stroke,
                                             expandedPickerId = expandedPickerId,
-                                            onPickerToggle = { id -> expandedPickerId = if (expandedPickerId == id) null else id },
+                                            onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
                                         Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextShadowConfig(
                                             config = settings.shadow,
                                             expandedPickerId = expandedPickerId,
-                                            onPickerToggle = { id ->
-                                                expandedPickerId = if (expandedPickerId == id) null else id
-                                            },
+                                            onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
                                     }
@@ -387,6 +361,7 @@ fun MainScreen(
 
             }
             (uiState as? SettingsUiState.Success)?.let { success ->
+
                 SelectorFonts(
                     settings = success.settings,
                     onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },

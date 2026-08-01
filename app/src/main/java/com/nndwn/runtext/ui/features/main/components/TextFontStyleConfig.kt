@@ -34,29 +34,25 @@ import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 
 
-
 @Composable
 fun TextFontStyleConfig(
     config: TextStyleConfig,
     onClick : () -> Unit,
 ){
-    ConfigCard {
+    ConfigCard (
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+    ){
         Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
         Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                   onClick()
-                }
-        ) {
-            Text(
-                text = config.fontType.displayName,
-                fontFamily = fontFamilyFor(config.fontType),
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp
-            )
-        }
+        Text(
+            text = config.fontType.displayName,
+            fontFamily = fontFamilyFor(config.fontType),
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp
+        )
     }
 }
 
