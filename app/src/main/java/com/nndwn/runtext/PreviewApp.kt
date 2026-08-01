@@ -8,11 +8,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.MainLayout
+import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiEvent
+import com.nndwn.runtext.ui.features.main.SettingsUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.LocalIsTablet
@@ -29,7 +33,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
     var settings by remember { mutableStateOf(AppSettings(
-        lastText = "test"
+        lastText = "test preview"
     )) }
 
     val handleEvent: (MainUiEvent) -> Unit = { event ->
@@ -98,8 +102,8 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateShadowRotation -> settings.copy(
                 shadow = settings.shadow.copy(rotation = event.rotation)
             )
-            is MainUiEvent.ApplyPreset -> settings.copy(
-                lastText = event.settings.lastText
+            is MainUiEvent.ApplyPreset -> event.settings.copy(
+                lastText = settings.lastText
             )
 
 
@@ -112,7 +116,22 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                 onCloseSidebar = { isSidebarOpen = false },
                 sideBarRight = { }
             ) {
-
+                NavHost(
+                    navController = navController,
+                    startDestination = Routes.INPUT
+                ) {
+                    composable(Routes.INPUT) {
+                       MainScreenContent(
+                           uiState = SettingsUiState.Success(settings),
+                           onEvent = handleEvent,
+                           sideBarEnd = { isSidebarOpen = true },
+                           onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) }
+                       )
+                    }
+                    composable(Routes.DISPLAY) {
+                        // Display Screen
+                    }
+                }
             }
         }
 

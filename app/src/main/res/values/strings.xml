@@ -26,4 +26,5 @@
     <string name="set_config_text_mirror">Mirror Mode</string>
     <string name="set_config_text_mirror_desc">Flip text for mirror reflection</string>
     <string name="set_config_text_presets">Presets</string>
+    <string name="btn_start">Start</string>
 </resources>

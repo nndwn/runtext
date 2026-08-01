@@ -36,7 +36,7 @@ fun TextOutlineConfig(
                 subtitle = stringResource(R.string.set_config_text_outline_desc),
                 checked = config.isEnabled,
                 onCheckedChange = { onEvent(MainUiEvent.ToggleStroke(it)) },
-                accentColor = Palette.NeonGreen
+                accentColor = Palette.Yellow
             )
             Spacer(modifier = Modifier.height(16.dp))
             if (config.isEnabled) {

@@ -25,11 +25,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,7 +48,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,6 +60,7 @@ import com.nndwn.runtext.extentions.shimmer
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.ConfigCardSkeleton
 import com.nndwn.runtext.ui.component.SwitchRow
+import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
@@ -65,6 +71,7 @@ import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.SelectorPresets
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
+import com.nndwn.runtext.ui.features.main.components.StartButton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfig
@@ -81,11 +88,26 @@ import com.nndwn.runtext.ui.utils.LocalIsTablet
 @Composable
 fun MainScreen(
     viewModel : MainViewModel = hiltViewModel(),
-    sideBarEnd: () -> Unit
+    sideBarEnd: () -> Unit,
+    onNavigateToDisplay: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    MainScreenContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        sideBarEnd = sideBarEnd,
+        onNavigateToDisplay = onNavigateToDisplay
+    )
+}
 
+@Composable
+fun MainScreenContent(
+    uiState: SettingsUiState,
+    onEvent: (MainUiEvent) -> Unit,
+    sideBarEnd: () -> Unit,
+    onNavigateToDisplay: () -> Unit
+) {
     val isTablet = LocalIsTablet.current
     val focusManager = LocalFocusManager.current
     var expandedPickerId by remember { mutableStateOf<String?>("text_presets") }
@@ -103,7 +125,7 @@ fun MainScreen(
         if (event !is MainUiEvent.UpdateText && event !is MainUiEvent.ClearText) {
             focusManager.clearFocus()
         }
-        viewModel.onEvent(event)
+        onEvent(event)
     }
 
     val dispatchAndClosePicker: (MainUiEvent) -> Unit = { event ->
@@ -122,6 +144,8 @@ fun MainScreen(
         ),
         label = "MainShimmerProgress"
     )
+
+    var showStart by remember { mutableStateOf(true) }
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -143,33 +167,68 @@ fun MainScreen(
 
         // Main Content Area
         Scaffold(
-            topBar = {
-                AnimatedVisibility(
-                    visible = !isTablet,
-                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
-                ) {
-                    Header(
-                        withSidebar = true,
-                        onMenuClick = sideBarEnd
-                    )
-                }
+            bottomBar = {
+                StartButton(
+                    showStart = showStart && uiState is SettingsUiState.Success,
+                    onClick ={
+                        onNavigateToDisplay()
+                        showStart = false
+                    }
+                )
             }
         ) { innerPadding ->
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                    )
                     .padding(
                         horizontal = Dimens.PaddingHorizontal,
                         vertical = Dimens.ArrangementHeight
                     )
+                    .navigationBarsPadding()
 
             ) {
                 item {
+                   AnimatedVisibility(
+                        visible = !isTablet,
+                        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding( vertical = 8.dp)
+                            ,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.logo),
+                                contentDescription = null,
+                                tint = Palette.White,
+                                modifier = Modifier
+                                    .size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = stringResource(R.string.app_name),
+                                color = Palette.White,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Black
+                                ),
+                                modifier = Modifier.weight(1f)
+                            )
+                            ThreeDotsHorizontal(onClick = { sideBarEnd() })
+
+                        }
+                    }
+                }
+                item {
                     Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                 }
-                when (val state = uiState) {
+                when (uiState) {
                     is SettingsUiState.Loading -> {
                         stickyHeader {
                             Box(
@@ -203,7 +262,7 @@ fun MainScreen(
                         }
                     }
                     is SettingsUiState.Success -> {
-                        val settings = state.settings
+                        val settings = uiState.settings
                         stickyHeader {
                             Box(
                                 modifier = Modifier
@@ -297,7 +356,7 @@ fun MainScreen(
                                                 subtitle = stringResource(R.string.set_config_text_mirror_desc),
                                                 checked = settings.isMirrorMode,
                                                 onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
-                                                accentColor = Palette.NeonGreen
+                                                accentColor = Palette.Yellow
                                             )
                                         }
 
@@ -358,8 +417,13 @@ fun MainScreen(
                         }
                     }
                 }
+                item {
+                    Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
+                }
 
             }
+
+            
             (uiState as? SettingsUiState.Success)?.let { success ->
 
                 SelectorFonts(

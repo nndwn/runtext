@@ -123,7 +123,7 @@ fun TextColorPickerConfig(
                         stringResource(R.string.set_config_text_color_type_gradient_vertical),
                     checked = config.isGradientHorizontal,
                     onCheckedChange = { onEvent(MainUiEvent.ToggleGradientHorizontal(it)) },
-                    accentColor = Palette.NeonGreen,
+                    accentColor = Palette.Yellow,
                 )
             }
         }

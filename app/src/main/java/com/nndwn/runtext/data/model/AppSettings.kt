@@ -110,9 +110,9 @@ data class AppSettings(
 
 
 data class TextStyleConfig(
-    val colorArgb: Long = Palette.NeonGreen.toArgbLong(),
+    val colorArgb: Long = Palette.Yellow.toArgbLong(),
     val colorType: TextColorType = TextColorType.SOLID,
-    val gradientColorsArgb: List<Long> = listOf(Palette.NeonGreen.toArgbLong(), Palette.NeonPink.toArgbLong()),
+    val gradientColorsArgb: List<Long> = listOf(Palette.Yellow.toArgbLong(), Palette.NeonPink.toArgbLong()),
     val gradientDistance: Float = 0.5f,
     val isGradientHorizontal: Boolean = false,
     val fontType: FontType = FontType.ROBOTO,

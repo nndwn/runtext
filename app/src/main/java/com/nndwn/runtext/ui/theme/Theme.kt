@@ -6,10 +6,10 @@ import androidx.compose.runtime.Composable
 
 
 private val RunTxtDarkColorScheme = darkColorScheme(
-    primary = Palette.NeonGreen,
+    primary = Palette.Yellow,
     onPrimary = Palette.Black2,
-    primaryContainer = Palette.NeonGreen.copy(alpha = 0.15f),
-    onPrimaryContainer = Palette.NeonGreen,
+    primaryContainer = Palette.Yellow.copy(alpha = 0.15f),
+    onPrimaryContainer = Palette.Yellow,
     secondary = Palette.NeonCyan,
     onSecondary = Palette.Black2,
     secondaryContainer = Palette.NeonCyan.copy(alpha = 0.15f),

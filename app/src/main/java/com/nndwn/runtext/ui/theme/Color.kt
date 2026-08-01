@@ -12,7 +12,7 @@ object Palette {
     val White = Color(0xFFF5F5FF)
     val NeonRed = Color(0xFFFF0040)
     val NeonPink = Color(0xFFFF006E)
-    val NeonGreen = Color(0xFF00FF41)
+    val Yellow = Color(0xFFFFCC00)
     val NeonCyan = Color(0xFF00D4FF)
 }
 
