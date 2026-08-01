@@ -1,17 +1,19 @@
 package com.nndwn.runtext.ui.features.main
 
 import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.TextColorType
 
 sealed interface MainUiEvent {
     // ── General / Text Input ──
+    data class ApplyPreset(val settings: AppSettings) : MainUiEvent
     data class UpdateText(val text: String) : MainUiEvent
     object ClearText : MainUiEvent
     data class UpdateMode(val mode: AppMode) : MainUiEvent
     data class UpdateSpeed(val speed: Float) : MainUiEvent
     data class UpdateBgColor(val colorArgb: Long) : MainUiEvent
-    object ToggleMirrorMode : MainUiEvent
+    data class UpdateMirrorMode(val mirror : Boolean) : MainUiEvent
 
     // ── Text Style Events ──
     data class UpdateTextColor(val colorArgb: Long) : MainUiEvent

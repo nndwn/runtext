@@ -31,9 +31,10 @@ class MainViewModel @Inject constructor(
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
-    val uiState : StateFlow<SettingsUiState> = repository.settingsFlow
+    val uiState: StateFlow<SettingsUiState> = _settings
         .map { settings ->
-            SettingsUiState.Success(settings)
+            if (settings == null) SettingsUiState.Loading 
+            else SettingsUiState.Success(settings)
         }
         .stateIn(
             scope = viewModelScope,
@@ -73,12 +74,15 @@ class MainViewModel @Inject constructor(
     fun onEvent(event: MainUiEvent) {
         when (event) {
             // General
+            is MainUiEvent.ApplyPreset -> updateSettings { 
+                event.settings.copy(lastText = it.lastText) 
+            }
             is MainUiEvent.UpdateText -> updateText(event.text)
             is MainUiEvent.ClearText -> updateText("")
             is MainUiEvent.UpdateMode -> updateSettings { it.copy(mode = event.mode) }
             is MainUiEvent.UpdateSpeed -> updateSettings { it.copy(speed = event.speed) }
             is MainUiEvent.UpdateBgColor -> updateSettings { it.copy(bgColorArgb = event.colorArgb) }
-            is MainUiEvent.ToggleMirrorMode -> updateSettings { it.copy(isMirrorMode = !it.isMirrorMode) }
+            is MainUiEvent.UpdateMirrorMode -> updateSettings { it.copy(isMirrorMode = event.mirror) }
 
             // Text Style
             is MainUiEvent.UpdateTextColor -> updateSettings { it.copy(textStyle = it.textStyle.copy(colorArgb = event.colorArgb)) }
@@ -107,6 +111,4 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-
 }

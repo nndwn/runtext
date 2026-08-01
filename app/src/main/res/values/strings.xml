@@ -23,4 +23,6 @@
     <string name="set_config_text_spacing">Spacing</string>
     <string name="set_config_text_spacing_text">Letter Spacing</string>
     <string name="set_config_text_spacing_word">Word Spacing</string>
+    <string name="set_config_text_mirror">Mirror Mode</string>
+    <string name="set_config_text_mirror_desc">Flip text for mirror reflection</string>
 </resources>

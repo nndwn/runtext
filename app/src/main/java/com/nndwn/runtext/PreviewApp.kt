@@ -13,7 +13,6 @@ import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.features.main.MainUiEvent
-import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.LocalIsTablet
@@ -41,7 +40,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateMode -> settings.copy(mode = event.mode)
             is MainUiEvent.UpdateSpeed -> settings.copy(speed = event.speed)
             is MainUiEvent.UpdateBgColor -> settings.copy(bgColorArgb = event.colorArgb)
-            is MainUiEvent.ToggleMirrorMode -> settings.copy(isMirrorMode = !settings.isMirrorMode)
+            is MainUiEvent.UpdateMirrorMode -> settings.copy(isMirrorMode = !settings.isMirrorMode)
 
             // Text Style
             is MainUiEvent.UpdateTextColor -> settings.copy(
@@ -99,6 +98,10 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateShadowRotation -> settings.copy(
                 shadow = settings.shadow.copy(rotation = event.rotation)
             )
+            is MainUiEvent.ApplyPreset -> settings.copy(
+                lastText = event.settings.lastText
+            )
+
 
         }
     }
