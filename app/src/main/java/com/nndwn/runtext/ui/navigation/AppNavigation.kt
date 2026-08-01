@@ -14,7 +14,7 @@ object Routes {
 @Composable
 fun AppNavigation(
     sidebarEnd: () -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     NavHost(
         navController = navController,

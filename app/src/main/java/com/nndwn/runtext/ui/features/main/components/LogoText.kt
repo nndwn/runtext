@@ -1,6 +1,5 @@
 package com.nndwn.runtext.ui.features.main.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,55 +14,56 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
-import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.Dimens
 
 @Composable
-fun Header(
+fun HeaderStartSideBar(
     modifier: Modifier = Modifier,
-    colorBackground:  Color = Color.Transparent,
-    withSidebar : Boolean = false,
-    onMenuClick : () -> Unit = {}
 ) {
     Box( modifier = modifier
         .fillMaxWidth()
-        .background(colorBackground)
         .statusBarsPadding()
     ){
-        Row(
+        LogoText(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(horizontal = Dimens.PaddingHorizontal, vertical = 10.dp)
-            ,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = null,
-                tint = Palette.White,
-                modifier = Modifier
-                    .size(48.dp)
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                color = Palette.White,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Black
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            if (withSidebar) {
-                ThreeDotsHorizontal(onClick = onMenuClick)
-            }
+        )
+    }
+}
 
-        }
+@Composable
+fun LogoText(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {}
+){
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+        ,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = null,
+            tint = Palette.White,
+            modifier = Modifier
+                .size(48.dp)
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = stringResource(R.string.app_name),
+            color = Palette.White,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Black
+            ),
+            modifier = Modifier.weight(1f)
+        )
+        content()
     }
 }

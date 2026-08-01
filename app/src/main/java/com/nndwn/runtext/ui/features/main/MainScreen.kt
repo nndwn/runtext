@@ -15,24 +15,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,14 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,14 +58,13 @@ import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
-import com.nndwn.runtext.ui.features.main.components.Header
-import com.nndwn.runtext.ui.features.main.components.MorseFlashPreview
-import com.nndwn.runtext.ui.features.main.components.RunningTextPreview
+import com.nndwn.runtext.ui.features.main.components.HeaderStartSideBar
+import com.nndwn.runtext.ui.features.main.components.LogoText
+import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.SelectorPresets
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
-import com.nndwn.runtext.ui.features.main.components.StartButton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfig
@@ -81,7 +74,6 @@ import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.theme.Palette
-import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
 
@@ -145,8 +137,6 @@ fun MainScreenContent(
         label = "MainShimmerProgress"
     )
 
-    var showStart by remember { mutableStateOf(true) }
-
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
         AnimatedVisibility(
@@ -157,7 +147,7 @@ fun MainScreenContent(
             Scaffold(
                 modifier = Modifier.width(300.dp),
                 containerColor = Palette.Black3,
-                topBar = { Header() }
+                topBar = { HeaderStartSideBar() }
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
                     // Configuration UI for tablet could go here
@@ -166,17 +156,7 @@ fun MainScreenContent(
         }
 
         // Main Content Area
-        Scaffold(
-            bottomBar = {
-                StartButton(
-                    showStart = showStart && uiState is SettingsUiState.Success,
-                    onClick ={
-                        onNavigateToDisplay()
-                        showStart = false
-                    }
-                )
-            }
-        ) { innerPadding ->
+        Scaffold() { innerPadding ->
 
             LazyColumn(
                 modifier = Modifier
@@ -184,11 +164,14 @@ fun MainScreenContent(
                     .padding(
                         top = innerPadding.calculateTopPadding(),
                     )
-                    .padding(
-                        horizontal = Dimens.PaddingHorizontal,
-                        vertical = Dimens.ArrangementHeight
-                    )
                     .navigationBarsPadding()
+                ,
+                contentPadding = PaddingValues(
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = Dimens.PaddingHorizontal,
+                    end = Dimens.PaddingHorizontal,
+                ),
+                verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
 
             ) {
                 item {
@@ -197,36 +180,14 @@ fun MainScreenContent(
                         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding( vertical = 8.dp)
-                            ,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.logo),
-                                contentDescription = null,
-                                tint = Palette.White,
-                                modifier = Modifier
-                                    .size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = stringResource(R.string.app_name),
-                                color = Palette.White,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Black
-                                ),
-                                modifier = Modifier.weight(1f)
-                            )
-                            ThreeDotsHorizontal(onClick = { sideBarEnd() })
-
-                        }
+                       LogoText(
+                           modifier = Modifier
+                               .padding( vertical = 8.dp),
+                           content = {
+                               ThreeDotsHorizontal(onClick = { sideBarEnd() })
+                           }
+                       )
                     }
-                }
-                item {
-                    Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                 }
                 when (uiState) {
                     is SettingsUiState.Loading -> {
@@ -234,7 +195,7 @@ fun MainScreenContent(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(120.dp)
+                                    .height(140.dp)
                                     .shimmer(
                                         progress = shimmerProgress,
                                         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -243,52 +204,28 @@ fun MainScreenContent(
                                     )
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(Dimens.ArrangementHeight)) }
                         item {
                             TextInputConfigSkeleton(shimmerProgress = shimmerProgress)
                         }
-                        item { Spacer(modifier = Modifier.height(Dimens.ArrangementHeight)) }
                         item {
                             AppModeSettingsSkeleton(shimmerProgress = shimmerProgress)
                         }
-                        item { Spacer(modifier = Modifier.height(Dimens.ArrangementHeight)) }
                         item {
                             SpeedConfigSkeleton(shimmerProgress = shimmerProgress)
                         }
-                        item { Spacer(modifier = Modifier.height(Dimens.ArrangementHeight)) }
                         items(5) {
                             ConfigCardSkeleton(shimmerProgress = shimmerProgress)
-                            Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                         }
                     }
                     is SettingsUiState.Success -> {
                         val settings = uiState.settings
                         stickyHeader {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp)
-                                    .clip(RoundedCornerShape(Dimens.RoundedCorner))
-                                    .background(settings.bgColorArgb.toComposeColor())
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(Dimens.RoundedCorner)
-                                    )
-                                ,
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (settings.mode == AppMode.RUNNING_TEXT) {
-                                    RunningTextPreview(settings)
-                                } else {
-                                    MorseFlashPreview(settings)
-                                }
-                            }
+                            PreviewAndStart(
+                              settings = settings,
+                              onNavigateToDisplay = onNavigateToDisplay
+                            )
                         }
 
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                        }
                         item {
                             TextInputConfig(
                                 text = settings.lastText,
@@ -296,18 +233,12 @@ fun MainScreenContent(
                                 onClearText = { dispatch(MainUiEvent.ClearText) }
                             )
                         }
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-                        }
 
                         item {
                             AppModeSettings(
                                 currentMode = settings.mode,
                                 onModeChange = { dispatchAndClosePicker(MainUiEvent.UpdateMode(it)) }
                             )
-                        }
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                         }
 
                         item {
@@ -337,19 +268,18 @@ fun MainScreenContent(
                                         }
                                 ) {
                                     Column(
-                                        modifier = Modifier.width(localMaxWidth)
+                                        modifier = Modifier.width(localMaxWidth),
+                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
                                     ) {
                                        TextPresetConfig(
                                            expandedId = expandedPickerId,
                                            onToggle = togglePicker,
                                            onEvent = dispatch
                                        )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         SpeedConfig(
                                             speed = settings.speed,
                                             onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
                                         )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         ConfigCard {
                                             SwitchRow(
                                                 title = stringResource(R.string.set_config_text_mirror),
@@ -360,15 +290,12 @@ fun MainScreenContent(
                                             )
                                         }
 
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
-
                                         TextFontStyleConfig(
                                             config = settings.textStyle,
                                             onClick = {
                                                 closePicker(); showPanelFonts = !showPanelFonts
                                             }
                                         )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextSpacingConfig(
                                             config = settings.textStyle,
                                             expandedId = expandedPickerId,
@@ -376,7 +303,6 @@ fun MainScreenContent(
                                             onEvent = dispatch
                                         )
 
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         ColorPickerConfig(
                                             label = stringResource(R.string.set_config_color_background),
                                             currentValue = settings.bgColorArgb,
@@ -384,7 +310,6 @@ fun MainScreenContent(
                                             onToggleExpand = { togglePicker("bg") },
                                             onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
                                         )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextColorPickerConfig(
                                             label = stringResource(R.string.set_config_text_color_text),
                                             config = settings.textStyle,
@@ -392,14 +317,12 @@ fun MainScreenContent(
                                             onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextOutlineConfig(
                                             config = settings.stroke,
                                             expandedPickerId = expandedPickerId,
                                             onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
-                                        Spacer(modifier = Modifier.height(Dimens.ArrangementHeight))
                                         TextShadowConfig(
                                             config = settings.shadow,
                                             expandedPickerId = expandedPickerId,
@@ -417,10 +340,6 @@ fun MainScreenContent(
                         }
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
-                }
-
             }
 
             

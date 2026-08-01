@@ -29,7 +29,7 @@ fun RunTextApp(
     ) {
         AppNavigation(
             sidebarEnd = { isSidebarOpen = !isSidebarOpen },
-            navController = navController
+            navController = navController,
         )
     }
 }
