@@ -22,7 +22,6 @@ fun SwitchRow(
     subtitle: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    accentColor: Color,
 ) {
     Row (Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
@@ -35,8 +34,8 @@ fun SwitchRow(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = accentColor,
-                checkedTrackColor = accentColor.copy(alpha = 0.3f),
+                checkedThumbColor = MaterialTheme.colorScheme.onSurface,
+                checkedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
             ),
         )
     }

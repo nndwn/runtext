@@ -64,6 +64,7 @@ class SettingsDataStore @Inject constructor(
         val TORCH_ENABLED = booleanPreferencesKey("morse_torch_enabled")
         val MORSE_BG_COLOR = longPreferencesKey("morse_bg_color")
         val IS_SOUND_ENABLED = booleanPreferencesKey("morse_is_sound_enabled")
+        val IS_VIBRATE_ENABLED = booleanPreferencesKey("morse_is_vibrate_enabled")
     }
 
     val settingsFlow: Flow<AppSettings> = dataStore.data
@@ -118,7 +119,8 @@ class SettingsDataStore @Inject constructor(
                     isFlashScreen = prefs[Keys.FLASH_SCREEN] ?: default.morseConfig.isFlashScreen,
                     isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.morseConfig.isTorchEnabled,
                     bgColorMorse = prefs[Keys.MORSE_BG_COLOR] ?: default.morseConfig.bgColorMorse,
-                    isSoundEnabled = prefs[Keys.IS_SOUND_ENABLED] ?: default.morseConfig.isSoundEnabled
+                    isSoundEnabled = prefs[Keys.IS_SOUND_ENABLED] ?: default.morseConfig.isSoundEnabled,
+                    isVibrateEnabled = prefs[Keys.IS_VIBRATE_ENABLED] ?: default.morseConfig.isVibrateEnabled
                 )
 
             )
@@ -161,6 +163,7 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.TORCH_ENABLED] = settings.morseConfig.isTorchEnabled
             prefs[Keys.MORSE_BG_COLOR] = settings.morseConfig.bgColorMorse
             prefs[Keys.IS_SOUND_ENABLED] = settings.morseConfig.isSoundEnabled
+            prefs[Keys.IS_VIBRATE_ENABLED] = settings.morseConfig.isVibrateEnabled
         }
     }
 }

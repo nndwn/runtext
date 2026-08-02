@@ -116,6 +116,7 @@ class MainViewModel @Inject constructor(
             is MainUiEvent.UpdateFlashScreen -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isFlashScreen = event.isFlashScreen)) }
             is MainUiEvent.UpdateTorchEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isTorchEnabled = event.isTorchEnabled)) }
             is MainUiEvent.UpdateSoundEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)) }
+            is MainUiEvent.UpdateVibrateEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isVibrateEnabled = event.isVibrateEnabled)) }
 
         }
     }

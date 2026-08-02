@@ -43,4 +43,5 @@ sealed interface MainUiEvent {
     data class UpdateFlashScreen(val isFlashScreen: Boolean) : MainUiEvent
     data class UpdateTorchEnabled(val isTorchEnabled: Boolean) : MainUiEvent
     data class UpdateSoundEnabled(val isSoundEnabled: Boolean) : MainUiEvent
+    data class UpdateVibrateEnabled(val isVibrateEnabled: Boolean) : MainUiEvent
 }

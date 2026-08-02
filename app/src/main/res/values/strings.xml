@@ -28,4 +28,13 @@
     <string name="set_config_text_presets">Presets</string>
     <string name="btn_start">Start</string>
     <string name="set_config_morse_color">Morse Color</string>
+    <string name="speed">Speed</string>
+    <string name="set_config_morse_flash_screen">Flash Screen</string>
+    <string name="set_config_morse_flash_screen_desc">Screen flashes with morse signal</string>
+    <string name="set_config_morse_flashlight">Flashlight / Torch</string>
+    <string name="set_config_morse_flashlight_desc">Use camera flash for morse signal</string>
+    <string name="set_config_morse_sound">Sound</string>
+    <string name="set_config_morse_sound_desc">Play audio tone for morse signal</string>
+    <string name="set_config_morse_vibration">Vibration</string>
+    <string name="set_config_morse_vibration_desc">Vibrate phone with morse signal</string>
 </resources>

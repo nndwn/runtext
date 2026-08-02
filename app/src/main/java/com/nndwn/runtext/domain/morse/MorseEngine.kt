@@ -36,7 +36,6 @@ object MorseEngine {
         '+' to ".-.-.",  '-' to "-....-", '_' to "..--.-",
         '"' to ".-..-.", '$' to "...-..-", '@' to ".--.-.",
     )
-
     private val HANGUL_JAMO_MORSE_MAP: Map<Char, String> = mapOf(
         // Consonants (Cho-seong & Jong-seong)
         'ㄱ' to ".-..",  'ㄴ' to "..-.",  'ㄷ' to "-...",  'ㄹ' to "...-",
@@ -74,22 +73,18 @@ object MorseEngine {
         'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
     )
 
-    /**
-     * Pre-built SOS pattern: ···−−−···
-     * Sebagai prosign resmi, dikirim tanpa jeda antar-huruf (hanya jeda simbol 1 unit).
-     */
+    /** Pre-built SOS pattern: ···−−−··· */
     val SOS_PATTERN: List<MorseElement> = buildList {
         add(MorseElement.Dot); add(MorseElement.IntraCharGap)
         add(MorseElement.Dot); add(MorseElement.IntraCharGap)
-        add(MorseElement.Dot); add(MorseElement.IntraCharGap)
+        add(MorseElement.Dot); add(MorseElement.CharGap)
         add(MorseElement.Dash); add(MorseElement.IntraCharGap)
         add(MorseElement.Dash); add(MorseElement.IntraCharGap)
-        add(MorseElement.Dash); add(MorseElement.IntraCharGap)
+        add(MorseElement.Dash); add(MorseElement.CharGap)
         add(MorseElement.Dot); add(MorseElement.IntraCharGap)
         add(MorseElement.Dot); add(MorseElement.IntraCharGap)
         add(MorseElement.Dot)
     }
-
     /**
      * Convert [text] to a list of [MorseElement] with proper inter-symbol,
      * inter-character, and inter-word gaps. Unknown characters are silently skipped.
@@ -97,16 +92,14 @@ object MorseEngine {
     fun textToMorseElements(text: String): List<MorseElement> {
         val elements = mutableListOf<MorseElement>()
         val words = text.split(' ')
-        var firstWord = true
 
-        for (word in words) {
-            if (word.isEmpty()) continue
-
-            if (!firstWord) elements.add(MorseElement.WordGap)
-            firstWord = false
-
+        for ((wordIndex, word) in words.withIndex()) {
+            if (wordIndex > 0 && word.isNotEmpty()) {
+                elements.add(MorseElement.WordGap)
+            }
             var charAdded = false
             for (char in word) {
+                // Konversi karakter tunggal (Latin / Syllable Hangul / Jamo) ke string kode morse
                 val morseCodes = getMorseStringForChar(char)
                 if (morseCodes.isEmpty()) continue
 
@@ -127,10 +120,12 @@ object MorseEngine {
         }
         return elements
     }
-
     private fun getMorseStringForChar(char: Char): List<String> {
+
         val upperChar = char.uppercaseChar()
+
         LATIN_MORSE_MAP[upperChar]?.let { return listOf(it) }
+
 
         HANGUL_JAMO_MORSE_MAP[char]?.let { return it.split(' ') }
 
@@ -142,13 +137,10 @@ object MorseEngine {
 
             val result = mutableListOf<String>()
 
-            // 1. Cho-seong
             HANGUL_JAMO_MORSE_MAP[CHO_SEONG[choIndex]]?.let { result.addAll(it.split(' ')) }
-
-            // 2. Jung-seong
             HANGUL_JAMO_MORSE_MAP[JUNG_SEONG[jungIndex]]?.let { result.addAll(it.split(' ')) }
 
-            // 3. Jong-seong
+
             if (jongIndex > 0) {
                 val jongChar = JONG_SEONG[jongIndex]
                 val decompoundedJong = decompoundJongSeong(jongChar)
@@ -161,7 +153,6 @@ object MorseEngine {
 
         return emptyList()
     }
-
     private fun decompoundJongSeong(jong: Char): List<Char> = when (jong) {
         'ㄳ' -> listOf('ㄱ', 'ㅅ')
         'ㄵ' -> listOf('ㄴ', 'ㅈ')

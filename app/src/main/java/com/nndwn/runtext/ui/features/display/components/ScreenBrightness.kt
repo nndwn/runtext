@@ -6,7 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun SetScreenBrightnessEffect(brightnessValue: Float) {
+fun ScreenBrightness(brightnessValue: Float) {
     val context = LocalContext.current
 
     DisposableEffect(brightnessValue) {

@@ -43,7 +43,8 @@ data class MorseConfig(
     val bgColorMorse : Long = Palette.White.toArgbLong(),
     val isFlashScreen: Boolean = true,
     val isTorchEnabled: Boolean = false,
-    val isSoundEnabled: Boolean = true
+    val isSoundEnabled: Boolean = true,
+    val isVibrateEnabled: Boolean = false
 )
 
 

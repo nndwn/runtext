@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,9 @@ val BrightMorseColorPresets = listOf(
 
 @Composable
 fun MorseColorConfig(
+
     modifier: Modifier = Modifier,
+    currentColor: Color,
     expandedId : String?,
     onToggle : (String) -> Unit,
     onEvent : (MainUiEvent) -> Unit,
@@ -73,14 +76,15 @@ fun MorseColorConfig(
         ) {
             items(BrightMorseColorPresets){ color ->
                 val colorArgb = color.toArgbLong()
+                val selected = colorArgb == currentColor.toArgbLong()
                 Box(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
                         .background(color)
                         .border(
-                            width = 1.dp,
-                            color = Color.Black.copy(alpha = 0.2f),
+                            width = if (selected) 3.dp else 1.dp,
+                            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
                             shape = CircleShape
                         )
                         .clickable{

@@ -14,7 +14,9 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.R
 import com.nndwn.runtext.extentions.shimmer
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.theme.Palette
@@ -30,7 +32,7 @@ fun TextSpeedConfig(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Speed", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.speed), style = MaterialTheme.typography.titleSmall)
             Text(
                 "${speed.toInt()} px/s",
                 style = MaterialTheme.typography.bodySmall,

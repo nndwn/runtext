@@ -120,6 +120,9 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateSoundEnabled -> settings.copy(
                 morseConfig = settings.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)
             )
+            is MainUiEvent.UpdateVibrateEnabled -> settings.copy(
+                morseConfig = settings.morseConfig.copy(isVibrateEnabled = event.isVibrateEnabled)
+            )
         }
     }
     CompositionLocalProvider(LocalIsTablet provides isTablet) {

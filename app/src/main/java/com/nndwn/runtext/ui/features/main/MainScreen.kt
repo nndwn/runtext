@@ -60,6 +60,7 @@ import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.HeaderStartSideBar
 import com.nndwn.runtext.ui.features.main.components.LogoText
 import com.nndwn.runtext.ui.features.main.components.MorseColorConfig
+import com.nndwn.runtext.ui.features.main.components.MorseSpeedConfig
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
@@ -291,7 +292,6 @@ fun MainScreenContent(
                                                 subtitle = stringResource(R.string.set_config_text_mirror_desc),
                                                 checked = settings.isMirrorMode,
                                                 onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
-                                                accentColor = Palette.Yellow
                                             )
                                         }
 
@@ -340,11 +340,54 @@ fun MainScreenContent(
                                     Box(
                                         modifier = Modifier.width(localMaxWidth)
                                     ) {
-                                        MorseColorConfig(
-                                            expandedId = expandedPickerId,
-                                            onToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
+                                        Column(
+                                            modifier = Modifier.width(localMaxWidth),
+                                            verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                        ){
+                                            MorseColorConfig(
+                                                currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
+                                                expandedId = expandedPickerId,
+                                                onToggle = togglePicker,
+                                                onEvent = dispatch
+                                            )
+                                            MorseSpeedConfig(
+                                                speed = settings.morseConfig.morseWpm,
+                                                onSpeedChange = { dispatch(MainUiEvent.UpdateMorseWpm(it))}
+                                            )
+                                            ConfigCard {
+                                                SwitchRow(
+                                                    title = stringResource(R.string.set_config_morse_flash_screen),
+                                                    subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
+                                                    checked = settings.morseConfig.isFlashScreen,
+                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+                                                )
+                                            }
+
+                                            ConfigCard {
+                                                SwitchRow(
+                                                    title = stringResource(R.string.set_config_morse_flashlight),
+                                                    subtitle = stringResource(R.string.set_config_morse_flashlight_desc),
+                                                    checked = settings.morseConfig.isTorchEnabled,
+                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateTorchEnabled(it)) },
+                                                )
+                                            }
+                                            ConfigCard {
+                                                SwitchRow(
+                                                    title = stringResource(R.string.set_config_morse_sound),
+                                                    subtitle = stringResource(R.string.set_config_morse_sound_desc),
+                                                    checked = settings.morseConfig.isSoundEnabled,
+                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+                                                )
+                                            }
+                                            ConfigCard {
+                                                SwitchRow(
+                                                    title = stringResource(R.string.set_config_morse_vibration),
+                                                    subtitle = stringResource(R.string.set_config_morse_vibration_desc),
+                                                    checked = settings.morseConfig.isVibrateEnabled,
+                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }

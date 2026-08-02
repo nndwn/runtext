@@ -1,10 +1,6 @@
 package com.nndwn.runtext.ui.features.main.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,11 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.domain.morse.MorseElement
 import com.nndwn.runtext.domain.morse.MorseEngine
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlinx.coroutines.delay

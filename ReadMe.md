@@ -13,3 +13,4 @@
 - untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua
 - apa saja pengaturan yang perlu di morse ?
 - ~~buat color config background untuk morse~~
+- issue untuk shadow dan outline membutuhkan warna alpha
