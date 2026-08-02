@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.data.model.ShadowConfig
 import com.nndwn.runtext.data.model.StrokeConfig
 import com.nndwn.runtext.data.model.TextColorType
@@ -59,8 +60,10 @@ class SettingsDataStore @Inject constructor(
 
         // Morse
         val MORSE_WPM = intPreferencesKey("morse_wpm")
-        val FLASH_SCREEN = booleanPreferencesKey("flash_screen")
-        val TORCH_ENABLED = booleanPreferencesKey("torch_enabled")
+        val FLASH_SCREEN = booleanPreferencesKey("morse_flash_screen")
+        val TORCH_ENABLED = booleanPreferencesKey("morse_torch_enabled")
+        val MORSE_BG_COLOR = longPreferencesKey("morse_bg_color")
+        val IS_SOUND_ENABLED = booleanPreferencesKey("morse_is_sound_enabled")
     }
 
     val settingsFlow: Flow<AppSettings> = dataStore.data
@@ -110,10 +113,14 @@ class SettingsDataStore @Inject constructor(
                     distance = prefs[Keys.SHADOW_DISTANCE] ?: default.shadow.distance,
                     rotation = prefs[Keys.SHADOW_ROTATION] ?: default.shadow.rotation
                 ),
+                morseConfig = MorseConfig(
+                    morseWpm = prefs[Keys.MORSE_WPM] ?: default.morseConfig.morseWpm,
+                    isFlashScreen = prefs[Keys.FLASH_SCREEN] ?: default.morseConfig.isFlashScreen,
+                    isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.morseConfig.isTorchEnabled,
+                    bgColorMorse = prefs[Keys.MORSE_BG_COLOR] ?: default.morseConfig.bgColorMorse,
+                    isSoundEnabled = prefs[Keys.IS_SOUND_ENABLED] ?: default.morseConfig.isSoundEnabled
+                )
 
-                morseWpm = prefs[Keys.MORSE_WPM] ?: default.morseWpm,
-                isFlashScreen = prefs[Keys.FLASH_SCREEN] ?: default.isFlashScreen,
-                isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.isTorchEnabled
             )
         }
 
@@ -149,9 +156,11 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.SHADOW_ROTATION] = settings.shadow.rotation
 
             // Morse
-            prefs[Keys.MORSE_WPM] = settings.morseWpm
-            prefs[Keys.FLASH_SCREEN] = settings.isFlashScreen
-            prefs[Keys.TORCH_ENABLED] = settings.isTorchEnabled
+            prefs[Keys.MORSE_WPM] = settings.morseConfig.morseWpm
+            prefs[Keys.FLASH_SCREEN] = settings.morseConfig.isFlashScreen
+            prefs[Keys.TORCH_ENABLED] = settings.morseConfig.isTorchEnabled
+            prefs[Keys.MORSE_BG_COLOR] = settings.morseConfig.bgColorMorse
+            prefs[Keys.IS_SOUND_ENABLED] = settings.morseConfig.isSoundEnabled
         }
     }
 }

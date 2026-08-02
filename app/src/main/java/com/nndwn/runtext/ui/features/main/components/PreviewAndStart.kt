@@ -113,7 +113,9 @@ fun PreviewAndStart(
 private fun Preview(){
     RuntextTheme {
         PreviewAndStart(
-            settings = AppSettings(),
+            settings = AppSettings().copy(
+                mode = AppMode.MORSE_CODE
+            ),
             onNavigateToDisplay = {}
         )
     }

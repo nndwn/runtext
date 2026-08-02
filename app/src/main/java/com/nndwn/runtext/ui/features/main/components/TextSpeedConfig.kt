@@ -21,7 +21,7 @@ import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.utils.Dimens
 
 @Composable
-fun SpeedConfig(
+fun TextSpeedConfig(
     speed: Float,
     onSpeedChange: (Float) -> Unit
 ) {

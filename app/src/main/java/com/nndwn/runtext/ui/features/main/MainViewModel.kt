@@ -109,6 +109,14 @@ class MainViewModel @Inject constructor(
                 val normalizedRotation = (event.rotation % 360f + 360f) % 360f
                 updateSettings { it.copy(shadow = it.shadow.copy(rotation = normalizedRotation)) }
             }
+            is MainUiEvent.UpdateMorseWpm -> updateSettings {
+                it.copy(morseConfig = it.morseConfig.copy(morseWpm = event.wpm.coerceIn(5, 40)))
+            }
+            is MainUiEvent.UpdateBgColorMorse -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(bgColorMorse = event.colorArgb)) }
+            is MainUiEvent.UpdateFlashScreen -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isFlashScreen = event.isFlashScreen)) }
+            is MainUiEvent.UpdateTorchEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isTorchEnabled = event.isTorchEnabled)) }
+            is MainUiEvent.UpdateSoundEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)) }
+
         }
     }
 }

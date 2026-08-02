@@ -37,4 +37,10 @@ sealed interface MainUiEvent {
     data class UpdateShadowRadius(val radius: Float) : MainUiEvent
     data class UpdateShadowDistance(val distance: Float) : MainUiEvent
     data class UpdateShadowRotation(val rotation: Float) : MainUiEvent
+
+    data class UpdateMorseWpm(val wpm: Int) : MainUiEvent
+    data class UpdateBgColorMorse(val colorArgb: Long) : MainUiEvent
+    data class UpdateFlashScreen(val isFlashScreen: Boolean) : MainUiEvent
+    data class UpdateTorchEnabled(val isTorchEnabled: Boolean) : MainUiEvent
+    data class UpdateSoundEnabled(val isSoundEnabled: Boolean) : MainUiEvent
 }

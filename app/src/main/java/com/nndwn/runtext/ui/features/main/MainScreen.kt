@@ -32,7 +32,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,9 +59,10 @@ import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.HeaderStartSideBar
 import com.nndwn.runtext.ui.features.main.components.LogoText
+import com.nndwn.runtext.ui.features.main.components.MorseColorConfig
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
-import com.nndwn.runtext.ui.features.main.components.SpeedConfig
+import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
@@ -236,7 +236,13 @@ fun MainScreenContent(
                         item {
                             AppModeSettings(
                                 currentMode = settings.mode,
-                                onModeChange = { dispatchAndClosePicker(MainUiEvent.UpdateMode(it)) }
+                                onModeChange = {
+                                    expandedPickerId = when (it){
+                                        AppMode.MORSE_CODE -> "morse_color"
+                                        AppMode.RUNNING_TEXT -> "text_presets"
+                                    }
+
+                                    dispatch(MainUiEvent.UpdateMode(it)) }
                             )
                         }
 
@@ -275,7 +281,7 @@ fun MainScreenContent(
                                            onToggle = togglePicker,
                                            onEvent = dispatch
                                        )
-                                        SpeedConfig(
+                                        TextSpeedConfig(
                                             speed = settings.speed,
                                             onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
                                         )
@@ -334,7 +340,11 @@ fun MainScreenContent(
                                     Box(
                                         modifier = Modifier.width(localMaxWidth)
                                     ) {
-                                        Text("Morse Code Settings Content", color = Palette.White)
+                                        MorseColorConfig(
+                                            expandedId = expandedPickerId,
+                                            onToggle = togglePicker,
+                                            onEvent = dispatch
+                                        )
                                     }
                                 }
                             }

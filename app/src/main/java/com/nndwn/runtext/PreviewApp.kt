@@ -105,8 +105,21 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.ApplyPreset -> event.settings.copy(
                 lastText = settings.lastText
             )
-
-
+            is MainUiEvent.UpdateMorseWpm -> settings.copy(
+                morseConfig = settings.morseConfig.copy(morseWpm = event.wpm)
+            )
+            is MainUiEvent.UpdateBgColorMorse -> settings.copy(
+                morseConfig = settings.morseConfig.copy(bgColorMorse = event.colorArgb)
+            )
+            is MainUiEvent.UpdateFlashScreen -> settings.copy(
+                morseConfig = settings.morseConfig.copy(isFlashScreen = event.isFlashScreen)
+            )
+            is MainUiEvent.UpdateTorchEnabled -> settings.copy(
+                morseConfig = settings.morseConfig.copy(isTorchEnabled = event.isTorchEnabled)
+            )
+            is MainUiEvent.UpdateSoundEnabled -> settings.copy(
+                morseConfig = settings.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)
+            )
         }
     }
     CompositionLocalProvider(LocalIsTablet provides isTablet) {
