@@ -74,7 +74,7 @@ private fun ColorBox(
             .background(color)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.outline,
                 shape = shape
             )
             .clickable { onClick() }

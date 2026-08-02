@@ -51,18 +51,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.extentions.shimmer
+import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.ConfigCardSkeleton
 import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
-import com.nndwn.runtext.ui.features.main.components.ColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.HeaderStartSideBar
 import com.nndwn.runtext.ui.features.main.components.LogoText
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
-import com.nndwn.runtext.ui.features.main.components.SelectorPresets
 import com.nndwn.runtext.ui.features.main.components.SpeedConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
@@ -74,6 +73,7 @@ import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
 
@@ -104,7 +104,6 @@ fun MainScreenContent(
     val focusManager = LocalFocusManager.current
     var expandedPickerId by remember { mutableStateOf<String?>("text_presets") }
     var showPanelFonts by remember { mutableStateOf(false) }
-    var showPanelPresets by remember { mutableStateOf(false) }
     
     val closePicker = { expandedPickerId = null }
 
@@ -302,14 +301,16 @@ fun MainScreenContent(
                                             onToggle = togglePicker,
                                             onEvent = dispatch
                                         )
+                                        ConfigCard {
+                                            ColorPickerField(
+                                                label = stringResource(R.string.set_config_color_background),
+                                                color = settings.bgColorArgb.toComposeColor(),
+                                                isExpanded = expandedPickerId == "bg",
+                                                onToggleExpand =  { togglePicker("bg") },
+                                                onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
+                                            )
+                                        }
 
-                                        ColorPickerConfig(
-                                            label = stringResource(R.string.set_config_color_background),
-                                            currentValue = settings.bgColorArgb,
-                                            isExpanded = expandedPickerId == "bg",
-                                            onToggleExpand = { togglePicker("bg") },
-                                            onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
-                                        )
                                         TextColorPickerConfig(
                                             label = stringResource(R.string.set_config_text_color_text),
                                             config = settings.textStyle,
@@ -350,11 +351,6 @@ fun MainScreenContent(
                     onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },
                     showPanelFonts = showPanelFonts,
                     dismissPanel = { showPanelFonts = false }
-                )
-                SelectorPresets(
-                    showPanel = showPanelPresets,
-                    onApplyPreset = { dispatchAndClosePicker(MainUiEvent.ApplyPreset(it)) },
-                    dismissPanel = { showPanelPresets = false }
                 )
             }
         }
