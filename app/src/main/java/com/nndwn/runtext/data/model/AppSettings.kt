@@ -94,7 +94,7 @@ data class AppSettings(
     val lastText: String = "",
     val mode: AppMode = AppMode.RUNNING_TEXT,
     val speed: Float = 150f,
-    val bgColorArgb: Long = Color.Black.toArgbLong(),
+    val bgColorArgb: Long = Palette.White.toArgbLong(),
     val isMirrorMode: Boolean = false,
 
     // Nested Configurations
@@ -110,12 +110,12 @@ data class AppSettings(
 
 
 data class TextStyleConfig(
-    val colorArgb: Long = Palette.Yellow.toArgbLong(),
+    val colorArgb: Long = Palette.Black2.toArgbLong(),
     val colorType: TextColorType = TextColorType.SOLID,
     val gradientColorsArgb: List<Long> = listOf(Palette.Yellow.toArgbLong(), Palette.NeonPink.toArgbLong()),
     val gradientDistance: Float = 0.5f,
     val isGradientHorizontal: Boolean = false,
-    val fontType: FontType = FontType.ROBOTO,
+    val fontType: FontType = FontType.ANTON,
     val googleFontName: String = "",
     val letterSpacingSp: Float = 0f,
     val wordSpacingSp: Float = 0f

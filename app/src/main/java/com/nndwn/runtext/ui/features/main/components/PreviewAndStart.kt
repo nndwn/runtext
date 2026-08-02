@@ -72,7 +72,7 @@ fun PreviewAndStart(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .clickable(
                     indication = ripple(),
                     interactionSource = remember { MutableInteractionSource() },
@@ -92,7 +92,7 @@ fun PreviewAndStart(
                 Icon(
                     painter = painterResource(R.drawable.ic_play),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -100,7 +100,7 @@ fun PreviewAndStart(
                     text = stringResource(R.string.btn_start),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                 )
             }

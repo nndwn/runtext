@@ -95,7 +95,7 @@ fun RunningTextPreview(settings: AppSettings) {
         contentAlignment = Alignment.CenterStart
     ) {
         val containerWidthPx = constraints.maxWidth.toFloat()
-        val initialLayoutResult = remember(rawText, fontFamily, fontWeight) {
+        val initialLayoutResult = remember(annotatedText, baseTextStyle) {
             textMeasurer.measure(
                 text = annotatedText,
                 style = baseTextStyle,
@@ -103,25 +103,34 @@ fun RunningTextPreview(settings: AppSettings) {
                 softWrap = false,
             )
         }
-        val textWidth = initialLayoutResult.size.width.toFloat()
-        val textHeight = initialLayoutResult.size.height.toFloat()
+        val textWidth = initialLayoutResult.size.width.toFloat().coerceAtLeast(1f)
+        val textHeight = initialLayoutResult.size.height.toFloat().coerceAtLeast(1f)
 
 
         val textStyle = if (settings.textStyle.colorType == TextColorType.GRADIENT) {
             val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
-            val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb}.toComposeColor()
+            val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }.toComposeColor()
 
-            val endOffset = if (settings.textStyle.isGradientHorizontal) {
-                Offset(textWidth, 0f)
+            val dist = settings.textStyle.gradientDistance.coerceIn(0f, 1f)
+
+
+            val startOffset: Offset
+            val endOffset: Offset
+
+            if (settings.textStyle.isGradientHorizontal) {
+                val shift = (dist - 0.5f) * 2f * textWidth
+                startOffset = Offset(0f + shift, 0f)
+                endOffset = Offset(textWidth + shift, 0f)
             } else {
-                Offset(0f, textHeight)
+                val shift = (dist - 0.5f) * 2f * textHeight
+                startOffset = Offset(0f, 0f + shift)
+                endOffset = Offset(0f, textHeight + shift)
             }
 
             baseTextStyle.copy(
                 brush = Brush.linearGradient(
-                    0.0f to color1,
-                    settings.textStyle.gradientDistance to color2,
-                    start = Offset(0f, 0f),
+                    colors = listOf(color1, color2),
+                    start = startOffset,
                     end = endOffset
                 )
             )
