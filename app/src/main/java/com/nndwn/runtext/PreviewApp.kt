@@ -16,7 +16,7 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiEvent
-import com.nndwn.runtext.ui.features.main.SettingsUiState
+import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.LocalIsTablet
@@ -36,6 +36,8 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
         lastText = "test preview"
     )) }
 
+    var noticeMessage by remember { mutableStateOf<Int?>(null) }
+
     val handleEvent: (MainUiEvent) -> Unit = { event ->
         settings = when (event) {
             // General
@@ -50,27 +52,35 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.UpdateTextColor -> settings.copy(
                 textStyle = settings.textStyle.copy(colorArgb = event.colorArgb)
             )
+
             is MainUiEvent.UpdateTextColorType -> settings.copy(
                 textStyle = settings.textStyle.copy(colorType = event.type)
             )
+
             is MainUiEvent.UpdateGradientColors -> settings.copy(
                 textStyle = settings.textStyle.copy(gradientColorsArgb = event.colors)
             )
+
             is MainUiEvent.UpdateGradientDistance -> settings.copy(
                 textStyle = settings.textStyle.copy(gradientDistance = event.distance)
             )
+
             is MainUiEvent.ToggleGradientHorizontal -> settings.copy(
                 textStyle = settings.textStyle.copy(isGradientHorizontal = event.isHorizontal)
             )
+
             is MainUiEvent.UpdateFontType -> settings.copy(
                 textStyle = settings.textStyle.copy(fontType = event.fontType)
             )
+
             is MainUiEvent.UpdateGoogleFontName -> settings.copy(
                 textStyle = settings.textStyle.copy(googleFontName = event.fontName)
             )
+
             is MainUiEvent.UpdateLetterSpacing -> settings.copy(
                 textStyle = settings.textStyle.copy(letterSpacingSp = event.spacingSp)
             )
+
             is MainUiEvent.UpdateWordSpacing -> settings.copy(
                 textStyle = settings.textStyle.copy(wordSpacingSp = event.spacingSp)
             )
@@ -79,9 +89,11 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.ToggleStroke -> settings.copy(
                 stroke = settings.stroke.copy(isEnabled = event.isEnabled)
             )
+
             is MainUiEvent.UpdateStrokeWidth -> settings.copy(
                 stroke = settings.stroke.copy(width = event.width)
             )
+
             is MainUiEvent.UpdateStrokeColor -> settings.copy(
                 stroke = settings.stroke.copy(colorArgb = event.colorArgb)
             )
@@ -90,40 +102,55 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.ToggleShadow -> settings.copy(
                 shadow = settings.shadow.copy(isEnabled = event.isEnabled)
             )
+
             is MainUiEvent.UpdateShadowColor -> settings.copy(
                 shadow = settings.shadow.copy(colorArgb = event.colorArgb)
             )
+
             is MainUiEvent.UpdateShadowRadius -> settings.copy(
                 shadow = settings.shadow.copy(radius = event.radius)
             )
+
             is MainUiEvent.UpdateShadowDistance -> settings.copy(
                 shadow = settings.shadow.copy(distance = event.distance)
             )
+
             is MainUiEvent.UpdateShadowRotation -> settings.copy(
                 shadow = settings.shadow.copy(rotation = event.rotation)
             )
+
             is MainUiEvent.ApplyPreset -> event.settings.copy(
                 lastText = settings.lastText
             )
+
             is MainUiEvent.UpdateMorseWpm -> settings.copy(
                 morseConfig = settings.morseConfig.copy(morseWpm = event.wpm)
             )
+
             is MainUiEvent.UpdateBgColorMorse -> settings.copy(
                 morseConfig = settings.morseConfig.copy(bgColorMorse = event.colorArgb)
             )
+
             is MainUiEvent.UpdateFlashScreen -> settings.copy(
                 morseConfig = settings.morseConfig.copy(isFlashScreen = event.isFlashScreen)
             )
+
             is MainUiEvent.UpdateTorchEnabled -> settings.copy(
                 morseConfig = settings.morseConfig.copy(isTorchEnabled = event.isTorchEnabled)
             )
+
             is MainUiEvent.UpdateSoundEnabled -> settings.copy(
                 morseConfig = settings.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)
             )
+
             is MainUiEvent.UpdateVibrateEnabled -> settings.copy(
                 morseConfig = settings.morseConfig.copy(isVibrateEnabled = event.isVibrateEnabled)
             )
-        }
+
+            is MainUiEvent.NavigateToDisplay ->  navController.navigate(Routes.DISPLAY)
+            is MainUiEvent.NavigateBack -> navController.popBackStack()
+            is MainUiEvent.Toast -> noticeMessage = event.message
+        } as AppSettings
     }
     CompositionLocalProvider(LocalIsTablet provides isTablet) {
         RuntextTheme {
@@ -138,10 +165,9 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                 ) {
                     composable(Routes.INPUT) {
                        MainScreenContent(
-                           uiState = SettingsUiState.Success(settings),
+                           uiState = MainUiState.Success(settings),
                            onEvent = handleEvent,
                            sideBarEnd = { isSidebarOpen = true },
-                           onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) },
                            padding =  innerPadding
                        )
                     }

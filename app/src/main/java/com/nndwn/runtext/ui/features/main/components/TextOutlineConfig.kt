@@ -15,7 +15,6 @@ import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.LabeledSlider
 import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.features.main.MainUiEvent
-import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlin.math.roundToInt
 

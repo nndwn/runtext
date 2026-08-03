@@ -1,11 +1,10 @@
 package com.nndwn.runtext.ui.features.main
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -15,9 +14,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,8 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -37,9 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -58,6 +52,7 @@ import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.LogoText
 import com.nndwn.runtext.ui.features.main.components.MorseColorConfig
 import com.nndwn.runtext.ui.features.main.components.MorseSpeedConfig
+import com.nndwn.runtext.ui.features.main.components.MorseTorchConfig
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
@@ -80,15 +75,14 @@ fun MainScreen(
     viewModel : MainViewModel = hiltViewModel(),
     padding: PaddingValues,
     sideBarEnd: () -> Unit,
-    onNavigateToDisplay: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
 
     MainScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         sideBarEnd = sideBarEnd,
-        onNavigateToDisplay = onNavigateToDisplay,
         padding =  padding,
     )
 }
@@ -96,10 +90,9 @@ fun MainScreen(
 @Composable
 fun MainScreenContent(
     padding: PaddingValues,
-    uiState: SettingsUiState,
+    uiState: MainUiState,
     onEvent: (MainUiEvent) -> Unit,
     sideBarEnd: () -> Unit,
-    onNavigateToDisplay: () -> Unit
 ) {
     val isTablet = LocalIsTablet.current
     val focusManager = LocalFocusManager.current
@@ -187,7 +180,7 @@ fun MainScreenContent(
                 }
             }
             when (uiState) {
-                is SettingsUiState.Loading -> {
+                is MainUiState.Loading -> {
                     stickyHeader {
                         Box(
                             modifier = Modifier
@@ -214,12 +207,12 @@ fun MainScreenContent(
                         ConfigCardSkeleton(shimmerProgress = shimmerProgress)
                     }
                 }
-                is SettingsUiState.Success -> {
+                is MainUiState.Success -> {
                     val settings = uiState.settings
                     stickyHeader {
                         PreviewAndStart(
                             settings = settings,
-                            onNavigateToDisplay = onNavigateToDisplay
+                            onNavigateToDisplay = {dispatch(MainUiEvent.NavigateToDisplay)}
                         )
                     }
 
@@ -245,141 +238,126 @@ fun MainScreenContent(
                     }
 
                     item {
-                        BoxWithConstraints(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clipToBounds()
-                        ) {
-                            val localMaxWidth = maxWidth
-                            val density = LocalDensity.current
-                            val widthPx = with(density) { localMaxWidth.toPx() }
-
-                            val translationX by animateFloatAsState(
-                                targetValue = if (settings.mode == AppMode.RUNNING_TEXT) 0f else -widthPx,
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                ),
-                                label = "modeSettingsTranslation"
-                            )
-
-                            Row(
-                                modifier = Modifier
-                                    .wrapContentWidth(unbounded = true, align = Alignment.Start)
-                                    .graphicsLayer {
-                                        this.translationX = translationX
-                                    }
-                            ) {
-                                Column(
-                                    modifier = Modifier.width(localMaxWidth),
-                                    verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
-                                ) {
-                                    TextPresetConfig(
-                                        expandedId = expandedPickerId,
-                                        onToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
-                                    TextSpeedConfig(
-                                        speed = settings.speed,
-                                        onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
-                                    )
-                                    ConfigCard {
-                                        SwitchRow(
-                                            title = stringResource(R.string.set_config_text_mirror),
-                                            subtitle = stringResource(R.string.set_config_text_mirror_desc),
-                                            checked = settings.isMirrorMode,
-                                            onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
-                                        )
-                                    }
-
-                                    TextFontStyleConfig(
-                                        config = settings.textStyle,
-                                        onClick = {
-                                            closePicker(); showPanelFonts = !showPanelFonts
-                                        }
-                                    )
-                                    TextSpacingConfig(
-                                        config = settings.textStyle,
-                                        expandedId = expandedPickerId,
-                                        onToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
-                                    ConfigCard {
-                                        ColorPickerField(
-                                            label = stringResource(R.string.set_config_color_background),
-                                            color = settings.bgColorArgb.toComposeColor(),
-                                            isExpanded = expandedPickerId == "bg",
-                                            onToggleExpand =  { togglePicker("bg") },
-                                            onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
-                                        )
-                                    }
-
-                                    TextColorPickerConfig(
-                                        label = stringResource(R.string.set_config_text_color_text),
-                                        config = settings.textStyle,
-                                        expandedPickerId = expandedPickerId,
-                                        onPickerToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
-                                    TextOutlineConfig(
-                                        config = settings.stroke,
-                                        expandedPickerId = expandedPickerId,
-                                        onPickerToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
-                                    TextShadowConfig(
-                                        config = settings.shadow,
-                                        expandedPickerId = expandedPickerId,
-                                        onPickerToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
+                        AnimatedContent(
+                            targetState = settings.mode,
+                            transitionSpec = {
+                                if (targetState == AppMode.MORSE_CODE) {
+                                    slideInHorizontally { width -> width } + fadeIn() togetherWith
+                                            slideOutHorizontally { width -> -width } + fadeOut()
+                                } else {
+                                    slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                                            slideOutHorizontally { width -> width } + fadeOut()
                                 }
-                                Column(
-                                    modifier = Modifier.width(localMaxWidth),
-                                    verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
-                                ){
-                                    MorseColorConfig(
-                                        currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
-                                        expandedId = expandedPickerId,
-                                        onToggle = togglePicker,
-                                        onEvent = dispatch
-                                    )
-                                    MorseSpeedConfig(
-                                        speed = settings.morseConfig.morseWpm,
-                                        onSpeedChange = { dispatch(MainUiEvent.UpdateMorseWpm(it))}
-                                    )
-                                    ConfigCard {
-                                        SwitchRow(
-                                            title = stringResource(R.string.set_config_morse_flash_screen),
-                                            subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
-                                            checked = settings.morseConfig.isFlashScreen,
-                                            onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+                            },
+                            label = "ModeSettingsTransition"
+                        ) { mode ->
+                            when (mode) {
+                                AppMode.RUNNING_TEXT -> {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                    ) {
+                                        TextPresetConfig(
+                                            expandedId = expandedPickerId,
+                                            onToggle = togglePicker,
+                                            onEvent = dispatch
+                                        )
+                                        TextSpeedConfig(
+                                            speed = settings.speed,
+                                            onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
+                                        )
+                                        ConfigCard {
+                                            SwitchRow(
+                                                title = stringResource(R.string.set_config_text_mirror),
+                                                subtitle = stringResource(R.string.set_config_text_mirror_desc),
+                                                checked = settings.isMirrorMode,
+                                                onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
+                                            )
+                                        }
+                                        TextFontStyleConfig(
+                                            config = settings.textStyle,
+                                            onClick = { closePicker(); showPanelFonts = !showPanelFonts }
+                                        )
+                                        TextSpacingConfig(
+                                            config = settings.textStyle,
+                                            expandedId = expandedPickerId,
+                                            onToggle = togglePicker,
+                                            onEvent = dispatch
+                                        )
+                                        ConfigCard {
+                                            ColorPickerField(
+                                                label = stringResource(R.string.set_config_color_background),
+                                                color = settings.bgColorArgb.toComposeColor(),
+                                                isExpanded = expandedPickerId == "bg",
+                                                onToggleExpand = { togglePicker("bg") },
+                                                onColorChange = { dispatch(MainUiEvent.UpdateBgColor(it)) }
+                                            )
+                                        }
+                                        TextColorPickerConfig(
+                                            label = stringResource(R.string.set_config_text_color_text),
+                                            config = settings.textStyle,
+                                            expandedPickerId = expandedPickerId,
+                                            onPickerToggle = togglePicker,
+                                            onEvent = dispatch
+                                        )
+                                        TextOutlineConfig(
+                                            config = settings.stroke,
+                                            expandedPickerId = expandedPickerId,
+                                            onPickerToggle = togglePicker,
+                                            onEvent = dispatch
+                                        )
+                                        TextShadowConfig(
+                                            config = settings.shadow,
+                                            expandedPickerId = expandedPickerId,
+                                            onPickerToggle = togglePicker,
+                                            onEvent = dispatch
                                         )
                                     }
+                                }
 
-                                    ConfigCard {
-                                        SwitchRow(
-                                            title = stringResource(R.string.set_config_morse_flashlight),
-                                            subtitle = stringResource(R.string.set_config_morse_flashlight_desc),
-                                            checked = settings.morseConfig.isTorchEnabled,
-                                            onCheckedChange = { dispatch(MainUiEvent.UpdateTorchEnabled(it)) },
+                                AppMode.MORSE_CODE -> {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                    ) {
+                                        MorseColorConfig(
+                                            currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
+                                            expandedId = expandedPickerId,
+                                            onToggle = togglePicker,
+                                            onEvent = dispatch
                                         )
-                                    }
-                                    ConfigCard {
-                                        SwitchRow(
-                                            title = stringResource(R.string.set_config_morse_sound),
-                                            subtitle = stringResource(R.string.set_config_morse_sound_desc),
-                                            checked = settings.morseConfig.isSoundEnabled,
-                                            onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+                                        MorseSpeedConfig(
+                                            speed = settings.morseConfig.morseWpm,
+                                            event = dispatch
                                         )
-                                    }
-                                    ConfigCard {
-                                        SwitchRow(
-                                            title = stringResource(R.string.set_config_morse_vibration),
-                                            subtitle = stringResource(R.string.set_config_morse_vibration_desc),
-                                            checked = settings.morseConfig.isVibrateEnabled,
-                                            onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+                                        ConfigCard {
+                                            SwitchRow(
+                                                title = stringResource(R.string.set_config_morse_flash_screen),
+                                                subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
+                                                checked = settings.morseConfig.isFlashScreen,
+                                                onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+                                            )
+                                        }
+                                        MorseTorchConfig(
+                                            enable = settings.morseConfig.isTorchEnabled,
+                                            event = dispatch
                                         )
+                                        ConfigCard {
+                                            SwitchRow(
+                                                title = stringResource(R.string.set_config_morse_sound),
+                                                subtitle = stringResource(R.string.set_config_morse_sound_desc),
+                                                checked = settings.morseConfig.isSoundEnabled,
+                                                onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+                                            )
+                                        }
+                                        ConfigCard {
+                                            SwitchRow(
+                                                title = stringResource(R.string.set_config_morse_vibration),
+                                                subtitle = stringResource(R.string.set_config_morse_vibration_desc),
+                                                checked = settings.morseConfig.isVibrateEnabled,
+                                                onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -389,7 +367,7 @@ fun MainScreenContent(
             }
         }
     }
-    (uiState as? SettingsUiState.Success)?.let { success ->
+    (uiState as? MainUiState.Success)?.let { success ->
 
         SelectorFonts(
             settings = success.settings,

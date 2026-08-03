@@ -1,15 +1,23 @@
 package com.nndwn.runtext.ui.features.main
 
+import androidx.annotation.StringRes
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.TextColorType
 
 sealed interface MainUiEvent {
+
+    // ── Navigation Events ──
+    data object NavigateToDisplay : MainUiEvent
+    data object NavigateBack : MainUiEvent
+
+    data class Toast(@param:StringRes val message: Int) : MainUiEvent
+
     // ── General / Text Input ──
     data class ApplyPreset(val settings: AppSettings) : MainUiEvent
     data class UpdateText(val text: String) : MainUiEvent
-    object ClearText : MainUiEvent
+    data object ClearText : MainUiEvent
     data class UpdateMode(val mode: AppMode) : MainUiEvent
     data class UpdateSpeed(val speed: Float) : MainUiEvent
     data class UpdateBgColor(val colorArgb: Long) : MainUiEvent
@@ -45,3 +53,4 @@ sealed interface MainUiEvent {
     data class UpdateSoundEnabled(val isSoundEnabled: Boolean) : MainUiEvent
     data class UpdateVibrateEnabled(val isVibrateEnabled: Boolean) : MainUiEvent
 }
+

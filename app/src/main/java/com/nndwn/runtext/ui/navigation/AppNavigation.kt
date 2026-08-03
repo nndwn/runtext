@@ -25,8 +25,7 @@ fun AppNavigation(
         composable(Routes.INPUT) {
             MainScreen(
                 padding =  padding,
-                sideBarEnd = sidebarEnd,
-                onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) }
+                sideBarEnd = sidebarEnd
             )
         }
         composable(Routes.DISPLAY) {

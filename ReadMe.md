@@ -10,7 +10,10 @@
 - ~~issue pada gradient jadi buat batasan 50 jadikan 100~~
 - ~~perlu perubahan pengaturan defaul di sesuaikan dengan thema bawaan~~
 - ~~seperti perlu ganti warna tombol play tidak konsisten warnanya~~
-- untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua
-- apa saja pengaturan yang perlu di morse ?
+- ~~apa saja pengaturan yang perlu di morse ?~~
 - ~~buat color config background untuk morse~~
+- untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua
 - issue untuk shadow dan outline membutuhkan warna alpha
+- bagaimana seluruh pilihan false pada pengaturan false ? perlu berikan tanda peringatan kepada user
+- ketika flashlight true maka minta izin camera kepada user pada saat itu 
+- buat halaman display

@@ -1,12 +1,13 @@
 package com.nndwn.runtext.ui.features.main
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.repository.SettingsRepository
+import com.nndwn.runtext.ui.UiEffect
+import com.nndwn.runtext.ui.UiEffectController
+import com.nndwn.runtext.ui.navigation.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,28 +19,24 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-sealed interface SettingsUiState {
-    data object Loading : SettingsUiState
-    data class Success(val settings: AppSettings) : SettingsUiState
-}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository : SettingsRepository,
-    @param:ApplicationContext private val context: Context
+    private val uiEffectController: UiEffectController
 ): ViewModel(){
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
-    val uiState: StateFlow<SettingsUiState> = _settings
+    val uiState: StateFlow<MainUiState> = _settings
         .map { settings ->
-            if (settings == null) SettingsUiState.Loading 
-            else SettingsUiState.Success(settings)
+            if (settings == null) MainUiState.Loading
+            else MainUiState.Success(settings)
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = SettingsUiState.Loading
+            initialValue = MainUiState.Loading
         )
 
     private var saveJob: Job? = null
@@ -73,8 +70,17 @@ class MainViewModel @Inject constructor(
 
     fun onEvent(event: MainUiEvent) {
         when (event) {
+            is MainUiEvent.NavigateToDisplay -> {
+                uiEffectController.sendEffect(UiEffect.NavigateTo(Routes.DISPLAY))
+            }
+            is MainUiEvent.NavigateBack -> {
+                uiEffectController.sendEffect(UiEffect.NavigateBack)
+            }
+            is MainUiEvent.Toast -> {
+                uiEffectController.sendEffect(UiEffect.ShowToast(event.message))
+            }
             // General
-            is MainUiEvent.ApplyPreset -> updateSettings { 
+            is MainUiEvent.ApplyPreset -> updateSettings {
                 event.settings.copy(lastText = it.lastText) 
             }
             is MainUiEvent.UpdateText -> updateText(event.text)

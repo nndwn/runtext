@@ -1,0 +1,117 @@
+package com.nndwn.runtext.ui.component
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.utils.Dimens
+import com.nndwn.runtext.ui.utils.LocalIsTablet
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
+
+@Composable
+fun DialogNotice(
+    visible: Boolean,
+    text: String,
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {}
+) {
+    val isTablet = LocalIsTablet.current
+
+
+    LaunchedEffect(visible, text) {
+        if (visible) {
+            delay(3500.milliseconds)
+            onDismiss()
+        }
+    }
+
+    val enterAnimation = remember(isTablet) {
+        if (isTablet) {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMediumLow
+                )
+            ) + fadeIn(animationSpec = tween(200))
+        } else {
+            scaleIn(
+                initialScale = 0.8f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            ) + fadeIn(animationSpec = tween(200))
+        }
+    }
+
+    val exitAnimation = remember(isTablet) {
+        if (isTablet) {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(200)
+            ) + fadeOut(animationSpec = tween(200))
+        } else {
+            scaleOut(
+                targetScale = 0.8f,
+                animationSpec = tween(150)
+            ) + fadeOut(animationSpec = tween(150))
+        }
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = enterAnimation,
+        exit = exitAnimation,
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Dimens.PaddingHorizontal, vertical = 20.dp),
+            contentAlignment = if (isTablet) Alignment.BottomEnd else Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(color = Palette.White)
+                    .then(
+                        if (isTablet) Modifier.widthIn(max = 560.dp)
+                        else Modifier.fillMaxWidth()
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Palette.Black2,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                )
+            }
+        }
+    }
+}

@@ -13,12 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.component.ConfigCard
+import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.theme.Palette
 
 @Composable
 fun MorseSpeedConfig(
     speed: Int,
-    onSpeedChange: (Int) -> Unit
+    event: (MainUiEvent) -> Unit,
 ){
     ConfigCard{
         Row(
@@ -36,7 +37,7 @@ fun MorseSpeedConfig(
         }
         Slider(
             value = speed.toFloat(),
-            onValueChange = {onSpeedChange(it.toInt())},
+            onValueChange = {event(MainUiEvent.UpdateMorseWpm(it.toInt()))},
             valueRange = 5f..40f,
             steps = 34,
             colors = SliderDefaults.colors(

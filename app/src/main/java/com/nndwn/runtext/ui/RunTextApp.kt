@@ -1,10 +1,15 @@
 package com.nndwn.runtext.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -14,6 +19,7 @@ import com.nndwn.runtext.ui.navigation.Routes
 
 @Composable
 fun RunTextApp(
+    appViewModel: AppViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -21,6 +27,28 @@ fun RunTextApp(
 
     var isSidebarOpen by remember { mutableStateOf(false) }
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
+
+    var noticeMessage by remember { mutableStateOf<Int?>(null) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    LaunchedEffect(   appViewModel.uiEffect, lifecycle) {
+        appViewModel.uiEffect
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .collect{effect ->
+                when (effect) {
+                    is UiEffect.ShowToast -> {
+                        noticeMessage = effect.message
+                    }
+                    is UiEffect.NavigateTo -> {
+                        navController.navigate(effect.route)
+                    }
+                    is UiEffect.NavigateBack -> {
+                        navController.popBackStack()
+                    }
+                }
+            }
+
+    }
 
     MainLayout(
         isSidebarOpen = sidebarAllowed,
