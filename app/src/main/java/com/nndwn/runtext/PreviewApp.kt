@@ -131,7 +131,7 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                 isSidebarOpen = sidebarAllowed,
                 onCloseSidebar = { isSidebarOpen = false },
                 sideBarRight = { }
-            ) {
+            ) {innerPadding ->
                 NavHost(
                     navController = navController,
                     startDestination = Routes.INPUT
@@ -141,7 +141,8 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
                            uiState = SettingsUiState.Success(settings),
                            onEvent = handleEvent,
                            sideBarEnd = { isSidebarOpen = true },
-                           onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) }
+                           onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) },
+                           padding =  innerPadding
                        )
                     }
                     composable(Routes.DISPLAY) {

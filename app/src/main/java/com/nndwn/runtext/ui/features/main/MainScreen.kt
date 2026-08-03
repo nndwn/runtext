@@ -24,14 +24,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,13 +55,11 @@ import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
 import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
-import com.nndwn.runtext.ui.features.main.components.HeaderStartSideBar
 import com.nndwn.runtext.ui.features.main.components.LogoText
 import com.nndwn.runtext.ui.features.main.components.MorseColorConfig
 import com.nndwn.runtext.ui.features.main.components.MorseSpeedConfig
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
-import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
@@ -73,6 +69,7 @@ import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
 import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
+import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
@@ -81,6 +78,7 @@ import com.nndwn.runtext.ui.utils.LocalIsTablet
 @Composable
 fun MainScreen(
     viewModel : MainViewModel = hiltViewModel(),
+    padding: PaddingValues,
     sideBarEnd: () -> Unit,
     onNavigateToDisplay: () -> Unit
 ) {
@@ -90,12 +88,14 @@ fun MainScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         sideBarEnd = sideBarEnd,
-        onNavigateToDisplay = onNavigateToDisplay
+        onNavigateToDisplay = onNavigateToDisplay,
+        padding =  padding,
     )
 }
 
 @Composable
 fun MainScreenContent(
+    padding: PaddingValues,
     uiState: SettingsUiState,
     onEvent: (MainUiEvent) -> Unit,
     sideBarEnd: () -> Unit,
@@ -144,250 +144,242 @@ fun MainScreenContent(
             enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
             exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
         ) {
-            Scaffold(
-                modifier = Modifier.width(300.dp),
-                containerColor = Palette.Black3,
-                topBar = { HeaderStartSideBar() }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)) {
-                    // Configuration UI for tablet could go here
+//            Scaffold(
+//                modifier = Modifier.width(300.dp),
+//                containerColor = Palette.Black3,
+//                topBar = { HeaderStartSideBar() }
+//            ) { innerPadding ->
+//                Box(modifier = Modifier.padding(innerPadding)) {
+//                    // Configuration UI for tablet could go here
+//                }
+//            }
+        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .padding(
+                    padding)
+
+            ,
+            contentPadding = PaddingValues(
+                bottom = padding.calculateBottomPadding(),
+                start = Dimens.PaddingHorizontal,
+                end = Dimens.PaddingHorizontal,
+
+            ),
+            verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+
+        ) {
+            item {
+                AnimatedVisibility(
+                    visible = !isTablet,
+                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+                ) {
+                    LogoText(
+                        modifier = Modifier
+                            .padding( vertical = 8.dp),
+                        content = {
+                            ThreeDotsHorizontal(onClick = { sideBarEnd() })
+                        }
+                    )
                 }
             }
-        }
-
-        // Main Content Area
-        Scaffold() { innerPadding ->
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                    )
-                    .navigationBarsPadding()
-                ,
-                contentPadding = PaddingValues(
-                    bottom = innerPadding.calculateBottomPadding(),
-                    start = Dimens.PaddingHorizontal,
-                    end = Dimens.PaddingHorizontal,
-                ),
-                verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
-
-            ) {
-                item {
-                   AnimatedVisibility(
-                        visible = !isTablet,
-                        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
-                    ) {
-                       LogoText(
-                           modifier = Modifier
-                               .padding( vertical = 8.dp),
-                           content = {
-                               ThreeDotsHorizontal(onClick = { sideBarEnd() })
-                           }
-                       )
+            when (uiState) {
+                is SettingsUiState.Loading -> {
+                    stickyHeader {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(140.dp)
+                                .shimmer(
+                                    progress = shimmerProgress,
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    shimmerColor = Palette.Grey,
+                                    shape = RoundedCornerShape(Dimens.RoundedCorner)
+                                )
+                        )
+                    }
+                    item {
+                        TextInputConfigSkeleton(shimmerProgress = shimmerProgress)
+                    }
+                    item {
+                        AppModeSettingsSkeleton(shimmerProgress = shimmerProgress)
+                    }
+                    item {
+                        SpeedConfigSkeleton(shimmerProgress = shimmerProgress)
+                    }
+                    items(5) {
+                        ConfigCardSkeleton(shimmerProgress = shimmerProgress)
                     }
                 }
-                when (uiState) {
-                    is SettingsUiState.Loading -> {
-                        stickyHeader {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(140.dp)
-                                    .shimmer(
-                                        progress = shimmerProgress,
-                                        backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                                        shimmerColor = Palette.Grey,
-                                        shape = RoundedCornerShape(Dimens.RoundedCorner)
-                                    )
-                            )
-                        }
-                        item {
-                            TextInputConfigSkeleton(shimmerProgress = shimmerProgress)
-                        }
-                        item {
-                            AppModeSettingsSkeleton(shimmerProgress = shimmerProgress)
-                        }
-                        item {
-                            SpeedConfigSkeleton(shimmerProgress = shimmerProgress)
-                        }
-                        items(5) {
-                            ConfigCardSkeleton(shimmerProgress = shimmerProgress)
-                        }
+                is SettingsUiState.Success -> {
+                    val settings = uiState.settings
+                    stickyHeader {
+                        PreviewAndStart(
+                            settings = settings,
+                            onNavigateToDisplay = onNavigateToDisplay
+                        )
                     }
-                    is SettingsUiState.Success -> {
-                        val settings = uiState.settings
-                        stickyHeader {
-                            PreviewAndStart(
-                              settings = settings,
-                              onNavigateToDisplay = onNavigateToDisplay
+
+                    item {
+                        TextInputConfig(
+                            text = settings.lastText,
+                            onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
+                            onClearText = { dispatch(MainUiEvent.ClearText) }
+                        )
+                    }
+
+                    item {
+                        AppModeSettings(
+                            currentMode = settings.mode,
+                            onModeChange = {
+                                expandedPickerId = when (it){
+                                    AppMode.MORSE_CODE -> "morse_color"
+                                    AppMode.RUNNING_TEXT -> "text_presets"
+                                }
+
+                                dispatch(MainUiEvent.UpdateMode(it)) }
+                        )
+                    }
+
+                    item {
+                        BoxWithConstraints(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clipToBounds()
+                        ) {
+                            val localMaxWidth = maxWidth
+                            val density = LocalDensity.current
+                            val widthPx = with(density) { localMaxWidth.toPx() }
+
+                            val translationX by animateFloatAsState(
+                                targetValue = if (settings.mode == AppMode.RUNNING_TEXT) 0f else -widthPx,
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                label = "modeSettingsTranslation"
                             )
-                        }
 
-                        item {
-                            TextInputConfig(
-                                text = settings.lastText,
-                                onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
-                                onClearText = { dispatch(MainUiEvent.ClearText) }
-                            )
-                        }
-
-                        item {
-                            AppModeSettings(
-                                currentMode = settings.mode,
-                                onModeChange = {
-                                    expandedPickerId = when (it){
-                                        AppMode.MORSE_CODE -> "morse_color"
-                                        AppMode.RUNNING_TEXT -> "text_presets"
-                                    }
-
-                                    dispatch(MainUiEvent.UpdateMode(it)) }
-                            )
-                        }
-
-                        item {
-                            BoxWithConstraints(
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clipToBounds()
+                                    .wrapContentWidth(unbounded = true, align = Alignment.Start)
+                                    .graphicsLayer {
+                                        this.translationX = translationX
+                                    }
                             ) {
-                                val localMaxWidth = maxWidth
-                                val density = LocalDensity.current
-                                val widthPx = with(density) { localMaxWidth.toPx() }
-
-                                val translationX by animateFloatAsState(
-                                    targetValue = if (settings.mode == AppMode.RUNNING_TEXT) 0f else -widthPx,
-                                    animationSpec = tween(
-                                        durationMillis = 300,
-                                        easing = FastOutSlowInEasing
-                                    ),
-                                    label = "modeSettingsTranslation"
-                                )
-
-                                Row(
-                                    modifier = Modifier
-                                        .wrapContentWidth(unbounded = true, align = Alignment.Start)
-                                        .graphicsLayer {
-                                            this.translationX = translationX
-                                        }
+                                Column(
+                                    modifier = Modifier.width(localMaxWidth),
+                                    verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.width(localMaxWidth),
-                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
-                                    ) {
-                                       TextPresetConfig(
-                                           expandedId = expandedPickerId,
-                                           onToggle = togglePicker,
-                                           onEvent = dispatch
-                                       )
-                                        TextSpeedConfig(
-                                            speed = settings.speed,
-                                            onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
-                                        )
-                                        ConfigCard {
-                                            SwitchRow(
-                                                title = stringResource(R.string.set_config_text_mirror),
-                                                subtitle = stringResource(R.string.set_config_text_mirror_desc),
-                                                checked = settings.isMirrorMode,
-                                                onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
-                                            )
-                                        }
-
-                                        TextFontStyleConfig(
-                                            config = settings.textStyle,
-                                            onClick = {
-                                                closePicker(); showPanelFonts = !showPanelFonts
-                                            }
-                                        )
-                                        TextSpacingConfig(
-                                            config = settings.textStyle,
-                                            expandedId = expandedPickerId,
-                                            onToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        ConfigCard {
-                                            ColorPickerField(
-                                                label = stringResource(R.string.set_config_color_background),
-                                                color = settings.bgColorArgb.toComposeColor(),
-                                                isExpanded = expandedPickerId == "bg",
-                                                onToggleExpand =  { togglePicker("bg") },
-                                                onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
-                                            )
-                                        }
-
-                                        TextColorPickerConfig(
-                                            label = stringResource(R.string.set_config_text_color_text),
-                                            config = settings.textStyle,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        TextOutlineConfig(
-                                            config = settings.stroke,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        TextShadowConfig(
-                                            config = settings.shadow,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
+                                    TextPresetConfig(
+                                        expandedId = expandedPickerId,
+                                        onToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                    TextSpeedConfig(
+                                        speed = settings.speed,
+                                        onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
+                                    )
+                                    ConfigCard {
+                                        SwitchRow(
+                                            title = stringResource(R.string.set_config_text_mirror),
+                                            subtitle = stringResource(R.string.set_config_text_mirror_desc),
+                                            checked = settings.isMirrorMode,
+                                            onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
                                         )
                                     }
-                                    Box(
-                                        modifier = Modifier.width(localMaxWidth)
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.width(localMaxWidth),
-                                            verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
-                                        ){
-                                            MorseColorConfig(
-                                                currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
-                                                expandedId = expandedPickerId,
-                                                onToggle = togglePicker,
-                                                onEvent = dispatch
-                                            )
-                                            MorseSpeedConfig(
-                                                speed = settings.morseConfig.morseWpm,
-                                                onSpeedChange = { dispatch(MainUiEvent.UpdateMorseWpm(it))}
-                                            )
-                                            ConfigCard {
-                                                SwitchRow(
-                                                    title = stringResource(R.string.set_config_morse_flash_screen),
-                                                    subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
-                                                    checked = settings.morseConfig.isFlashScreen,
-                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
-                                                )
-                                            }
 
-                                            ConfigCard {
-                                                SwitchRow(
-                                                    title = stringResource(R.string.set_config_morse_flashlight),
-                                                    subtitle = stringResource(R.string.set_config_morse_flashlight_desc),
-                                                    checked = settings.morseConfig.isTorchEnabled,
-                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateTorchEnabled(it)) },
-                                                )
-                                            }
-                                            ConfigCard {
-                                                SwitchRow(
-                                                    title = stringResource(R.string.set_config_morse_sound),
-                                                    subtitle = stringResource(R.string.set_config_morse_sound_desc),
-                                                    checked = settings.morseConfig.isSoundEnabled,
-                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
-                                                )
-                                            }
-                                            ConfigCard {
-                                                SwitchRow(
-                                                    title = stringResource(R.string.set_config_morse_vibration),
-                                                    subtitle = stringResource(R.string.set_config_morse_vibration_desc),
-                                                    checked = settings.morseConfig.isVibrateEnabled,
-                                                    onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
-                                                )
-                                            }
+                                    TextFontStyleConfig(
+                                        config = settings.textStyle,
+                                        onClick = {
+                                            closePicker(); showPanelFonts = !showPanelFonts
                                         }
+                                    )
+                                    TextSpacingConfig(
+                                        config = settings.textStyle,
+                                        expandedId = expandedPickerId,
+                                        onToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                    ConfigCard {
+                                        ColorPickerField(
+                                            label = stringResource(R.string.set_config_color_background),
+                                            color = settings.bgColorArgb.toComposeColor(),
+                                            isExpanded = expandedPickerId == "bg",
+                                            onToggleExpand =  { togglePicker("bg") },
+                                            onColorChange = {dispatch(MainUiEvent.UpdateBgColor(it)) }
+                                        )
+                                    }
+
+                                    TextColorPickerConfig(
+                                        label = stringResource(R.string.set_config_text_color_text),
+                                        config = settings.textStyle,
+                                        expandedPickerId = expandedPickerId,
+                                        onPickerToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                    TextOutlineConfig(
+                                        config = settings.stroke,
+                                        expandedPickerId = expandedPickerId,
+                                        onPickerToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                    TextShadowConfig(
+                                        config = settings.shadow,
+                                        expandedPickerId = expandedPickerId,
+                                        onPickerToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier.width(localMaxWidth),
+                                    verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                ){
+                                    MorseColorConfig(
+                                        currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
+                                        expandedId = expandedPickerId,
+                                        onToggle = togglePicker,
+                                        onEvent = dispatch
+                                    )
+                                    MorseSpeedConfig(
+                                        speed = settings.morseConfig.morseWpm,
+                                        onSpeedChange = { dispatch(MainUiEvent.UpdateMorseWpm(it))}
+                                    )
+                                    ConfigCard {
+                                        SwitchRow(
+                                            title = stringResource(R.string.set_config_morse_flash_screen),
+                                            subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
+                                            checked = settings.morseConfig.isFlashScreen,
+                                            onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+                                        )
+                                    }
+
+                                    ConfigCard {
+                                        SwitchRow(
+                                            title = stringResource(R.string.set_config_morse_flashlight),
+                                            subtitle = stringResource(R.string.set_config_morse_flashlight_desc),
+                                            checked = settings.morseConfig.isTorchEnabled,
+                                            onCheckedChange = { dispatch(MainUiEvent.UpdateTorchEnabled(it)) },
+                                        )
+                                    }
+                                    ConfigCard {
+                                        SwitchRow(
+                                            title = stringResource(R.string.set_config_morse_sound),
+                                            subtitle = stringResource(R.string.set_config_morse_sound_desc),
+                                            checked = settings.morseConfig.isSoundEnabled,
+                                            onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+                                        )
+                                    }
+                                    ConfigCard {
+                                        SwitchRow(
+                                            title = stringResource(R.string.set_config_morse_vibration),
+                                            subtitle = stringResource(R.string.set_config_morse_vibration_desc),
+                                            checked = settings.morseConfig.isVibrateEnabled,
+                                            onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+                                        )
                                     }
                                 }
                             }
@@ -395,18 +387,16 @@ fun MainScreenContent(
                     }
                 }
             }
-
-            
-            (uiState as? SettingsUiState.Success)?.let { success ->
-
-                SelectorFonts(
-                    settings = success.settings,
-                    onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },
-                    showPanelFonts = showPanelFonts,
-                    dismissPanel = { showPanelFonts = false }
-                )
-            }
         }
+    }
+    (uiState as? SettingsUiState.Success)?.let { success ->
+
+        SelectorFonts(
+            settings = success.settings,
+            onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },
+            showPanelFonts = showPanelFonts,
+            dismissPanel = { showPanelFonts = false }
+        )
     }
 }
 

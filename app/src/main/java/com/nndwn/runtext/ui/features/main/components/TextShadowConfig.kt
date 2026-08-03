@@ -35,7 +35,6 @@ fun TextShadowConfig(
                 subtitle = stringResource(R.string.set_config_text_shadow_desc),
                 checked = config.isEnabled,
                 onCheckedChange = { onEvent(MainUiEvent.ToggleShadow(it))},
-                accentColor = Palette.Yellow
             )
             if (config.isEnabled){
                 Spacer(modifier = Modifier.height(16.dp))

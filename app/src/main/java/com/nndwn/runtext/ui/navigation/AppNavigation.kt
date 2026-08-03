@@ -1,5 +1,6 @@
 package com.nndwn.runtext.ui.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,7 @@ object Routes {
 
 @Composable
 fun AppNavigation(
+    padding: PaddingValues,
     sidebarEnd: () -> Unit,
     navController: NavHostController,
 ) {
@@ -22,6 +24,7 @@ fun AppNavigation(
     ) {
         composable(Routes.INPUT) {
             MainScreen(
+                padding =  padding,
                 sideBarEnd = sidebarEnd,
                 onNavigateToDisplay = { navController.navigate(Routes.DISPLAY) }
             )

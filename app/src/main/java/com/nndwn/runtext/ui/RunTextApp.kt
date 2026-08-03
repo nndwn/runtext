@@ -26,10 +26,11 @@ fun RunTextApp(
         isSidebarOpen = sidebarAllowed,
         onCloseSidebar = { isSidebarOpen = false },
         sideBarRight = { }
-    ) {
+    ) {innerPadding ->
         AppNavigation(
             sidebarEnd = { isSidebarOpen = !isSidebarOpen },
             navController = navController,
+            padding = innerPadding
         )
     }
 }

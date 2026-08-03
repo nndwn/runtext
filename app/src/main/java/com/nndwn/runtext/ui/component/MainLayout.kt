@@ -62,11 +62,6 @@ fun MainLayout(
                 },
                 bottomBar = {
                     bottomBarContent()
-                },
-                contentWindowInsets =if (android.os.Build.VERSION.SDK_INT >= 35) {
-                    ScaffoldDefaults.contentWindowInsets
-                } else {
-                    WindowInsets(0, 0, 0, 0)
                 }
             ) { innerPadding ->
                 Box(modifier = Modifier.fillMaxSize()) {
