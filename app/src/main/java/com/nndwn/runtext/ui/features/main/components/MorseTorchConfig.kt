@@ -18,10 +18,11 @@ import com.nndwn.runtext.ui.features.main.MainUiEvent
 
 @Composable
 fun MorseTorchConfig(
-    enable : Boolean,
+    enable: Boolean,
     event: (MainUiEvent) -> Unit,
-){
+) {
     val context = LocalContext.current
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -29,36 +30,42 @@ fun MorseTorchConfig(
             event(MainUiEvent.UpdateTorchEnabled(true))
         } else {
             event(MainUiEvent.UpdateTorchEnabled(false))
-            event(MainUiEvent.Toast(R.string.notice_camera_permission_denied))
 
+
+            val activity = context as? Activity
+            val showRationale = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
+            } ?: false
+
+            if (!showRationale) {
+                event(MainUiEvent.Toast(R.string.notice_camera_permission_permanently_denied))
+            } else {
+                event(MainUiEvent.Toast(R.string.notice_camera_permission_denied))
+            }
         }
     }
+
     ConfigCard {
         SwitchRow(
             title = stringResource(R.string.set_config_morse_flashlight),
             subtitle = stringResource(R.string.set_config_morse_flashlight_desc),
             checked = enable,
             onCheckedChange = { isChecked ->
-                if (isChecked){
+                if (isChecked) {
                     val hasPermission = ContextCompat.checkSelfPermission(
                         context, Manifest.permission.CAMERA
                     ) == PackageManager.PERMISSION_GRANTED
+
                     if (hasPermission) {
                         event(MainUiEvent.UpdateTorchEnabled(true))
                     } else {
-                        val activity = context as? Activity
-                        val showRationale = activity?.let {
-                            ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
-                        } ?: false
 
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                        if (!showRationale && activity != null) {
-                            event(MainUiEvent.Toast(R.string.notice_camera_permission_permanently_denied))
-                        }
                     }
                 } else {
-                    event(MainUiEvent.UpdateTorchEnabled(false)) }
+                    event(MainUiEvent.UpdateTorchEnabled(false))
                 }
+            }
         )
     }
 }

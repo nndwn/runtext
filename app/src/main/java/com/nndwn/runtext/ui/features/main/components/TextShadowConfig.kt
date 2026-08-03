@@ -38,7 +38,8 @@ fun TextShadowConfig(
             if (config.isEnabled){
                 Spacer(modifier = Modifier.height(16.dp))
                 ColorPickerField(
-                   color = config.colorArgb.toComposeColor(),
+                    alpha = true,
+                    color = config.colorArgb.toComposeColor(),
                     isExpanded = expandedPickerId == "text_color_shadow",
                     onToggleExpand = {onPickerToggle("text_color_shadow")},
                     onColorChange = {onEvent(MainUiEvent.UpdateShadowColor(it))}

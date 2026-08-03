@@ -24,12 +24,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
 
 @Composable
 fun ColorPickerField(
     modifier: Modifier = Modifier,
     label: String? = null,
+    alpha: Boolean = false,
     color: Color,
     isExpanded: Boolean,
     onToggleExpand: () -> Unit,
@@ -52,6 +54,7 @@ fun ColorPickerField(
             exit = shrinkVertically() + fadeOut()
         ) {
             ColorSliders(
+                alpha = alpha,
                 color = color,
                 onColorChange = onColorChange
             )
@@ -84,19 +87,27 @@ private fun ColorBox(
 @Composable
 private fun ColorSliders(
     color: Color,
-    onColorChange: (Long) -> Unit
+    onColorChange: (Long) -> Unit,
+    alpha: Boolean = false
 ) {
     Column(modifier = Modifier.padding(top = 16.dp)) {
         val r = (color.red * 255).toInt()
         val g = (color.green * 255).toInt()
         val b = (color.blue * 255).toInt()
-        val a = color.alpha
+        val a = (color.alpha * 255).toInt()
 
         RGBSlider(
             label = "R",
             value = r,
             onValueChange = { newR ->
-                onColorChange(Color(red = newR / 255f, green = g / 255f, blue = b / 255f, alpha = a).toArgbLong())
+                onColorChange(
+                    Color(
+                        red = newR / 255f,
+                        green = g / 255f,
+                        blue = b / 255f,
+                        alpha = a / 255f
+                    ).toArgbLong()
+                )
             },
             color = Color.Red
         )
@@ -104,7 +115,14 @@ private fun ColorSliders(
             label = "G",
             value = g,
             onValueChange = { newG ->
-                onColorChange(Color(red = r / 255f, green = newG / 255f, blue = b / 255f, alpha = a).toArgbLong())
+                onColorChange(
+                    Color(
+                        red = r / 255f,
+                        green = newG / 255f,
+                        blue = b / 255f,
+                        alpha = a / 255f
+                    ).toArgbLong()
+                )
             },
             color = Color.Green
         )
@@ -112,10 +130,36 @@ private fun ColorSliders(
             label = "B",
             value = b,
             onValueChange = { newB ->
-                onColorChange(Color(red = r / 255f, green = g / 255f, blue = newB / 255f, alpha = a).toArgbLong())
+                onColorChange(
+                    Color(
+                        red = r / 255f,
+                        green = g / 255f,
+                        blue = newB / 255f,
+                        alpha = a / 255f
+                    ).toArgbLong()
+                )
             },
             color = Color.Blue
         )
+
+        // ── Alpha Slider ──
+        if (alpha) {
+            RGBSlider(
+                label = "A",
+                value = a,
+                onValueChange = { newA ->
+                    onColorChange(
+                        Color(
+                            red = r / 255f,
+                            green = g / 255f,
+                            blue = b / 255f,
+                            alpha = newA / 255f
+                        ).toArgbLong()
+                    )
+                },
+                color = Palette.White
+            )
+        }
     }
 }
 

@@ -12,8 +12,9 @@
 - ~~seperti perlu ganti warna tombol play tidak konsisten warnanya~~
 - ~~apa saja pengaturan yang perlu di morse ?~~
 - ~~buat color config background untuk morse~~
-- untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua
-- issue untuk shadow dan outline membutuhkan warna alpha
-- bagaimana seluruh pilihan false pada pengaturan false ? perlu berikan tanda peringatan kepada user
-- ketika flashlight true maka minta izin camera kepada user pada saat itu 
+- ~~untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua~~
+- ~~issue untuk shadow dan outline membutuhkan warna alpha~~
+- ~~bagaimana seluruh pilihan false pada pengaturan false ? perlu berikan tanda peringatan kepada user~~
+- ~~buat dialog toast khusus untuk global~~
+- ~~pada flashLight berikan perintah permission camera pada saat true~~
 - buat halaman display

@@ -2,6 +2,8 @@ package com.nndwn.runtext.ui.features.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nndwn.runtext.R
+import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.repository.SettingsRepository
 import com.nndwn.runtext.ui.UiEffect
@@ -71,6 +73,18 @@ class MainViewModel @Inject constructor(
     fun onEvent(event: MainUiEvent) {
         when (event) {
             is MainUiEvent.NavigateToDisplay -> {
+                val currentSettings = _settings.value ?: return
+
+                if (currentSettings.mode == AppMode.MORSE_CODE) {
+                    val morse = currentSettings.morseConfig
+
+                    if (!morse.isFlashScreen && !morse.isTorchEnabled) {
+                        uiEffectController.sendEffect(
+                            UiEffect.ShowToast(R.string.notice_morse_output_required)
+                        )
+                        return
+                    }
+                }
                 uiEffectController.sendEffect(UiEffect.NavigateTo(Routes.DISPLAY))
             }
             is MainUiEvent.NavigateBack -> {
@@ -119,8 +133,25 @@ class MainViewModel @Inject constructor(
                 it.copy(morseConfig = it.morseConfig.copy(morseWpm = event.wpm.coerceIn(5, 40)))
             }
             is MainUiEvent.UpdateBgColorMorse -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(bgColorMorse = event.colorArgb)) }
-            is MainUiEvent.UpdateFlashScreen -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isFlashScreen = event.isFlashScreen)) }
-            is MainUiEvent.UpdateTorchEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isTorchEnabled = event.isTorchEnabled)) }
+            is MainUiEvent.UpdateFlashScreen -> updateSettings {
+                val currentMorse = _settings.value?.morseConfig ?: return@updateSettings it
+
+                if (!event.isFlashScreen && !currentMorse.isTorchEnabled) {
+
+                    uiEffectController.sendEffect(UiEffect.ShowToast(R.string.notice_morse_output_required))
+                    return@updateSettings it
+                }
+                it.copy(morseConfig = currentMorse.copy(isFlashScreen = event.isFlashScreen))
+            }
+            is MainUiEvent.UpdateTorchEnabled -> updateSettings {
+                val currentMorse = _settings.value?.morseConfig ?: return@updateSettings it
+
+                if (!event.isTorchEnabled && !currentMorse.isFlashScreen){
+                    uiEffectController.sendEffect(UiEffect.ShowToast(R.string.notice_morse_output_required))
+                    return@updateSettings it
+                }
+                it.copy(morseConfig = currentMorse.copy(isTorchEnabled = event.isTorchEnabled))
+            }
             is MainUiEvent.UpdateSoundEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isSoundEnabled = event.isSoundEnabled)) }
             is MainUiEvent.UpdateVibrateEnabled -> updateSettings { it.copy(morseConfig = it.morseConfig.copy(isVibrateEnabled = event.isVibrateEnabled)) }
 

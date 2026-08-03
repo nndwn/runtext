@@ -2,6 +2,7 @@ package com.nndwn.runtext.ui.utils
 
 import androidx.compose.ui.text.font.FontFamily
 import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.ScriptCategory
 import com.nndwn.runtext.ui.theme.*
 
 /**
@@ -36,4 +37,40 @@ fun fontFamilyFor(fontType: FontType): FontFamily {
         // Fallback to Google Fonts for others (International support, etc.)
         else -> googleFontFamily(fontType.googleFontName)
     }
+}
+fun String.detectPrimaryScript(): ScriptCategory {
+    for (char in this) {
+        val block = Character.UnicodeBlock.of(char) ?: continue
+        when (block) {
+            // Arab
+            Character.UnicodeBlock.ARABIC,
+            Character.UnicodeBlock.ARABIC_SUPPLEMENT,
+            Character.UnicodeBlock.ARABIC_EXTENDED_A,
+            Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A,
+            Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B -> return ScriptCategory.ARABIC
+
+            // Jepang (Hiragana, Katakana, Kanji)
+            Character.UnicodeBlock.HIRAGANA,
+            Character.UnicodeBlock.KATAKANA,
+            Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS -> return ScriptCategory.JAPANESE
+
+            // Korea (Hangul)
+            Character.UnicodeBlock.HANGUL_SYLLABLES,
+            Character.UnicodeBlock.HANGUL_JAMO,
+            Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO -> return ScriptCategory.KOREAN
+
+            // Cina (Hanzi)
+            Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS,
+            Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A -> return ScriptCategory.CHINESE
+
+            // Thai
+            Character.UnicodeBlock.THAI -> return ScriptCategory.THAI
+
+            // India / Hindi (Devanagari)
+            Character.UnicodeBlock.DEVANAGARI -> return ScriptCategory.DEVANAGARI
+            Character.UnicodeBlock.KHMER -> return  ScriptCategory.KHMER
+            else -> continue
+        }
+    }
+    return ScriptCategory.LATIN
 }

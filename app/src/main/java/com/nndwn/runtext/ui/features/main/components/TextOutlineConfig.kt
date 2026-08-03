@@ -39,7 +39,8 @@ fun TextOutlineConfig(
             Spacer(modifier = Modifier.height(16.dp))
             if (config.isEnabled) {
                 ColorPickerField(
-                   color = config.colorArgb.toComposeColor(),
+                    alpha = true,
+                    color = config.colorArgb.toComposeColor(),
                     isExpanded = expandedPickerId == "text_color_outline",
                     onToggleExpand = { onPickerToggle("text_color_outline") },
                     onColorChange = { onEvent(MainUiEvent.UpdateStrokeColor(it)) }

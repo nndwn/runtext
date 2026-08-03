@@ -1,7 +1,19 @@
 package com.nndwn.runtext.data.model
 
+
+enum class ScriptCategory {
+    LATIN,
+    ARABIC,
+    JAPANESE,
+    CHINESE,
+    KOREAN,
+    THAI,
+    DEVANAGARI,
+    KHMER
+}
 enum class FontType(
     val displayName: String,
+    val scriptCategory: ScriptCategory = ScriptCategory.LATIN,
     val googleFontName: String = displayName.substringBefore(" (")
 ) {
     // ── Modern & Clean ──
@@ -51,18 +63,23 @@ enum class FontType(
     SACRAMENTO("Sacramento"),
 
     // ── International Support ──
-    DELA_GOTHIC_ONE("Dela Gothic One (日本語)"),
-    BLACK_HAN_SANS("Black Han Sans (한국어)"),
-    ZCOOL_KUAILE("ZCOOL KuaiLe (简体中文)"),
-    LALEZAR("Lalezar (العربية)"),
-    KALAM("Kalam (हिन्दी)"),
-    ITIM("Itim (ไทย)"),
-    REEM_KUFI("Reem Kufi (العربية)"),
-    CAIRO("Cairo (القاهرة)"),
-    ALMARAI("Almarai (المراعي)"),
-    RAJDHANI("Rajdhani (हिन्दी)"),
-    ZCOOL_XIAOWEI("ZCOOL XiaoWei (站酷小薇体)"),
-    MA_SHAN_ZHENG("Ma Shan Zheng (马善政毛笔楷书)"),
-    KOSUGI_MARU("Kosugi Maru (小杉丸ゴシック)"),
-    ANKOR("Ankor (សួស្តី)"),
+    DELA_GOTHIC_ONE("Dela Gothic One (日本語)", ScriptCategory.JAPANESE),
+    KOSUGI_MARU("Kosugi Maru (小杉丸ゴシック)", ScriptCategory.JAPANESE),
+
+    BLACK_HAN_SANS("Black Han Sans (한국어)", ScriptCategory.KOREAN),
+
+    ZCOOL_KUAILE("ZCOOL KuaiLe (简体中文)", ScriptCategory.CHINESE),
+    ZCOOL_XIAOWEI("ZCOOL XiaoWei (站酷小薇体)", ScriptCategory.CHINESE),
+    MA_SHAN_ZHENG("Ma Shan Zheng (马善政毛笔楷书)", ScriptCategory.CHINESE),
+
+    LALEZAR("Lalezar (العربية)", ScriptCategory.ARABIC),
+    REEM_KUFI("Reem Kufi (العربية)", ScriptCategory.ARABIC),
+    CAIRO("Cairo (القاهرة)", ScriptCategory.ARABIC),
+    ALMARAI("Almarai (المراعي)", ScriptCategory.ARABIC),
+
+    KALAM("Kalam (हिन्दी)", ScriptCategory.DEVANAGARI),
+    RAJDHANI("Rajdhani (हिन्दी)", ScriptCategory.DEVANAGARI),
+
+    ITIM("Itim (ไทย)", ScriptCategory.THAI),
+    ANKOR("Ankor (សួស្តី)", ScriptCategory.KHMER)
 }

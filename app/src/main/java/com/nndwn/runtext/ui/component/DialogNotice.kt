@@ -87,29 +87,28 @@ fun DialogNotice(
         visible = visible,
         enter = enterAnimation,
         exit = exitAnimation,
-        modifier = modifier
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(horizontal = Dimens.PaddingHorizontal, vertical = 20.dp),
-            contentAlignment = if (isTablet) Alignment.BottomEnd else Alignment.Center
+            contentAlignment = if (isTablet) Alignment.BottomEnd else Alignment.BottomCenter
         ) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
                     .background(color = Palette.White)
+                    .padding(vertical = 8.dp, horizontal = 20.dp)
                     .then(
                         if (isTablet) Modifier.widthIn(max = 560.dp)
                         else Modifier.fillMaxWidth()
-                    ),
+                    ) ,
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = Palette.Black2,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
                 )
             }
         }
