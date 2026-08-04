@@ -29,9 +29,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.ui.component.RunningTextCore
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
@@ -62,7 +64,12 @@ fun PreviewAndStart(
             contentAlignment = Alignment.Center
         ) {
             if (settings.mode == AppMode.RUNNING_TEXT) {
-                RunningTextPreview(settings)
+                RunningTextCore(
+                    settings = settings,
+                    fontSize = 40.sp,
+                    defaultPreviewText = "PREVIEW"
+                )
+
             } else {
                 MorseFlashPreview(settings)
             }
