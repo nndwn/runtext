@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.features.display.components
+package com.nndwn.runtext.ui.features.display.utils
 
 import android.content.Context
 import android.os.Build

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.RunningTextCore
+import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.Dimens
@@ -55,7 +55,6 @@ fun PreviewAndStart(
                 shape = shape
             )
     ) {
-        // 1. Box Preview (Atas)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,10 +63,9 @@ fun PreviewAndStart(
             contentAlignment = Alignment.Center
         ) {
             if (settings.mode == AppMode.RUNNING_TEXT) {
-                RunningTextCore(
+                RunningTextCoreOptimized(
                     settings = settings,
                     fontSize = 40.sp,
-                    defaultPreviewText = "PREVIEW"
                 )
 
             } else {
@@ -75,7 +73,6 @@ fun PreviewAndStart(
             }
         }
 
-        // 2. Box Tombol Start (Bawah)
         Box(
             modifier = Modifier
                 .fillMaxWidth()

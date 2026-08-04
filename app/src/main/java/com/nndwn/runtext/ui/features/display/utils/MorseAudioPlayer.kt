@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.features.display.components
+package com.nndwn.runtext.ui.features.display.utils
 
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -7,7 +7,7 @@ object MorseAudioPlayer {
     private var toneGenerator : ToneGenerator? = null
     init {
         try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_ACCESSIBILITY, 80)
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
         } catch (e: Exception){
             e.printStackTrace()
         }

@@ -30,8 +30,6 @@ fun MorseTorchConfig(
             event(MainUiEvent.UpdateTorchEnabled(true))
         } else {
             event(MainUiEvent.UpdateTorchEnabled(false))
-
-
             val activity = context as? Activity
             val showRationale = activity?.let {
                 ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)

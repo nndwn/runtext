@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -44,7 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.RunningTextCore
+import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
+import com.nndwn.runtext.ui.features.display.components.MorseCodeCore
 import com.nndwn.runtext.ui.features.display.components.ScreenBrightness
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlinx.coroutines.delay
@@ -120,15 +120,15 @@ fun DisplayScreen(
         when (currentSettings.mode) {
             AppMode.RUNNING_TEXT -> {
 
-                RunningTextCore(
+                RunningTextCoreOptimized(
                     settings = currentSettings,
-                    fontSize = 174.sp,
-                    defaultPreviewText = "RUNNING TEXT"
                 )
             }
 
             AppMode.MORSE_CODE -> {
-
+                MorseCodeCore(
+                    settings = currentSettings,
+                )
             }
         }
 

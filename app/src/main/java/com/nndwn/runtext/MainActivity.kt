@@ -10,9 +10,12 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.nndwn.runtext.ui.RunTextApp
 import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.utils.DeviceSpecsLogger
 import com.nndwn.runtext.ui.utils.LocalIsTablet
 import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +38,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val isTablet = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
+            val context = LocalContext.current
+
+            if (BuildConfig.DEBUG) {
+                LaunchedEffect(Unit) {
+                    DeviceSpecsLogger.logSpecs(
+                        context = context,
+                        windowSizeClass = windowSizeClass,
+                        isTablet = isTablet
+                    )
+                }
+            }
+
             CompositionLocalProvider(
                 LocalIsTablet provides isTablet,
                 LocalWindowWidthSize provides windowSizeClass.widthSizeClass
