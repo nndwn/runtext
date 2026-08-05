@@ -36,14 +36,15 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.utils.Dimens
+import com.nndwn.runtext.ui.theme.Dimens
+import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun PreviewAndStart(
     settings: AppSettings,
     onNavigateToDisplay: () -> Unit
 ) {
-    val shape = RoundedCornerShape(Dimens.RoundedCorner)
+    val shape = RoundedCornerShape(MaterialTheme.dimens.medium)
 
     Column(
         modifier = Modifier
@@ -80,10 +81,10 @@ fun PreviewAndStart(
                 .clickable(
                     indication = ripple(),
                     interactionSource = remember { MutableInteractionSource() },
-                ) {
-                    onNavigateToDisplay()
-                }
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) { onNavigateToDisplay() }
+                .padding(
+                    horizontal = MaterialTheme.dimens.medium,
+                    vertical = MaterialTheme.dimens.small),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -91,15 +92,15 @@ fun PreviewAndStart(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp)
+                    .padding(MaterialTheme.dimens.small)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_play),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
                 Text(
                     text = stringResource(R.string.btn_start),
                     style = MaterialTheme.typography.bodyLarge.copy(

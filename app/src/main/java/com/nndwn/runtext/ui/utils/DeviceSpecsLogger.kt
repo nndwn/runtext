@@ -13,7 +13,7 @@ object DeviceSpecsLogger {
 
     private const val TAG = "DEBUG_DEVICE_SPECS"
 
-    fun logSpecs(context: Context, windowSizeClass: WindowSizeClass, isTablet: Boolean) {
+    fun logSpecs(context: Context, windowSizeClass: WindowSizeClass) {
         val displayMetrics = context.resources.displayMetrics
         val density = displayMetrics.density
         val screenWidthPx = displayMetrics.widthPixels
@@ -31,7 +31,6 @@ object DeviceSpecsLogger {
 
         val refreshRate = display?.refreshRate ?: -1f
 
-        // ── KELOLA DATA RAM ──
         val actManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val memInfo = ActivityManager.MemoryInfo()
         actManager.getMemoryInfo(memInfo)
@@ -39,7 +38,6 @@ object DeviceSpecsLogger {
         val totalRamGb = String.format(Locale.US, "%.2f GB", memInfo.totalMem / (1024f * 1024f * 1024f))
         val availRamGb = String.format(Locale.US, "%.2f GB", memInfo.availMem / (1024f * 1024f * 1024f))
 
-        // ── KELOLA DATA PROSESOR (CPU) ──
         val cpuCores = Runtime.getRuntime().availableProcessors()
         val cpuHardware = Build.HARDWARE
         val cpuBoard = Build.BOARD
@@ -61,18 +59,16 @@ object DeviceSpecsLogger {
             appendLine(" Resolution (Px) : ${screenWidthPx}x${screenHeightPx} px")
             appendLine(" Resolution (Dp) : ${screenWidthDp}x${screenHeightDp} dp")
             appendLine(" Screen Density  : ${displayMetrics.densityDpi} dpi (Scale Factor: ${density}x)")
-            appendLine(" Refresh Rate    : ${refreshRate} Hz")
+            appendLine(" Refresh Rate    : $refreshRate Hz")
             appendLine("--------------------------------------------------")
             appendLine(" Window Width    : ${windowSizeClass.widthSizeClass}")
             appendLine(" Window Height   : ${windowSizeClass.heightSizeClass}")
-            appendLine(" Is Tablet Form  : $isTablet")
             appendLine("==================================================")
         }
 
         Log.d(TAG, sb.toString())
     }
 
-    // Helper membaca nama/model CPU dari /proc/cpuinfo
     private fun getCpuName(): String {
         return try {
             val file = File("/proc/cpuinfo")

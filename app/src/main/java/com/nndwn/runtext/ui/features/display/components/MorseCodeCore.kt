@@ -32,14 +32,15 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun MorseCodeCore(
     settings: AppSettings,
-    modifier : Modifier = Modifier,
-    defaultString : String = "SOS",
-){
+    modifier: Modifier = Modifier,
+    defaultString: String = "SOS",
+) {
     val context = LocalContext.current
     val rawText = settings.lastText.ifEmpty { defaultString }
     val morseConfig = settings.morseConfig
-    val torchManager = remember{ CameraTorchManager(context) }
-    val morseVibrator = remember { MorseVibrator(context)}
+    val torchManager = remember { CameraTorchManager(context) }
+    val morseVibrator = remember { MorseVibrator(context) }
+
     var permissionCamera by remember { mutableStateOf(false) }
     var isSignalOn by remember { mutableStateOf(false) }
 
@@ -64,9 +65,14 @@ fun MorseCodeCore(
             permissionCamera = false
         }
     }
-
-    LaunchedEffect(rawText, morseConfig , permissionCamera) {
-
+    LaunchedEffect(
+        rawText,
+        morseConfig.morseWpm,
+        morseConfig.isTorchEnabled,
+        morseConfig.isSoundEnabled,
+        morseConfig.isVibrateEnabled,
+        permissionCamera
+    ) {
         val elements = if (rawText.equals("SOS", ignoreCase = true)) {
             MorseEngine.SOS_PATTERN
         } else {
@@ -86,18 +92,29 @@ fun MorseCodeCore(
 
                     if (isSignal) {
                         isSignalOn = true
-                        if (canUseTorch) torchManager.setTorchEnabled(true)
-                        if (morseConfig.isSoundEnabled) MorseAudioPlayer.playBeep(durationMs)
-                        if (morseConfig.isVibrateEnabled) morseVibrator.vibrate(durationMs)
+
+                        if (canUseTorch) {
+                            torchManager.setTorchEnabled(true)
+                        }
+                        if (morseConfig.isSoundEnabled) {
+                            MorseAudioPlayer.playBeep(durationMs)
+                        }
+                        if (morseConfig.isVibrateEnabled) {
+                            morseVibrator.vibrate(durationMs)
+                        }
 
                         delay(durationMs.milliseconds)
 
                         isSignalOn = false
-                        if (canUseTorch) torchManager.setTorchEnabled(false)
+                        if (canUseTorch) {
+                            torchManager.setTorchEnabled(false)
+                        }
                         morseVibrator.cancel()
                     } else {
                         isSignalOn = false
-                        if (canUseTorch) torchManager.setTorchEnabled(false)
+                        if (canUseTorch) {
+                            torchManager.setTorchEnabled(false)
+                        }
 
                         delay(durationMs.milliseconds)
                     }
@@ -117,13 +134,14 @@ fun MorseCodeCore(
         onDispose {
             torchManager.setTorchEnabled(false)
             morseVibrator.cancel()
-            MorseAudioPlayer.release()
+            MorseAudioPlayer.stop()
         }
     }
 
     val activeColor = remember(morseConfig.bgColorMorse) {
         morseConfig.bgColorMorse.toComposeColor()
     }
+
     val displayColor = if (morseConfig.isFlashScreen && isSignalOn) {
         activeColor
     } else {

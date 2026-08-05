@@ -62,8 +62,7 @@ fun RunTextApp(
             DialogNotice(
                 visible = noticeMessage != null,
                 text = noticeMessage?.let { stringResource(it) } ?: "",
-                onDismiss = { noticeMessage = null },
-                modifier = Modifier.navigationBarsPadding()
+                onDismiss = { noticeMessage = null }
             )
         }
     ) {innerPadding ->

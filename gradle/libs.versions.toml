@@ -22,6 +22,7 @@ uiTextGoogleFonts = "1.11.4"
 hiltDagger =  "2.60.1"
 ksp = "2.2.10-2.0.2"
 material3WindowSizeClass = "1.4.0"
+animationCore = "1.11.4"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -52,6 +53,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-material3-window-size-class1 = { group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "material3WindowSizeClass" }
+androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

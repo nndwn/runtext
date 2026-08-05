@@ -1,5 +1,6 @@
 package com.nndwn.runtext.extentions
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,12 +41,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nndwn.runtext.ui.component.Skeleton
+import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.theme.dimens
 
 fun Modifier.shimmer(
     backgroundColor: Color = Color.LightGray.copy(alpha = 0.4f),
     shape: Shape = RectangleShape,
     shimmerColor: Color = Color.White,
-    duration: Int = 1300,
+    duration: Int = 800,
     progress: Float? = null
 ): Modifier = composed {
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -74,7 +80,6 @@ fun Modifier.shimmer(
             val height = size.height.toFloat()
 
             if (width == 0f || height == 0f) return@drawBehind
-
             val shimmerSize = maxOf(width, height) * 0.8f
 
             val startOffset = -shimmerSize
@@ -94,99 +99,46 @@ fun Modifier.shimmer(
             drawOutline(outline = outline, brush = brush)
         }
 }
-@Composable
-fun ShimmerCardItem(
-    progress: Float,
-    modifier: Modifier = Modifier
-) {
-    val cardShape = RoundedCornerShape(16.dp)
 
-    Column(
-        modifier = modifier
-            .width(140.dp)
-            .shimmer(
-                progress = progress,
-                backgroundColor = Color(0xFFE0E0E0),
-                shape = cardShape
-            )
-            .padding(12.dp)
-    ) {
-        // Thumbnail/Image Placeholder
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp)
-                .shimmer(
-                    progress = progress,
-                    backgroundColor = Color(0xFFD0D0D0),
-                    shape = RoundedCornerShape(8.dp)
-                )
-        )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Title Line Placeholder
-        Text(
-            text = "Sample",
-            fontSize = 10.sp,
-            color = Color.Transparent,
-            modifier = Modifier
-                .shimmer(
-                    progress = progress,
-                    backgroundColor = Color(0xFFD0D0D0),
-                    shape = RoundedCornerShape(4.dp)
-                )
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(14.dp)
-                .shimmer(
-                    progress = progress,
-                    backgroundColor = Color(0xFFD0D0D0),
-                    shape = RoundedCornerShape(4.dp)
-                )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Subtitle Line Placeholder
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.5f)
-                .height(10.dp)
-                .shimmer(
-                    progress = progress,
-                    backgroundColor = Color(0xFFD0D0D0),
-                    shape = RoundedCornerShape(4.dp)
-                )
-        )
-    }
-}
-
-// Implementasi LazyRow Utama
 @Composable
 fun ShimmerLazyRowSample() {
-    // 1. Buat 1 Clock Animasi di level Parent
-    val transition = rememberInfiniteTransition(label = "SharedShimmerTransition")
+    val transition = rememberInfiniteTransition(label = "TestShimmerTransition")
     val shimmerProgress by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            animation = tween(durationMillis = 800, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "SharedShimmerProgress"
+        label = "TestShimmerProgress"
     )
 
-    // 2. Lempar nilai `shimmerProgress` ke seluruh item LazyRow
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    LazyColumn(
+        contentPadding = PaddingValues(
+            start = MaterialTheme.dimens.medium,
+            end =  MaterialTheme.dimens.medium,
+
+            ),
+        verticalArrangement = Arrangement.spacedBy( MaterialTheme.dimens.medium)
     ) {
-        items(count = 10) { index ->
-            ShimmerCardItem(progress = shimmerProgress)
+        stickyHeader {
+            Skeleton(
+                shimmerProgress = shimmerProgress,
+                height = 140.dp
+            )
+        }
+        item {
+            Skeleton(
+                shimmerProgress = shimmerProgress,
+                height = 120.dp
+            )
+        }
+        items(7) {
+            Skeleton(
+                shimmerProgress = shimmerProgress,
+                height = 56.dp
+            )
         }
     }
 }
@@ -194,5 +146,8 @@ fun ShimmerLazyRowSample() {
 @Preview(showBackground = true)
 @Composable
 private fun ShimmerLazyRowPreview() {
-    ShimmerLazyRowSample()
+    RuntextTheme {
+        ShimmerLazyRowSample()
+    }
+
 }

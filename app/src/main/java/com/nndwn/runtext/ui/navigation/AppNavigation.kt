@@ -6,6 +6,8 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -40,22 +42,28 @@ fun AppNavigation(
         composable(
             route = Routes.DISPLAY,
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                scaleIn(
+                    initialScale = 0.8f, // Mulai dari 80% ukuran asli
                     animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
-                )
+                ) + fadeIn(animationSpec = tween(durationMillis = 400))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 350))
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
-                    animationSpec = tween(durationMillis = 400, easing = FastOutLinearInEasing)
-                )
+                scaleOut(
+                    targetScale = 1.1f, // Membesar ke 110% saat menghilang
+                    animationSpec = tween(durationMillis = 350)
+                ) + fadeOut(animationSpec = tween(durationMillis = 350))
             },
             popEnterTransition = {
-                fadeIn(animationSpec = tween(durationMillis = 350))
+                scaleIn(
+                    initialScale = 1.1f, // Mulai dari 110% lalu mengecil ke normal
+                    animationSpec = tween(durationMillis = 350)
+                ) + fadeIn(animationSpec = tween(durationMillis = 350))
+            },
+            popExitTransition = {
+                scaleOut(
+                    targetScale = 0.8f, // Mengecil ke 80% saat menutup
+                    animationSpec = tween(durationMillis = 400, easing = FastOutLinearInEasing)
+                ) + fadeOut(animationSpec = tween(durationMillis = 400))
             }
         ) {
             DisplayScreen()

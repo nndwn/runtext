@@ -10,27 +10,45 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -38,15 +56,15 @@ import kotlin.math.roundToInt
 fun SlideUpPanel(
     visible : Boolean,
     modifier : Modifier = Modifier,
-    containerColor : Color = Color.White,
+    containerColor : Color = MaterialTheme.colorScheme.secondaryContainer,
     enableDragToDismiss: Boolean = false,
     onDismiss: () -> Unit = {},
-    content : @Composable () -> Unit
+    content :  @Composable (ColumnScope.() -> Unit)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val offsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
-    val isTablet = LocalIsTablet.current
+    val isExpand = LocalWindowWidthSize.current != WindowWidthSizeClass.Compact
     val dismissThreshold = with(density) { 150.dp.toPx() }
 
 
@@ -69,15 +87,30 @@ fun SlideUpPanel(
             enter = slideInVertically(initialOffsetY = {it}) + fadeIn(),
             exit = slideOutVertically(targetOffsetY = {it}) + fadeOut()
         ) {
-            Box(
+            Surface (
+                color = containerColor,
                 modifier = Modifier
                     .widthIn(max = 560.dp)
+                    .heightIn(max = 560.dp)
                     .fillMaxWidth()
-                    .padding(horizontal = if (isTablet) 24.dp else 0.dp)
-                    .padding(bottom = if (isTablet) 24.dp else 0.dp)
                     .offset { IntOffset(0, offsetY.value.roundToInt()) }
-                    .clip(if (isTablet) RoundedCornerShape(24.dp)
-                    else RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    .then(
+                        if (isExpand) {
+                            Modifier
+                                .padding(
+                                    bottom = MaterialTheme.dimens.large,
+                                    start = MaterialTheme.dimens.large,
+                                    end = MaterialTheme.dimens.large
+                                )
+                                .navigationBarsPadding()
+                                .clip(MaterialTheme.shapes.large)
+                        } else Modifier
+                            .clip(MaterialTheme.shapes.large.copy(
+                                bottomEnd = CornerSize(0.dp),
+                                bottomStart = CornerSize(0.dp)
+                            ))
+                    )
+
                     .background(containerColor)
                     .then(
                         if (enableDragToDismiss) {
@@ -108,15 +141,21 @@ fun SlideUpPanel(
                         } else Modifier
                     )
             ){
-                Column {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                ) {
                     if (enableDragToDismiss) {
                         Box(
                             modifier = Modifier
-                                .padding(top = 12.dp, bottom = 4.dp)
-                                .width(40.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(Color.LightGray.copy(alpha = 0.5f))
+                                .padding(
+                                    top = MaterialTheme.dimens.small,
+                                    bottom = MaterialTheme.dimens.medium)
+                                .width(MaterialTheme.dimens.extraLarge)
+                                .height(MaterialTheme.dimens.extraSmall)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f))
                                 .align(Alignment.CenterHorizontally)
                         )
                     }
@@ -126,4 +165,32 @@ fun SlideUpPanel(
             }
         }
     }
+}
+
+
+@Preview(showSystemUi = true)
+@Composable
+private fun Preview(){
+    var show by remember { mutableStateOf(false) }
+
+    CompositionLocalProvider(
+        LocalWindowWidthSize provides WindowWidthSizeClass.Expanded
+    ) {
+        RuntextTheme {
+            Button(
+                onClick = { show = !show },
+                modifier = Modifier.padding(MaterialTheme.dimens.medium)
+            ) { }
+            SlideUpPanel(
+                visible = show,
+                enableDragToDismiss = true,
+                onDismiss = {
+                    show = false
+                }
+            ) {
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraLarge))
+            }
+        }
+    }
+
 }

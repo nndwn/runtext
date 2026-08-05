@@ -4,24 +4,46 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 
 object MorseAudioPlayer {
-    private var toneGenerator : ToneGenerator? = null
-    init {
-        try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
-        } catch (e: Exception){
-            e.printStackTrace()
+    private var toneGenerator: ToneGenerator? = null
+
+    private fun getToneGenerator(): ToneGenerator? {
+        if (toneGenerator == null) {
+            try {
+                // Gunakan STREAM_MUSIC agar mengikuti volume media HP
+                toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+        return toneGenerator
     }
+
     fun playBeep(durationMs: Long) {
         try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, durationMs.toInt())
+            val generator = getToneGenerator()
+            generator?.stopTone()
+            generator?.startTone(ToneGenerator.TONE_PROP_BEEP, durationMs.toInt())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            release()
+        }
+    }
+
+    fun stop() {
+        try {
+            toneGenerator?.stopTone()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     fun release() {
-        toneGenerator?.release()
-        toneGenerator = null
+        try {
+            toneGenerator?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            toneGenerator = null
+        }
     }
 }

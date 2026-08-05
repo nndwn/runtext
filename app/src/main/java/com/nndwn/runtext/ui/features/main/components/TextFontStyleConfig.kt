@@ -88,65 +88,60 @@ fun SelectorFonts(
         enableDragToDismiss = true,
         onDismiss = dismissPanel
     ) {
-        Column(
+        Text(
+            style = MaterialTheme.typography.titleLarge,
+            text = stringResource(R.string.set_config_text_style),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 500.dp)
-                .navigationBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp)
+        )
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 0.5.dp,
+            color = Palette.Black3.copy(alpha = 0.1f)
+        )
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                color = Palette.Black2,
-                text = stringResource(R.string.set_config_text_style),
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 0.5.dp,
-                color = Palette.Black3.copy(alpha = 0.1f)
-            )
+            items(
+                count = sortedFonts.size,
+                key = { index -> sortedFonts[index].name }
+            ) { index ->
+                val item = sortedFonts[index]
+                val isSelected = settings.textStyle.fontType == item
+                // val isRecommended = item.scriptCategory == activeScript && activeScript != ScriptCategory.LATIN
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(
-                    count = sortedFonts.size,
-                    key = { index -> sortedFonts[index].name }
-                ) { index ->
-                    val item = sortedFonts[index]
-                    val isSelected = settings.textStyle.fontType == item
-                   // val isRecommended = item.scriptCategory == activeScript && activeScript != ScriptCategory.LATIN
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(
-                                indication = ripple(),
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = {
-                                    onUpdateFontType(item)
-                                    dismissPanel()
-                                }
-                            )
-                            .padding(vertical = 16.dp, horizontal = 24.dp),
-                        contentAlignment = Alignment.CenterStart
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            indication = ripple(),
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                onUpdateFontType(item)
+                                dismissPanel()
+                            }
+                        )
+                        .padding(vertical = 16.dp, horizontal = 24.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = item.displayName,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                style = TextStyle(
-                                    fontFamily = fontFamilyFor(item),
-                                    fontSize = 18.sp,
-                                    color = Palette.Black2
-                                )
+                        Text(
+                            text = item.displayName,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            style = TextStyle(
+                                fontFamily = fontFamilyFor(item),
+                                fontSize = 18.sp,
+                                color = Palette.Black2
                             )
+                        )
 
 
 //                            if (isRecommended) {
@@ -163,7 +158,6 @@ fun SelectorFonts(
 //                                        .padding(horizontal = 6.dp, vertical = 2.dp)
 //                                )
 //                            }
-                        }
                     }
                 }
             }

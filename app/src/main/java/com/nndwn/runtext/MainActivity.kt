@@ -7,7 +7,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -16,7 +15,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.nndwn.runtext.ui.RunTextApp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.DeviceSpecsLogger
-import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.utils.LocalWindowHeightSize
 import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,21 +36,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
-            val isTablet = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
             val context = LocalContext.current
 
             if (BuildConfig.DEBUG) {
                 LaunchedEffect(Unit) {
                     DeviceSpecsLogger.logSpecs(
                         context = context,
-                        windowSizeClass = windowSizeClass,
-                        isTablet = isTablet
+                        windowSizeClass = windowSizeClass
                     )
                 }
             }
 
             CompositionLocalProvider(
-                LocalIsTablet provides isTablet,
+                 LocalWindowHeightSize provides windowSizeClass.heightSizeClass,
                 LocalWindowWidthSize provides windowSizeClass.widthSizeClass
             ) {
                 RuntextTheme {

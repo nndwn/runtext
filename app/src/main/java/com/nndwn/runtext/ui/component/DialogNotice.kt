@@ -12,23 +12,33 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nndwn.runtext.ui.theme.Palette
-import com.nndwn.runtext.ui.utils.Dimens
-import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.theme.Dimens
+import com.nndwn.runtext.ui.theme.dimens
+import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -39,8 +49,7 @@ fun DialogNotice(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = {}
 ) {
-    val isTablet = LocalIsTablet.current
-
+    val isExpand = LocalWindowWidthSize.current != WindowWidthSizeClass.Compact
 
     LaunchedEffect(visible, text) {
         if (visible) {
@@ -49,8 +58,8 @@ fun DialogNotice(
         }
     }
 
-    val enterAnimation = remember(isTablet) {
-        if (isTablet) {
+    val enterAnimation = remember(isExpand) {
+        if (isExpand) {
             slideInHorizontally(
                 initialOffsetX = { it },
                 animationSpec = spring(
@@ -69,8 +78,8 @@ fun DialogNotice(
         }
     }
 
-    val exitAnimation = remember(isTablet) {
-        if (isTablet) {
+    val exitAnimation = remember(isExpand) {
+        if (isExpand) {
             slideOutHorizontally(
                 targetOffsetX = { it },
                 animationSpec = tween(200)
@@ -91,16 +100,20 @@ fun DialogNotice(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .padding(horizontal = Dimens.PaddingHorizontal, vertical = 20.dp),
-            contentAlignment = if (isTablet) Alignment.BottomEnd else Alignment.BottomCenter
+                .padding(
+                    horizontal = MaterialTheme.dimens.medium,
+                    vertical = MaterialTheme.dimens.large)
+                .navigationBarsPadding()
+            ,
+            contentAlignment = if (isExpand) Alignment.BottomEnd else Alignment.BottomCenter
         ) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
-                    .background(color = Palette.White)
+                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
                     .padding(vertical = 8.dp, horizontal = 20.dp)
                     .then(
-                        if (isTablet) Modifier.widthIn(max = 560.dp)
+                        if (isExpand) Modifier.widthIn(max = 560.dp)
                         else Modifier.fillMaxWidth()
                     ) ,
                 contentAlignment = Alignment.Center
@@ -108,9 +121,36 @@ fun DialogNotice(
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Palette.Black2,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPhone(){
+    var show by remember { mutableStateOf(false) }
+    CompositionLocalProvider(
+        LocalWindowWidthSize provides WindowWidthSizeClass.Compact
+    ) {
+        RuntextTheme {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = {show = !show}
+                ) {
+                    Text("Show")
+                }
+                DialogNotice(
+                    visible = show,
+                    text = "Test"
+                )
+            }
+
         }
     }
 }

@@ -16,16 +16,13 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,33 +38,28 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
-import com.nndwn.runtext.extentions.shimmer
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
-import com.nndwn.runtext.ui.component.ConfigCardSkeleton
+import com.nndwn.runtext.ui.component.Skeleton
 import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
 import com.nndwn.runtext.ui.features.main.components.AppModeSettings
-import com.nndwn.runtext.ui.features.main.components.AppModeSettingsSkeleton
 import com.nndwn.runtext.ui.features.main.components.LogoText
 import com.nndwn.runtext.ui.features.main.components.MorseColorConfig
 import com.nndwn.runtext.ui.features.main.components.MorseSpeedConfig
 import com.nndwn.runtext.ui.features.main.components.MorseTorchConfig
 import com.nndwn.runtext.ui.features.main.components.PreviewAndStart
 import com.nndwn.runtext.ui.features.main.components.SelectorFonts
-import com.nndwn.runtext.ui.features.main.components.SpeedConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextColorPickerConfig
 import com.nndwn.runtext.ui.features.main.components.TextFontStyleConfig
 import com.nndwn.runtext.ui.features.main.components.TextInputConfig
-import com.nndwn.runtext.ui.features.main.components.TextInputConfigSkeleton
 import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
 import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
-import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.utils.Dimens
 import com.nndwn.runtext.ui.utils.LocalIsTablet
 
 @Composable
@@ -124,7 +116,7 @@ fun MainScreenContent(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            animation = tween(durationMillis = 800, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "MainShimmerProgress"
@@ -151,17 +143,14 @@ fun MainScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
-                .padding(
-                    padding)
-
-            ,
+                .padding(padding),
             contentPadding = PaddingValues(
                 bottom = padding.calculateBottomPadding(),
-                start = Dimens.PaddingHorizontal,
-                end = Dimens.PaddingHorizontal,
+                start = MaterialTheme.dimens.medium,
+                end =  MaterialTheme.dimens.medium,
 
             ),
-            verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+            verticalArrangement = Arrangement.spacedBy( MaterialTheme.dimens.medium)
 
         ) {
             item {
@@ -182,29 +171,22 @@ fun MainScreenContent(
             when (uiState) {
                 is MainUiState.Loading -> {
                     stickyHeader {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(140.dp)
-                                .shimmer(
-                                    progress = shimmerProgress,
-                                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                                    shimmerColor = Palette.Grey,
-                                    shape = RoundedCornerShape(Dimens.RoundedCorner)
-                                )
+                        Skeleton(
+                            shimmerProgress = shimmerProgress,
+                            height = 140.dp
                         )
                     }
                     item {
-                        TextInputConfigSkeleton(shimmerProgress = shimmerProgress)
+                        Skeleton(
+                            shimmerProgress = shimmerProgress,
+                            height = 120.dp
+                        )
                     }
-                    item {
-                        AppModeSettingsSkeleton(shimmerProgress = shimmerProgress)
-                    }
-                    item {
-                        SpeedConfigSkeleton(shimmerProgress = shimmerProgress)
-                    }
-                    items(5) {
-                        ConfigCardSkeleton(shimmerProgress = shimmerProgress)
+                    items(7) {
+                        Skeleton(
+                            shimmerProgress = shimmerProgress,
+                            height = 56.dp
+                        )
                     }
                 }
                 is MainUiState.Success -> {
@@ -255,7 +237,7 @@ fun MainScreenContent(
                                 AppMode.RUNNING_TEXT -> {
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
                                     ) {
                                         TextPresetConfig(
                                             expandedId = expandedPickerId,
@@ -318,7 +300,7 @@ fun MainScreenContent(
                                 AppMode.MORSE_CODE -> {
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(Dimens.ArrangementHeight)
+                                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
                                     ) {
                                         MorseColorConfig(
                                             currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),

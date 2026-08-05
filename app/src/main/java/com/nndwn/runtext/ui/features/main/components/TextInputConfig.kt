@@ -1,12 +1,9 @@
 package com.nndwn.runtext.ui.features.main.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,15 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
-import com.nndwn.runtext.extentions.shimmer
-import com.nndwn.runtext.ui.theme.Palette
-import com.nndwn.runtext.ui.utils.Dimens
+import com.nndwn.runtext.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +38,10 @@ fun TextInputConfig(
             .fillMaxWidth()
             .heightIn(min = 120.dp),
         interactionSource = interactionSource,
-        textStyle = TextStyle(
-            color = Palette.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Normal
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface
         ),
-        cursorBrush = SolidColor(Palette.White),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         decorationBox = { innerTextField ->
             OutlinedTextFieldDefaults.DecorationBox(
                 value = text,
@@ -63,7 +53,7 @@ fun TextInputConfig(
                 placeholder = {
                     Text(
                         stringResource(R.string.placeholder_input_text),
-                        color = Palette.Grey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
                 trailingIcon = {
@@ -71,9 +61,9 @@ fun TextInputConfig(
                         IconButton(onClick = onClearText) {
                             Icon(
                                 painterResource(R.drawable.ic_clear),
-                                contentDescription = "Clear",
-                                tint = Palette.White,
-                                modifier = Modifier.size(25.dp)
+                                contentDescription = stringResource(R.string.clear),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
                             )
                         }
                     }
@@ -81,13 +71,14 @@ fun TextInputConfig(
                 supportingText = {
                     Text(
                         text = "${text.length}/250",
-                        color = if (text.length > 240) Palette.NeonRed else Palette.Black3,
+                        color = if (text.length > 240) MaterialTheme.colorScheme.error
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Palette.White,
-                    unfocusedBorderColor = Palette.Black3,
+                    focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
                 container = {
                     OutlinedTextFieldDefaults.Container(
@@ -95,35 +86,16 @@ fun TextInputConfig(
                         isError = false,
                         interactionSource = interactionSource,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Palette.White,
-                            unfocusedBorderColor = Palette.Black3,
+                            focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
-                        shape = RoundedCornerShape(Dimens.RoundedCorner),
-                        focusedBorderThickness = 1.dp,
-                        unfocusedBorderThickness = 0.8.dp
+                        shape = MaterialTheme.shapes.medium,
+                        focusedBorderThickness = MaterialTheme.dimens.borderMedium,
+                        unfocusedBorderThickness = MaterialTheme.dimens.borderSmall
                     )
                 }
             )
         }
     )
 }
-
-@Composable
-fun TextInputConfigSkeleton(
-    shimmerProgress: Float,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .shimmer(
-                progress = shimmerProgress,
-                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                shimmerColor = Palette.Grey,
-                shape = RoundedCornerShape(Dimens.RoundedCorner)
-            )
-    )
-}
-
 

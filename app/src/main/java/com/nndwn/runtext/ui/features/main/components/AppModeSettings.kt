@@ -38,8 +38,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppMode
-import com.nndwn.runtext.extentions.shimmer
-import com.nndwn.runtext.ui.theme.Palette
 import kotlin.math.roundToInt
 
 @Composable
@@ -148,20 +146,4 @@ private fun AppModeItem(
     }
 }
 
-@Composable
-fun AppModeSettingsSkeleton(
-    shimmerProgress: Float,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .shimmer(
-                progress = shimmerProgress,
-                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                shimmerColor = Palette.Grey,
-                shape = RoundedCornerShape(12.dp)
-            )
-    )
-}
+

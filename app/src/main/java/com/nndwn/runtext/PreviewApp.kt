@@ -1,6 +1,9 @@
 package com.nndwn.runtext
 
 import android.content.res.Configuration
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -19,11 +22,16 @@ import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.utils.LocalWindowHeightSize
+import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-private fun InteractivePreviewWrapper(isTablet: Boolean) {
+private fun InteractivePreviewWrapper(
+    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
+    heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Compact
+) {
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -152,7 +160,10 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
             is MainUiEvent.Toast -> noticeMessage = event.message
         } as AppSettings
     }
-    CompositionLocalProvider(LocalIsTablet provides isTablet) {
+    CompositionLocalProvider(
+        LocalWindowHeightSize provides heightSizeClass,
+        LocalWindowWidthSize provides widthSizeClass,
+    ) {
         RuntextTheme {
             MainLayout(
                 isSidebarOpen = sidebarAllowed,
@@ -195,5 +206,5 @@ private fun InteractivePreviewWrapper(isTablet: Boolean) {
 @Preview(device = "spec:width=1080px,height=2340px,dpi=480" , uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewTabletDark(){
-    InteractivePreviewWrapper(false)
+    InteractivePreviewWrapper()
 }

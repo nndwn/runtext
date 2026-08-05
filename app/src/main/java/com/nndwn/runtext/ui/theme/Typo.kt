@@ -10,14 +10,11 @@ import com.nndwn.runtext.R
 import androidx.compose.ui.text.googlefonts.Font as GoogleFontFont
 import androidx.compose.material3.Typography
 
-// ── Google Fonts provider (requires Internet + GMS) ──
 val GoogleFontProvider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
     certificates = R.array.com_google_android_gms_fonts_certs,
 )
-
-// ── Bundled font families (offline, embedded in APK) ──
 
 val ShareTechMonoFamily = FontFamily(
     Font(R.font.sharetechmono_regular),
@@ -115,10 +112,7 @@ val JakartaPlusFamily = FontFamily(
     Font(R.font.plus_jakarta_sans_extrabold, FontWeight.Black),
 )
 
-/**
- * Create a [FontFamily] from a Google Font name.
- * Falls back to device default if the font cannot be downloaded.
- */
+
 fun googleFontFamily(fontName: String): FontFamily {
     val gf = GoogleFont(fontName)
     return FontFamily(
