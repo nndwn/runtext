@@ -95,7 +95,7 @@ private fun PresetItem(
                 .background(preset.settings.bgColorArgb.toComposeColor())
                 .border(
                     width = 1.dp,
-                    color = Palette.Black3.copy(alpha = 0.2f),
+                    color = Palette.DimGray.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(4.dp),

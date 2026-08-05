@@ -43,7 +43,7 @@ fun MorseSpeedConfig(
             colors = SliderDefaults.colors(
                 thumbColor = Palette.White,
                 activeTrackColor = Palette.White,
-                inactiveTrackColor = Palette.Grey,
+                inactiveTrackColor = Palette.CoolGrey,
                 activeTickColor = Color.Transparent,
                 inactiveTickColor = Color.Transparent
             )

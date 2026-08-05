@@ -37,7 +37,7 @@ fun TextSpeedConfig(
             colors = SliderDefaults.colors(
                 thumbColor = Palette.White,
                 activeTrackColor = Palette.White,
-                inactiveTrackColor = Palette.Grey
+                inactiveTrackColor = Palette.CoolGrey
             ),
         )
     }

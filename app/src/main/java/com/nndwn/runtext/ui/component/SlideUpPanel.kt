@@ -2,6 +2,7 @@ package com.nndwn.runtext.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -47,26 +47,25 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalIsTablet
 import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun SlideUpPanel(
-    visible : Boolean,
-    modifier : Modifier = Modifier,
-    containerColor : Color = MaterialTheme.colorScheme.secondaryContainer,
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     enableDragToDismiss: Boolean = false,
     onDismiss: () -> Unit = {},
-    content :  @Composable (ColumnScope.() -> Unit)
+    content: @Composable (ColumnScope.() -> Unit)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val offsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
+
     val isExpand = LocalWindowWidthSize.current != WindowWidthSizeClass.Compact
     val dismissThreshold = with(density) { 150.dp.toPx() }
-
 
     LaunchedEffect(visible) {
         if (visible) {
@@ -77,17 +76,17 @@ fun SlideUpPanel(
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
-    ){
+    ) {
         Scrim(visible) {
             onDismiss()
         }
 
         AnimatedVisibility(
             visible = visible,
-            enter = slideInVertically(initialOffsetY = {it}) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = {it}) + fadeOut()
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
         ) {
-            Surface (
+            Surface(
                 color = containerColor,
                 modifier = Modifier
                     .widthIn(max = 560.dp)
@@ -102,16 +101,19 @@ fun SlideUpPanel(
                                     start = MaterialTheme.dimens.large,
                                     end = MaterialTheme.dimens.large
                                 )
-                                .navigationBarsPadding()
                                 .clip(MaterialTheme.shapes.large)
-                        } else Modifier
-                            .clip(MaterialTheme.shapes.large.copy(
-                                bottomEnd = CornerSize(0.dp),
-                                bottomStart = CornerSize(0.dp)
-                            ))
+                                .navigationBarsPadding()
+                        } else {
+                            Modifier
+                                .clip(
+                                    MaterialTheme.shapes.large.copy(
+                                        bottomEnd = CornerSize(0.dp),
+                                        bottomStart = CornerSize(0.dp)
+                                    )
+                                )
+                        }
                     )
 
-                    .background(containerColor)
                     .then(
                         if (enableDragToDismiss) {
                             Modifier.pointerInput(Unit) {
@@ -121,13 +123,13 @@ fun SlideUpPanel(
                                             onDismiss()
                                         } else {
                                             coroutineScope.launch {
-                                                offsetY.animateTo(0f)
+                                                offsetY.animateTo(0f, animationSpec = spring())
                                             }
                                         }
                                     },
                                     onDragCancel = {
                                         coroutineScope.launch {
-                                            offsetY.animateTo(0f)
+                                            offsetY.animateTo(0f, animationSpec = spring())
                                         }
                                     },
                                     onVerticalDrag = { change, dragAmount ->
@@ -140,18 +142,23 @@ fun SlideUpPanel(
                             }
                         } else Modifier
                     )
-            ){
+            ) {
                 Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isExpand){
+                                Modifier
+                            } else Modifier.navigationBarsPadding()
+                        )
                 ) {
                     if (enableDragToDismiss) {
                         Box(
                             modifier = Modifier
                                 .padding(
                                     top = MaterialTheme.dimens.small,
-                                    bottom = MaterialTheme.dimens.medium)
+                                    bottom = MaterialTheme.dimens.medium
+                                )
                                 .width(MaterialTheme.dimens.extraLarge)
                                 .height(MaterialTheme.dimens.extraSmall)
                                 .clip(CircleShape)

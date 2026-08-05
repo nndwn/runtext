@@ -50,7 +50,7 @@ data class MorseConfig(
 
 
 data class TextStyleConfig(
-    val colorArgb: Long = Palette.Black2.toArgbLong(),
+    val colorArgb: Long = Palette.PitchBlack.toArgbLong(),
     val colorType: TextColorType = TextColorType.SOLID,
     val gradientColorsArgb: List<Long> = listOf(Palette.Yellow.toArgbLong(), Palette.NeonPink.toArgbLong()),
     val gradientDistance: Float = 0.5f,

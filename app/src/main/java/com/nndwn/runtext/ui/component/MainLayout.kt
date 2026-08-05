@@ -6,14 +6,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,7 +46,7 @@ fun MainLayout(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Palette.Black2)
+            .background(Palette.PitchBlack)
     ){
         Box(
             modifier = Modifier
@@ -80,7 +78,7 @@ fun MainLayout(
                 .align(Alignment.TopEnd)
                 .graphicsLayer { translationX = sidebarTranslationX.toPx() }
                 .shadow(elevation = 12.dp)
-                .background(Palette.Black2)
+                .background(Palette.PitchBlack)
                 .statusBarsPadding()
         ){
             sideBarRight()

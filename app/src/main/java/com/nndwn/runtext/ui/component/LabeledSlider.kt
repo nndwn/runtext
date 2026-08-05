@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.nndwn.runtext.ui.theme.Palette
 
 @Composable
 fun LabeledSlider(
@@ -47,9 +46,9 @@ fun LabeledSlider(
             onValueChange = onValueChange,
             valueRange = valueRange,
             colors = SliderDefaults.colors(
-                thumbColor = Palette.White,
+                thumbColor = MaterialTheme.colorScheme.onSurface,
                 activeTrackColor = activeTrackColor,
-                inactiveTrackColor = Palette.Grey.copy(alpha = 0.3f)
+                inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         )
     }

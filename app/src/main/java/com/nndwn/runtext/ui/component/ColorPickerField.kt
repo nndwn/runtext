@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toArgbLong
 
 @Composable
@@ -40,7 +39,7 @@ fun ColorPickerField(
     Column(modifier = modifier.animateContentSize()) {
         if (label != null) {
             Text(label, style = MaterialTheme.typography.titleSmall)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
         }
 
         ColorBox(
@@ -53,6 +52,7 @@ fun ColorPickerField(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
             ColorSliders(
                 alpha = alpha,
                 color = color,
@@ -67,18 +67,16 @@ private fun ColorBox(
     height: Dp = 40.dp,
     onClick: () -> Unit
 ) {
-
-    val shape = RoundedCornerShape(8.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.small)
             .background(color)
             .border(
-                width = 1.dp,
+                width = MaterialTheme.dimens.borderMedium,
                 color = MaterialTheme.colorScheme.outline,
-                shape = shape
+                shape = MaterialTheme.shapes.small
             )
             .clickable { onClick() }
     )
@@ -90,7 +88,7 @@ private fun ColorSliders(
     onColorChange: (Long) -> Unit,
     alpha: Boolean = false
 ) {
-    Column(modifier = Modifier.padding(top = 16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         val r = (color.red * 255).toInt()
         val g = (color.green * 255).toInt()
         val b = (color.blue * 255).toInt()
@@ -142,7 +140,6 @@ private fun ColorSliders(
             color = Color.Blue
         )
 
-        // ── Alpha Slider ──
         if (alpha) {
             RGBSlider(
                 label = "A",
@@ -162,10 +159,6 @@ private fun ColorSliders(
         }
     }
 }
-
-/**
- * A single RGB slider with a label and value display.
- */
 @Composable
 private fun RGBSlider(
     label: String,

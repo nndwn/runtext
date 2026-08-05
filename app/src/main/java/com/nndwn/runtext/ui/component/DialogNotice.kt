@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.theme.Dimens
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
 import kotlinx.coroutines.delay
@@ -109,9 +107,11 @@ fun DialogNotice(
         ) {
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(MaterialTheme.shapes.large)
                     .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(vertical = 8.dp, horizontal = 20.dp)
+                    .padding(
+                        vertical = MaterialTheme.dimens.small,
+                        horizontal = MaterialTheme.dimens.large)
                     .then(
                         if (isExpand) Modifier.widthIn(max = 560.dp)
                         else Modifier.fillMaxWidth()
@@ -133,7 +133,7 @@ fun DialogNotice(
 private fun PreviewPhone(){
     var show by remember { mutableStateOf(false) }
     CompositionLocalProvider(
-        LocalWindowWidthSize provides WindowWidthSizeClass.Compact
+        LocalWindowWidthSize provides WindowWidthSizeClass.Expanded
     ) {
         RuntextTheme {
             Column(
@@ -147,7 +147,8 @@ private fun PreviewPhone(){
                 }
                 DialogNotice(
                     visible = show,
-                    text = "Test"
+                    text = "Test",
+                    onDismiss = { show = false }
                 )
             }
 

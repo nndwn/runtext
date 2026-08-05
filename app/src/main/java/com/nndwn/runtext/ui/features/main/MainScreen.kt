@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -122,6 +124,14 @@ fun MainScreenContent(
         label = "MainShimmerProgress"
     )
 
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (listState.isScrollInProgress) {
+            focusManager.clearFocus()
+        }
+    }
+
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
         AnimatedVisibility(
@@ -140,6 +150,7 @@ fun MainScreenContent(
 //            }
         }
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)

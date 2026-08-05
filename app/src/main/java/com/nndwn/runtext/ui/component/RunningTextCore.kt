@@ -4,11 +4,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -48,7 +46,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-
 @Composable
 fun RunningTextCoreOptimized(
     settings: AppSettings,
@@ -60,11 +57,9 @@ fun RunningTextCoreOptimized(
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
 
-    // 1. Hitung Scale Factor berdasarkan font size dasar (40.sp)
     val baseFontSizeSp = 40f
     val scaleFactor = (fontSize.value / baseFontSizeSp).coerceAtLeast(0.1f)
 
-    // 2. Deteksi teks RTL
     val isRtl = remember(rawText) {
         if (rawText.isEmpty()) false
         else {
@@ -76,7 +71,6 @@ fun RunningTextCoreOptimized(
         }
     }
 
-    // 3. TextStyle dasar
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
     val baseTextStyle = remember(fontFamily, fontSize, settings.textStyle.letterSpacingSp) {
         TextStyle(
@@ -91,7 +85,6 @@ fun RunningTextCoreOptimized(
         rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
     }
 
-    // 4. Measure awal untuk kalkulasi dimensi
     val layoutResult = remember(annotatedText, baseTextStyle) {
         textMeasurer.measure(
             text = annotatedText,
@@ -101,7 +94,6 @@ fun RunningTextCoreOptimized(
         )
     }
 
-    // 5. Hitung ekstra padding dinamis agar Shadow & Stroke tebal tidak terpotong
     val extraPaddingPx = remember(settings.shadow, settings.stroke, scaleFactor, density) {
         with(density) {
             val strokePadding = if (settings.stroke.isEnabled) settings.stroke.width * scaleFactor else 0f
@@ -113,7 +105,6 @@ fun RunningTextCoreOptimized(
     val bitmapWidth = (layoutResult.size.width + extraPaddingPx * 2).toInt().coerceAtLeast(1)
     val bitmapHeight = (layoutResult.size.height + extraPaddingPx * 2).toInt().coerceAtLeast(1)
 
-    // 6. CACHE: Generasi ImageBitmap (Dijalankan HANYA jika setting/teks berubah)
     val textBitmap = remember(annotatedText, settings, baseTextStyle, bitmapWidth, bitmapHeight, scaleFactor, density) {
         val bitmap = ImageBitmap(bitmapWidth, bitmapHeight)
         val canvas = Canvas(bitmap)
@@ -128,7 +119,6 @@ fun RunningTextCoreOptimized(
         ) {
             val topLeftOffset = Offset(extraPaddingPx, extraPaddingPx)
 
-            // 1. Draw Shadow (Paling Bawah)
             if (settings.shadow.isEnabled) {
                 val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
                 val scaledDistancePx = with(density) { (settings.shadow.distance * scaleFactor).dp.toPx() }
@@ -154,11 +144,9 @@ fun RunningTextCoreOptimized(
                 drawText(textLayoutResult = shadowLayout, topLeft = topLeftOffset)
             }
 
-            // 2. Draw Stroke / Outline (Di Belakang Teks Utama)
             if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                 val scaledStrokeWidthPx = with(density) { (settings.stroke.width * scaleFactor).dp.toPx() }
 
-                // PENTING: Paksakan drawStyle menggunakan Stroke secara eksplisit
                 val strokeStyle = baseTextStyle.copy(
                     color = settings.stroke.colorArgb.toComposeColor(),
                     drawStyle = Stroke(
@@ -175,8 +163,6 @@ fun RunningTextCoreOptimized(
                 drawText(textLayoutResult = strokeLayout, topLeft = topLeftOffset)
             }
 
-            // 3. Draw Main Text / Fill (Di Lapisan Paling Atas)
-            // PENTING: Kembalikan drawStyle ke Fill secara eksplisit agar stroke tidak menempel
             val mainTextStyle = if (settings.textStyle.colorType == TextColorType.GRADIENT) {
                 val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
                 val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }.toComposeColor()
@@ -199,7 +185,7 @@ fun RunningTextCoreOptimized(
                 }
 
                 baseTextStyle.copy(
-                    drawStyle = Fill, // <--- TAMBAHKAN INI
+                    drawStyle = Fill,
                     brush = Brush.linearGradient(
                         colors = listOf(color1, color2),
                         start = startOffset,
@@ -208,7 +194,7 @@ fun RunningTextCoreOptimized(
                 )
             } else {
                 baseTextStyle.copy(
-                    drawStyle = Fill, // <--- TAMBAHKAN INI
+                    drawStyle = Fill,
                     color = settings.textStyle.colorArgb.toComposeColor()
                 )
             }
@@ -225,7 +211,6 @@ fun RunningTextCoreOptimized(
         bitmap
     }
 
-    // 7. ANIMASI: Pindahkan Bitmap dengan graphicsLayer
     BoxWithConstraints(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterStart
