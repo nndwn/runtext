@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,14 +29,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.extentions.shrinkRadius
+import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.theme.dimens
 import kotlin.math.roundToInt
 
 @Composable
@@ -49,22 +50,26 @@ fun AppModeSettings(
     val modes = AppMode.entries
     val selectedIndex = modes.indexOf(currentMode)
 
+    val paddingValue = MaterialTheme.dimens.extraSmall
+    val outerShape = MaterialTheme.shapes.medium
+
+    val innerShape = outerShape.shrinkRadius(paddingValue)
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
             .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(12.dp)
+                width = MaterialTheme.dimens.borderMedium,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                shape = outerShape
             )
-            .background(Color.Transparent)
-            .padding(4.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .padding(paddingValue)
     ) {
         val maxWidth = maxWidth
         val itemWidth = maxWidth / modes.size
 
-        // Sliding Indicator
         val offsetAnim by animateFloatAsState(
             targetValue = selectedIndex.toFloat(),
             animationSpec = spring(stiffness = 700f, dampingRatio = 0.8f),
@@ -81,11 +86,10 @@ fun AppModeSettings(
                 }
                 .width(itemWidth)
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(8.dp))
+                .clip(innerShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
         )
 
-        // Items Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -110,7 +114,8 @@ private fun AppModeItem(
     modifier: Modifier = Modifier
 ) {
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+        targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface
+                      else MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(durationMillis = 200),
         label = "contentColor"
     )
@@ -133,17 +138,28 @@ private fun AppModeItem(
                 painter = painterResource(id = mode.icon),
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
             )
-            Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
             Text(
                 text = stringResource(id = mode.displayName),
                 color = contentColor,
-                fontSize = 14.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                )
             )
         }
     }
 }
 
+@Preview
+@Composable
+private fun Preview(){
+    RuntextTheme {
+        AppModeSettings(
+            currentMode = AppMode.RUNNING_TEXT,
+            onModeChange = {}
+        )
+    }
+}
 

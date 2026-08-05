@@ -112,7 +112,6 @@ fun SelectorFonts(
                 val item = sortedFonts[index]
                 //val isSelected = settings.textStyle.fontType == item
                 // val isRecommended = item.scriptCategory == activeScript && activeScript != ScriptCategory.LATIN
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

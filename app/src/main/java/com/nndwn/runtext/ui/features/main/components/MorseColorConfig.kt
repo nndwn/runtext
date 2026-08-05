@@ -18,15 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.component.CardExpanded
 import com.nndwn.runtext.ui.features.main.MainUiEvent
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toArgbLong
 
 val BrightMorseColorPresets = listOf(
     Color(0xFFFFFFFF),
-    Color(0xFFF5F5F5),
 
     Color(0xFFFFEB3B),
     Color(0xFFFFD700),
@@ -70,8 +69,8 @@ fun MorseColorConfig(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                .padding(vertical = MaterialTheme.dimens.medium),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             items(BrightMorseColorPresets){ color ->
@@ -79,11 +78,11 @@ fun MorseColorConfig(
                 val selected = colorArgb == currentColor.toArgbLong()
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(MaterialTheme.dimens.iconExtraLarge)
                         .clip(CircleShape)
                         .background(color)
                         .border(
-                            width = if (selected) 3.dp else 1.dp,
+                            width = if (selected) MaterialTheme.dimens.borderExtraLarge else MaterialTheme.dimens.borderMedium,
                             color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
                             shape = CircleShape
                         )

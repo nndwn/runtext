@@ -90,7 +90,7 @@ fun MainScreenContent(
 ) {
     val isTablet = LocalIsTablet.current
     val focusManager = LocalFocusManager.current
-    var expandedPickerId by remember { mutableStateOf<String?>("text_presets") }
+    var expandedPickerId by remember { mutableStateOf<String?>(null) }
     var showPanelFonts by remember { mutableStateOf(false) }
     
     val closePicker = { expandedPickerId = null }
@@ -131,6 +131,16 @@ fun MainScreenContent(
             focusManager.clearFocus()
         }
     }
+    if (uiState is MainUiState.Success) {
+        LaunchedEffect(uiState.settings.mode) {
+            expandedPickerId = when (uiState.settings.mode){
+                AppMode.MORSE_CODE -> "morse_color"
+                AppMode.RUNNING_TEXT -> "text_presets"
+            }
+        }
+    }
+
+
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
@@ -221,11 +231,6 @@ fun MainScreenContent(
                         AppModeSettings(
                             currentMode = settings.mode,
                             onModeChange = {
-                                expandedPickerId = when (it){
-                                    AppMode.MORSE_CODE -> "morse_color"
-                                    AppMode.RUNNING_TEXT -> "text_presets"
-                                }
-
                                 dispatch(MainUiEvent.UpdateMode(it)) }
                         )
                     }

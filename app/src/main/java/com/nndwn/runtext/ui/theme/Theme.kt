@@ -17,7 +17,7 @@ private val RunTxtDarkColorScheme = darkColorScheme(
     secondary = Palette.NeonCyan,
     onSecondary = Palette.PitchBlack,
     secondaryContainer = Palette.White,
-    onSecondaryContainer = Palette.PitchBlack.copy(alpha = 0.7f),
+    onSecondaryContainer = Palette.PitchBlack.copy(alpha = 0.8f),
     tertiary = Palette.NeonPink,
     onTertiary = Palette.PitchBlack,
     tertiaryContainer = Palette.PitchBlack,

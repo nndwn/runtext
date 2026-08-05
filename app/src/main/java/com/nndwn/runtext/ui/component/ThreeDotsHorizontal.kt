@@ -35,8 +35,8 @@ fun ThreeDotsHorizontal(
 
         ,
     ) {
-        val sizeDot = MaterialTheme.dimens.small
-        val spaceBetween = MaterialTheme.dimens.small
+        val sizeDot = MaterialTheme.dimens.extraSmall
+        val spaceBetween = MaterialTheme.dimens.extraSmall
         Column(
             verticalArrangement = Arrangement.spacedBy(spaceBetween, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,

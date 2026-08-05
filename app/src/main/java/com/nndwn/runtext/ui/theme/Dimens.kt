@@ -21,6 +21,8 @@ data class Dimens(
     val iconExtraLarge: Dp = 48.dp,
     val borderSmall: Dp = 0.8.dp,
     val borderMedium: Dp = 1.dp,
+    val borderLarge: Dp = 2.dp,
+    val borderExtraLarge: Dp = 3.dp,
     val buttonHeight: Dp = 48.dp
 )
 
