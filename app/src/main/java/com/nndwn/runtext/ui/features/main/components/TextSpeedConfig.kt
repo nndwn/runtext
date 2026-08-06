@@ -4,15 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.component.ConfigCard
-import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.component.SliderTheme
 
 @Composable
 fun TextSpeedConfig(
@@ -30,15 +28,11 @@ fun TextSpeedConfig(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        Slider(
+
+        SliderTheme(
             value = speed,
             onValueChange = onSpeedChange,
-            valueRange = 50f..500f,
-            colors = SliderDefaults.colors(
-                thumbColor = Palette.White,
-                activeTrackColor = Palette.White,
-                inactiveTrackColor = Palette.CoolGrey
-            ),
+            valueRange = 50f..500f
         )
     }
 }

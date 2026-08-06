@@ -3,6 +3,7 @@ package com.nndwn.runtext.ui.features.main.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontType
@@ -35,7 +33,7 @@ import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.CardExpanded
 import com.nndwn.runtext.ui.features.main.MainUiEvent
-import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
@@ -60,17 +58,17 @@ fun TextPresetConfig(
         onToggle = onToggle
     ) {
         LazyRow(
-
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp)
+                .padding(vertical = MaterialTheme.dimens.medium),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             items(Presets) { preset ->
                 PresetItem(
                     preset = preset,
                     onClick = {onEvent(MainUiEvent.ApplyPreset(preset.settings))}
                 )
-                Spacer(modifier = Modifier.width(12.dp))
             }
         }
     }
@@ -85,40 +83,39 @@ private fun PresetItem(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-
             .clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
                 .size(80.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(MaterialTheme.shapes.medium)
                 .background(preset.settings.bgColorArgb.toComposeColor())
                 .border(
-                    width = 1.dp,
-                    color = Palette.DimGray.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(12.dp)
+                    width =  MaterialTheme.dimens.borderMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = MaterialTheme.shapes.medium
                 )
-                .padding(4.dp),
+                .padding(MaterialTheme.dimens.extraSmall),
             contentAlignment = Alignment.Center
         ) {
-            // Menggunakan Text preview biasa / RunningTextPreview mini
             Text(
                 text = "Aa",
                 fontFamily = fontFamilyFor(preset.settings.textStyle.fontType),
                 color = if (preset.settings.textStyle.colorType == TextColorType.SOLID) {
                     preset.settings.textStyle.colorArgb.toComposeColor()
                 } else {
-                    preset.settings.textStyle.gradientColorsArgb.firstOrNull()?.toComposeColor() ?: Palette.White
+                    preset.settings.textStyle.gradientColorsArgb.firstOrNull()?.toComposeColor() ?:
+                    MaterialTheme.colorScheme.onSurface
                 },
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+                style = MaterialTheme.typography.titleLarge
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
         Text(
             text = preset.name,
             style = MaterialTheme.typography.labelSmall,
-            color = Palette.White,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

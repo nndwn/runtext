@@ -8,9 +8,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,11 +20,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,15 +34,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextStyleConfig
+import com.nndwn.runtext.extentions.shrinkRadius
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
+import com.nndwn.runtext.ui.component.SliderTheme
 import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.features.main.MainUiEvent
-import com.nndwn.runtext.ui.theme.Palette
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toArgbLong
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlin.math.roundToInt
@@ -58,73 +56,66 @@ fun TextColorPickerConfig(
     onPickerToggle: (String) -> Unit,
     onEvent: (MainUiEvent) -> Unit
 ) {
-    ConfigCard {
-        Column(modifier = Modifier.animateContentSize()) {
-            Text(label, style = MaterialTheme.typography.titleSmall)
-            Spacer(modifier = Modifier.height(12.dp))
+    ConfigCard(
+        modifier = Modifier.animateContentSize(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
+    ) {
+        val keyIdExpandBackground = "text_solid"
+        val keyIdExpandGradient1 = "text_g1"
+        val keyIdExpandGradient2 = "text_g2"
 
-            // Segmented Control
-            TextColorTypeSelector(
-                currentType = config.colorType,
-                onTypeChange = { onEvent(MainUiEvent.UpdateTextColorType(it)) }
+        Text(label, style = MaterialTheme.typography.titleSmall)
+        TextColorTypeSelector(
+            currentType = config.colorType,
+            onTypeChange = { onEvent(MainUiEvent.UpdateTextColorType(it)) }
+        )
+
+        if (config.colorType == TextColorType.SOLID) {
+            ColorPickerField(
+                color = config.colorArgb.toComposeColor(),
+                isExpanded = expandedPickerId == keyIdExpandBackground,
+                onToggleExpand = { onPickerToggle(keyIdExpandBackground) },
+                onColorChange = { onEvent(MainUiEvent.UpdateTextColor(it)) }
+            )
+        } else {
+            val color1 = config.gradientColorsArgb.getOrElse(0) { config.colorArgb }.toComposeColor()
+            val color2 = config.gradientColorsArgb.getOrElse(1) { config.colorArgb }.toComposeColor()
+
+            ColorPickerField(
+                color = color1,
+                isExpanded = expandedPickerId == keyIdExpandGradient1,
+                onToggleExpand = { onPickerToggle(keyIdExpandGradient1) },
+                onColorChange = { newColor ->
+                    onEvent(MainUiEvent.UpdateGradientColors(listOf(newColor, color2.toArgbLong())))
+                }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            ColorPickerField(
+                color = color2,
+                isExpanded = expandedPickerId == keyIdExpandGradient2,
+                onToggleExpand = { onPickerToggle(keyIdExpandGradient2) },
+                onColorChange = { newColor ->
+                    onEvent(MainUiEvent.UpdateGradientColors(listOf(color1.toArgbLong(), newColor)))
+                }
+            )
 
-            if (config.colorType == TextColorType.SOLID) {
-                ColorPickerField(
-                    color = config.colorArgb.toComposeColor(),
-                    isExpanded = expandedPickerId == "text_solid",
-                    onToggleExpand = { onPickerToggle("text_solid") },
-                    onColorChange = { onEvent(MainUiEvent.UpdateTextColor(it)) }
-                )
-            } else {
-                val color1 = config.gradientColorsArgb.getOrElse(0) { config.colorArgb }.toComposeColor()
-                val color2 = config.gradientColorsArgb.getOrElse(1) { config.colorArgb }.toComposeColor()
+            SliderTheme(
+                value = config.gradientDistance,
+                onValueChange = { onEvent(MainUiEvent.UpdateGradientDistance(it)) },
+                valueRange = 0f..1f,
+                activeTrackColor = color1,
+                inactiveTrackColor = color2
+            )
 
-                ColorPickerField(
-                    color = color1,
-                    isExpanded = expandedPickerId == "text_g1",
-                    onToggleExpand = { onPickerToggle("text_g1") },
-                    onColorChange = { newColor ->
-                        onEvent(MainUiEvent.UpdateGradientColors(listOf(newColor, color2.toArgbLong())))
-                    }
-                )
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                ColorPickerField(
-                    color = color2,
-                    isExpanded = expandedPickerId == "text_g2",
-                    onToggleExpand = { onPickerToggle("text_g2") },
-                    onColorChange = { newColor ->
-                        onEvent(MainUiEvent.UpdateGradientColors(listOf(color1.toArgbLong(), newColor)))
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Slider(
-                    value = config.gradientDistance,
-                    onValueChange = { onEvent(MainUiEvent.UpdateGradientDistance(it)) },
-                    valueRange = 0f..1f,
-                    colors = SliderDefaults.colors(
-                        thumbColor = Palette.White,
-                        activeTrackColor = color1,
-                        inactiveTrackColor = color2
-                    )
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SwitchRow(
-                    title = stringResource(R.string.set_config_text_color_type_gradient_direction),
-                    subtitle = if (config.isGradientHorizontal)
-                        stringResource(R.string.set_config_text_color_type_gradient_horizontal) else
-                        stringResource(R.string.set_config_text_color_type_gradient_vertical),
-                    checked = config.isGradientHorizontal,
-                    onCheckedChange = { onEvent(MainUiEvent.ToggleGradientHorizontal(it)) }
-                )
-            }
+            SwitchRow(
+                title = stringResource(R.string.set_config_text_color_type_gradient_direction),
+                subtitle = if (config.isGradientHorizontal)
+                    stringResource(R.string.set_config_text_color_type_gradient_horizontal) else
+                    stringResource(R.string.set_config_text_color_type_gradient_vertical),
+                checked = config.isGradientHorizontal,
+                onCheckedChange = { onEvent(MainUiEvent.ToggleGradientHorizontal(it)) }
+            )
         }
     }
 }
@@ -137,17 +128,20 @@ private fun TextColorTypeSelector(
 ) {
     val types = TextColorType.entries
     val selectedIndex = types.indexOf(currentType)
+    val paddingValue = MaterialTheme.dimens.extraSmall
+    val outerShape = MaterialTheme.shapes.large
+    val innerShape = outerShape.shrinkRadius(paddingValue)
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .border(
-                width = 1.dp,
+                width = MaterialTheme.dimens.borderMedium,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(24.dp)
+                shape = MaterialTheme.shapes.large
             )
-            .padding(4.dp)
+            .padding(paddingValue)
     ) {
         val maxWidth = maxWidth
         val itemWidth = maxWidth / types.size
@@ -168,7 +162,7 @@ private fun TextColorTypeSelector(
                 }
                 .width(itemWidth)
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(20.dp))
+                .clip(innerShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
         )
 
@@ -176,7 +170,8 @@ private fun TextColorTypeSelector(
             types.forEach { type ->
                 val isSelected = currentType == type
                 val contentColor by animateColorAsState(
-                    targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface
+                                  else MaterialTheme.colorScheme.onSurfaceVariant,
                     label = "contentColor"
                 )
 
@@ -196,14 +191,15 @@ private fun TextColorTypeSelector(
                             painter = painterResource(type.icon),
                             contentDescription = null,
                             tint = contentColor,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small))
                         Text(
                             text = stringResource(type.displayName),
                             color = contentColor,
-                            fontSize = 14.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
                         )
                     }
                 }

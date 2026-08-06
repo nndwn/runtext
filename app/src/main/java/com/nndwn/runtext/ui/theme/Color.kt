@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 
 object Palette {
     val PitchBlack = Color(0xFF0A0A0F)
-    val DarkBlueGray = Color(0xFF21212D)
+    val DarkBlueGray = Color(0xFF1A1A23)
     val DimGray = Color(0xFF5E5E60)
     val CoolGrey = Color(0xFF3E3E57)
     val White = Color(0xFFF5F5FF)

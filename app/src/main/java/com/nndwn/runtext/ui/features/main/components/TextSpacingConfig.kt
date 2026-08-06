@@ -4,22 +4,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.CardExpanded
 import com.nndwn.runtext.ui.component.LabeledSlider
 import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.theme.dimens
 import kotlin.math.roundToInt
 
 @Composable
 fun TextSpacingConfig(
-    modifier: Modifier = Modifier,
     config : TextStyleConfig,
     expandedId: String?,
     onToggle : (String) -> Unit,
@@ -27,12 +27,13 @@ fun TextSpacingConfig(
 ){
     CardExpanded(
         title = stringResource(R.string.set_config_text_spacing),
-        modifier = modifier,
         idString = "text_spacing",
         expandedId = expandedId,
         onToggle = onToggle
     ) {
-        Column(modifier = Modifier.padding(top = 16.dp)) {
+        Column(
+            Modifier.padding(MaterialTheme.dimens.medium)
+        ){
             LabeledSlider(
                 label = stringResource(R.string.set_config_text_spacing_text),
                 value = config.letterSpacingSp,
@@ -40,7 +41,7 @@ fun TextSpacingConfig(
                 displayValueText = "${config.letterSpacingSp.roundToInt()}",
                 onValueChange = { onEvent(MainUiEvent.UpdateLetterSpacing(it)) }
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
             LabeledSlider(
                 label = stringResource(R.string.set_config_text_spacing_word),
                 value = config.wordSpacingSp,
@@ -49,6 +50,7 @@ fun TextSpacingConfig(
                 onValueChange = { onEvent(MainUiEvent.UpdateWordSpacing(it)) }
             )
         }
+
     }
 
 }

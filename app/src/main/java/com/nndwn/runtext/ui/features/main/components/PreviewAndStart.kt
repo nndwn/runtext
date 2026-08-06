@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,24 +35,23 @@ import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.theme.Dimens
 import com.nndwn.runtext.ui.theme.dimens
+import com.nndwn.runtext.ui.theme.toComposeColor
 
 @Composable
 fun PreviewAndStart(
     settings: AppSettings,
     onNavigateToDisplay: () -> Unit
 ) {
-    val shape = RoundedCornerShape(MaterialTheme.dimens.medium)
+    val shape = MaterialTheme.shapes.medium
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
             .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                width = MaterialTheme.dimens.borderMedium,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
                 shape = shape
             )
     ) {
@@ -60,7 +59,9 @@ fun PreviewAndStart(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(140.dp)
-                .background(settings.bgColorArgb.toComposeColor()),
+                .background(settings.bgColorArgb.toComposeColor())
+                .pointerInput(Unit){}
+            ,
             contentAlignment = Alignment.Center
         ) {
             if (settings.mode == AppMode.RUNNING_TEXT) {

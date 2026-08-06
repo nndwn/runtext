@@ -1,5 +1,6 @@
 package com.nndwn.runtext.ui.component
 
+import androidx.annotation.IntRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,15 +42,35 @@ fun LabeledSlider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
             )
         }
-        Slider(
+        SliderTheme(
             value = value,
             onValueChange = onValueChange,
             valueRange = valueRange,
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.onSurface,
-                activeTrackColor = activeTrackColor,
-                inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
+            activeTrackColor = activeTrackColor
         )
     }
+}
+
+@Composable
+fun SliderTheme(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0,
+    activeTrackColor: Color = MaterialTheme.colorScheme.onSurface,
+    inactiveTrackColor :  Color = MaterialTheme.colorScheme.surfaceVariant
+) {
+    Slider(
+        value = value,
+        onValueChange = onValueChange,
+        valueRange = valueRange,
+        steps = steps,
+        colors = SliderDefaults.colors(
+            thumbColor = MaterialTheme.colorScheme.onSurface,
+            activeTrackColor = activeTrackColor,
+            inactiveTrackColor = inactiveTrackColor,
+            activeTickColor = Color.Transparent,
+            inactiveTickColor = Color.Transparent
+        )
+    )
 }
