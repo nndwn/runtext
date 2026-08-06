@@ -71,6 +71,5 @@ data class ShadowConfig(
     val isEnabled: Boolean = false,
     val colorArgb: Long = Color.Black.copy(alpha = 0.75f).toArgbLong(),
     val radius: Float = 8f,
-    val distance: Float = 10f,
     val rotation: Float = 45f
 )

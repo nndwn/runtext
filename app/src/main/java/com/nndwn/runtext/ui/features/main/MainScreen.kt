@@ -78,6 +78,7 @@ fun MainScreen(
         onEvent = viewModel::onEvent,
         sideBarEnd = sideBarEnd,
         padding =  padding,
+        limitText = viewModel.limitText
     )
 }
 
@@ -86,6 +87,7 @@ fun MainScreenContent(
     padding: PaddingValues,
     uiState: MainUiState,
     onEvent: (MainUiEvent) -> Unit,
+    limitText : Int = 100,
     sideBarEnd: () -> Unit,
 ) {
     val isTablet = LocalIsTablet.current
@@ -223,7 +225,8 @@ fun MainScreenContent(
                         TextInputConfig(
                             text = settings.lastText,
                             onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
-                            onClearText = { dispatch(MainUiEvent.ClearText) }
+                            onClearText = { dispatch(MainUiEvent.ClearText) },
+                            limitText = limitText
                         )
                     }
 

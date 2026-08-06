@@ -55,7 +55,6 @@ class SettingsDataStore @Inject constructor(
         val IS_SHADOW_ENABLED = booleanPreferencesKey("is_shadow_enabled")
         val SHADOW_COLOR = longPreferencesKey("shadow_color")
         val SHADOW_RADIUS = floatPreferencesKey("shadow_radius")
-        val SHADOW_DISTANCE = floatPreferencesKey("shadow_distance")
         val SHADOW_ROTATION = floatPreferencesKey("shadow_rotation")
 
         // Morse
@@ -111,7 +110,6 @@ class SettingsDataStore @Inject constructor(
                     isEnabled = prefs[Keys.IS_SHADOW_ENABLED] ?: default.shadow.isEnabled,
                     colorArgb = prefs[Keys.SHADOW_COLOR] ?: default.shadow.colorArgb,
                     radius = prefs[Keys.SHADOW_RADIUS] ?: default.shadow.radius,
-                    distance = prefs[Keys.SHADOW_DISTANCE] ?: default.shadow.distance,
                     rotation = prefs[Keys.SHADOW_ROTATION] ?: default.shadow.rotation
                 ),
                 morseConfig = MorseConfig(
@@ -154,7 +152,6 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.IS_SHADOW_ENABLED] = settings.shadow.isEnabled
             prefs[Keys.SHADOW_COLOR] = settings.shadow.colorArgb
             prefs[Keys.SHADOW_RADIUS] = settings.shadow.radius
-            prefs[Keys.SHADOW_DISTANCE] = settings.shadow.distance
             prefs[Keys.SHADOW_ROTATION] = settings.shadow.rotation
 
             // Morse

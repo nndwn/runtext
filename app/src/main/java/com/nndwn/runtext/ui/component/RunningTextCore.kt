@@ -1,26 +1,22 @@
 package com.nndwn.runtext.ui.component
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -31,16 +27,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
-import kotlinx.coroutines.isActive
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -50,219 +42,188 @@ import kotlin.math.sin
 fun RunningTextCoreOptimized(
     settings: AppSettings,
     modifier: Modifier = Modifier,
-    fontSize: TextUnit = 174.sp,
     defaultPreviewText: String = "PREVIEW"
 ) {
     val rawText = settings.lastText.ifEmpty { defaultPreviewText }
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
-
-    val baseFontSizeSp = 40f
-    val scaleFactor = (fontSize.value / baseFontSizeSp).coerceAtLeast(0.1f)
+    val distanceShadow = 4f
 
     val isRtl = remember(rawText) {
         if (rawText.isEmpty()) false
-        else {
-            val bidi = java.text.Bidi(
-                rawText,
-                java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
-            )
-            bidi.isRightToLeft
-        }
+        else java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
     }
 
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
-    val baseTextStyle = remember(fontFamily, fontSize, settings.textStyle.letterSpacingSp) {
-        TextStyle(
-            fontFamily = fontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = fontSize,
-            letterSpacing = settings.textStyle.letterSpacingSp.sp
-        )
-    }
-
-    val annotatedText = remember(rawText, settings.textStyle.wordSpacingSp) {
-        rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
-    }
-
-    val layoutResult = remember(annotatedText, baseTextStyle) {
-        textMeasurer.measure(
-            text = annotatedText,
-            style = baseTextStyle,
-            maxLines = 1,
-            softWrap = false
-        )
-    }
-
-    val extraPaddingPx = remember(settings.shadow, settings.stroke, scaleFactor, density) {
-        with(density) {
-            val strokePadding = if (settings.stroke.isEnabled) settings.stroke.width * scaleFactor else 0f
-            val shadowPadding = if (settings.shadow.isEnabled) (settings.shadow.distance + settings.shadow.radius) * scaleFactor else 0f
-            (maxOf(strokePadding, shadowPadding) + 20f).dp.toPx()
-        }
-    }
-
-    val bitmapWidth = (layoutResult.size.width + extraPaddingPx * 2).toInt().coerceAtLeast(1)
-    val bitmapHeight = (layoutResult.size.height + extraPaddingPx * 2).toInt().coerceAtLeast(1)
-
-    val textBitmap = remember(annotatedText, settings, baseTextStyle, bitmapWidth, bitmapHeight, scaleFactor, density) {
-        val bitmap = ImageBitmap(bitmapWidth, bitmapHeight)
-        val canvas = Canvas(bitmap)
-        val drawScope = CanvasDrawScope()
-        val size = Size(bitmapWidth.toFloat(), bitmapHeight.toFloat())
-
-        drawScope.draw(
-            density = density,
-            layoutDirection = LayoutDirection.Ltr,
-            canvas = canvas,
-            size = size
-        ) {
-            val topLeftOffset = Offset(extraPaddingPx, extraPaddingPx)
-
-            if (settings.shadow.isEnabled) {
-                val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
-                val scaledDistancePx = with(density) { (settings.shadow.distance * scaleFactor).dp.toPx() }
-                val scaledRadiusPx = with(density) { (settings.shadow.radius * scaleFactor).dp.toPx() }
-
-                val offsetX = (scaledDistancePx * cos(angleInRadians)).toFloat()
-                val offsetY = (scaledDistancePx * sin(angleInRadians)).toFloat()
-
-                val shadowStyle = baseTextStyle.copy(
-                    color = settings.shadow.colorArgb.toComposeColor(),
-                    shadow = Shadow(
-                        color = settings.shadow.colorArgb.toComposeColor(),
-                        offset = Offset(offsetX, offsetY),
-                        blurRadius = scaledRadiusPx
-                    )
-                )
-                val shadowLayout = textMeasurer.measure(
-                    text = annotatedText,
-                    style = shadowStyle,
-                    maxLines = 1,
-                    softWrap = false
-                )
-                drawText(textLayoutResult = shadowLayout, topLeft = topLeftOffset)
-            }
-
-            if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-                val scaledStrokeWidthPx = with(density) { (settings.stroke.width * scaleFactor).dp.toPx() }
-
-                val strokeStyle = baseTextStyle.copy(
-                    color = settings.stroke.colorArgb.toComposeColor(),
-                    drawStyle = Stroke(
-                        width = scaledStrokeWidthPx * 2f,
-                        join = StrokeJoin.Round
-                    )
-                )
-                val strokeLayout = textMeasurer.measure(
-                    text = annotatedText,
-                    style = strokeStyle,
-                    maxLines = 1,
-                    softWrap = false
-                )
-                drawText(textLayoutResult = strokeLayout, topLeft = topLeftOffset)
-            }
-
-            val mainTextStyle = if (settings.textStyle.colorType == TextColorType.GRADIENT) {
-                val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
-                val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }.toComposeColor()
-                val dist = settings.textStyle.gradientDistance.coerceIn(0f, 1f)
-
-                val textWidth = layoutResult.size.width.toFloat()
-                val textHeight = layoutResult.size.height.toFloat()
-
-                val startOffset: Offset
-                val endOffset: Offset
-
-                if (settings.textStyle.isGradientHorizontal) {
-                    val shift = (dist - 0.5f) * 2f * textWidth
-                    startOffset = Offset(shift, 0f)
-                    endOffset = Offset(textWidth + shift, 0f)
-                } else {
-                    val shift = (dist - 0.5f) * 2f * textHeight
-                    startOffset = Offset(0f, shift)
-                    endOffset = Offset(0f, textHeight + shift)
-                }
-
-                baseTextStyle.copy(
-                    drawStyle = Fill,
-                    brush = Brush.linearGradient(
-                        colors = listOf(color1, color2),
-                        start = startOffset,
-                        end = endOffset
-                    )
-                )
-            } else {
-                baseTextStyle.copy(
-                    drawStyle = Fill,
-                    color = settings.textStyle.colorArgb.toComposeColor()
-                )
-            }
-
-            val mainLayout = textMeasurer.measure(
-                text = annotatedText,
-                style = mainTextStyle,
-                maxLines = 1,
-                softWrap = false
-            )
-            drawText(textLayoutResult = mainLayout, topLeft = topLeftOffset)
-        }
-
-        bitmap
-    }
 
     BoxWithConstraints(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterStart
     ) {
+        val containerHeightPx = constraints.maxHeight.toFloat()
         val containerWidthPx = constraints.maxWidth.toFloat()
-        val textWidth = textBitmap.width.toFloat()
 
-        val startX = if (isRtl) -textWidth else containerWidthPx
-        val endX = if (isRtl) containerWidthPx else -textWidth
-
-        val offsetX = remember(startX) { Animatable(startX) }
-
-        LaunchedEffect(settings.speed, textWidth, containerWidthPx, isRtl) {
-            val dist = abs(endX - startX)
-            val speedFactor = settings.speed.coerceAtLeast(1f)
-            val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
-            val dur = (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
-
-            offsetX.snapTo(startX)
-            while (isActive) {
-                offsetX.animateTo(
-                    targetValue = endX,
-                    animationSpec = tween(durationMillis = dur, easing = LinearEasing)
-                )
-                offsetX.snapTo(startX)
+        val dynamicFontSizeSp = remember(containerHeightPx, density) {
+            with(density) {
+                (containerHeightPx * 0.55f).toSp().value.coerceIn(14f, 120f).sp
             }
         }
 
-        Image(
-            bitmap = textBitmap,
-            contentDescription = null,
+        val baseTextStyle = remember(fontFamily, settings.textStyle.letterSpacingSp, dynamicFontSizeSp) {
+            TextStyle(
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = dynamicFontSizeSp,
+                letterSpacing = settings.textStyle.letterSpacingSp.sp
+            )
+        }
+
+        val annotatedText = remember(rawText, settings.textStyle.wordSpacingSp) {
+            rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
+        }
+
+        // =========================================================================
+        // SATU-SATUNYA UKURAN & LAYOUT RESULT (Menghemat hingga 66% Alokasi RAM Teks)
+        // =========================================================================
+        val textLayoutResult = remember(annotatedText, baseTextStyle) {
+            textMeasurer.measure(
+                text = annotatedText,
+                style = baseTextStyle,
+                maxLines = 1,
+                softWrap = false
+            )
+        }
+
+        val extraPaddingPx = remember(settings.shadow, settings.stroke, density) {
+            with(density) {
+                val strokePadding = if (settings.stroke.isEnabled) settings.stroke.width else 0f
+                val shadowPadding = if (settings.shadow.isEnabled) (distanceShadow + settings.shadow.radius) else 0f
+                (maxOf(strokePadding, shadowPadding) + 5f).dp.toPx()
+            }
+        }
+
+        // Penyiapan Brush untuk Main Gradient Text (JIKA Mode Gradient)
+        val mainBrush = remember(settings.textStyle, textLayoutResult) {
+            if (settings.textStyle.colorType == TextColorType.GRADIENT) {
+                val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
+                val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }.toComposeColor()
+                val dist = settings.textStyle.gradientDistance.coerceIn(0f, 1f)
+
+                val textWidth = textLayoutResult.size.width.toFloat()
+                val textHeight = textLayoutResult.size.height.toFloat()
+
+                val (startOffset, endOffset) = if (settings.textStyle.isGradientHorizontal) {
+                    val shift = (dist - 0.5f) * 2f * textWidth
+                    Offset(shift, 0f) to Offset(textWidth + shift, 0f)
+                } else {
+                    val shift = (dist - 0.5f) * 2f * textHeight
+                    Offset(0f, shift) to Offset(0f, textHeight + shift)
+                }
+
+                Brush.linearGradient(
+                    colors = listOf(color1, color2),
+                    start = startOffset,
+                    end = endOffset
+                )
+            } else null
+        }
+
+        val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
+        val startX = if (isRtl) -totalTextWidth else containerWidthPx
+        val endX = if (isRtl) containerWidthPx else -totalTextWidth
+
+        val durationMillis = remember(settings.speed, totalTextWidth, containerWidthPx) {
+            val dist = abs(endX - startX)
+            val speedFactor = settings.speed.coerceAtLeast(1f)
+            val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
+            (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
+        }
+
+        val transition = rememberInfiniteTransition(label = "marquee")
+        val animatedOffsetX by transition.animateFloat(
+            initialValue = startX,
+            targetValue = endX,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = durationMillis, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "offsetX"
+        )
+
+        Canvas(
             modifier = Modifier
-                .wrapContentWidth(unbounded = true, align = Alignment.Start)
+                .fillMaxSize()
                 .graphicsLayer {
-                    translationX = offsetX.value
+                    translationX = animatedOffsetX
                     rotationY = if (settings.isMirrorMode) 180f else 0f
-                    shadowElevation = 0f
                     clip = false
                 }
-        )
+        ) {
+            val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
+            val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
+
+            // 1. PAS PERTAMA: DOKAN DROP SHADOW (Gunakan offset posisi + color override)
+            if (settings.shadow.isEnabled) {
+                val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
+                val scaledDistancePx = distanceShadow.dp.toPx()
+                val shadowOffsetX = (scaledDistancePx * cos(angleInRadians)).toFloat()
+                val shadowOffsetY = (scaledDistancePx * sin(angleInRadians)).toFloat()
+
+                val shadowTopLeft = baseTopLeft + Offset(shadowOffsetX, shadowOffsetY)
+
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = settings.shadow.colorArgb.toComposeColor(),
+                    topLeft = shadowTopLeft
+                )
+            }
+
+            // 2. PAS KEDUA: DRAW STROKE / OUTLINE (Ubah drawStyle tanpa re-measure)
+            if (settings.stroke.isEnabled && settings.stroke.width > 0) {
+                val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
+
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = settings.stroke.colorArgb.toComposeColor(),
+                    topLeft = baseTopLeft,
+                    drawStyle = Stroke(
+                        width = scaledStrokeWidthPx * 2f,
+                        join = StrokeJoin.Round
+                    )
+                )
+            }
+
+            // 3. PAS KETIGA: DRAW MAIN TEXT (Isi Tengah)
+            if (mainBrush != null) {
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    brush = mainBrush,
+                    topLeft = baseTopLeft
+                )
+            } else {
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = settings.textStyle.colorArgb.toComposeColor(),
+                    topLeft = baseTopLeft
+                )
+            }
+        }
     }
 }
 private fun String.toWordSpacedAnnotatedString(wordSpacingSp: Float): AnnotatedString {
-    if (wordSpacingSp <= 0f || !this.contains(" ")) {
+    if (wordSpacingSp <= 0f || !this.contains(' ')) {
         return AnnotatedString(this)
     }
+
+    val spaceSpanStyle = SpanStyle(letterSpacing = wordSpacingSp.sp)
+
     return buildAnnotatedString {
-        for (char in this@toWordSpacedAnnotatedString) {
+        for (i in indices) {
+            val char = this@toWordSpacedAnnotatedString[i]
             if (char == ' ') {
-                withStyle(style = SpanStyle(letterSpacing = wordSpacingSp.sp)) {
-                    append(char)
-                }
+                val start = length
+                append(char)
+                addStyle(style = spaceSpanStyle, start = start, end = length)
             } else {
                 append(char)
             }

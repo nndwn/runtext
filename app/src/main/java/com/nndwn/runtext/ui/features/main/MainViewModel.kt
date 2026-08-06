@@ -29,7 +29,7 @@ class MainViewModel @Inject constructor(
 ): ViewModel(){
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
-
+    val limitText = 100
     val uiState: StateFlow<MainUiState> = _settings
         .map { settings ->
             if (settings == null) MainUiState.Loading
@@ -65,7 +65,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun updateText(text: String) {
-        if (text.length <= 250) {
+        if (text.length <= limitText) {
             updateSettings { it.copy(lastText = text) }
         }
     }
@@ -74,6 +74,8 @@ class MainViewModel @Inject constructor(
         when (event) {
             is MainUiEvent.NavigateToDisplay -> {
                 val currentSettings = _settings.value ?: return
+
+                if (currentSettings.lastText.length >= limitText) return
 
                 if (currentSettings.mode == AppMode.MORSE_CODE) {
                     val morse = currentSettings.morseConfig
@@ -117,14 +119,13 @@ class MainViewModel @Inject constructor(
 
             // Stroke
             is MainUiEvent.ToggleStroke -> updateSettings { it.copy(stroke = it.stroke.copy(isEnabled = event.isEnabled)) }
-            is MainUiEvent.UpdateStrokeWidth -> updateSettings { it.copy(stroke = it.stroke.copy(width = event.width.coerceIn(0f, 15f))) }
+            is MainUiEvent.UpdateStrokeWidth -> updateSettings { it.copy(stroke = it.stroke.copy(width = event.width.coerceIn(0f, 10f))) }
             is MainUiEvent.UpdateStrokeColor -> updateSettings { it.copy(stroke = it.stroke.copy(colorArgb = event.colorArgb)) }
 
             // Shadow
             is MainUiEvent.ToggleShadow -> updateSettings { it.copy(shadow = it.shadow.copy(isEnabled = event.isEnabled)) }
             is MainUiEvent.UpdateShadowColor -> updateSettings { it.copy(shadow = it.shadow.copy(colorArgb = event.colorArgb)) }
             is MainUiEvent.UpdateShadowRadius -> updateSettings { it.copy(shadow = it.shadow.copy(radius = event.radius.coerceIn(0f, 25f))) }
-            is MainUiEvent.UpdateShadowDistance -> updateSettings { it.copy(shadow = it.shadow.copy(distance = event.distance.coerceIn(0f, 50f))) }
             is MainUiEvent.UpdateShadowRotation -> {
                 val normalizedRotation = (event.rotation % 360f + 360f) % 360f
                 updateSettings { it.copy(shadow = it.shadow.copy(rotation = normalizedRotation)) }

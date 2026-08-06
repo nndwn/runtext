@@ -45,14 +45,6 @@ fun TextShadowConfig(
             )
 
             LabeledSlider(
-                label = stringResource(R.string.set_config_text_shadow_distance),
-                value = config.distance,
-                valueRange = 0f..50f,
-                displayValueText = "${config.distance.toInt()}",
-                onValueChange = {onEvent(MainUiEvent.UpdateShadowDistance(it))}
-            )
-
-            LabeledSlider(
                 label = stringResource(R.string.set_config_text_shadow_radius),
                 value = config.radius,
                 valueRange = 0f..25f,

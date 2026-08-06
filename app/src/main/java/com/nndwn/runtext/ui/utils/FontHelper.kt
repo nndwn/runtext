@@ -1,14 +1,38 @@
 package com.nndwn.runtext.ui.utils
 
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.ScriptCategory
 import com.nndwn.runtext.ui.theme.*
+import java.util.concurrent.ConcurrentHashMap
 
-/**
- * Returns the [FontFamily] for the given [FontType].
- * Uses bundled (offline) fonts when available, otherwise downloads from Google Fonts.
- */
+
+private val googleFontCache = ConcurrentHashMap<String, FontFamily>()
+
+val GoogleFontProvider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs,
+)
+fun googleFontFamily(fontName: String): FontFamily {
+    if (fontName.isEmpty()) return FontFamily.Default
+
+    return googleFontCache.getOrPut(fontName) {
+        val gf = GoogleFont(fontName)
+        FontFamily(
+            Font(googleFont = gf, fontProvider = GoogleFontProvider),
+            Font(
+                googleFont = gf,
+                fontProvider = GoogleFontProvider,
+                weight = FontWeight.Bold
+            )
+        )
+    }
+}
 fun fontFamilyFor(fontType: FontType): FontFamily {
     return when (fontType) {
         FontType.LATO -> LatoFamity
@@ -39,38 +63,39 @@ fun fontFamilyFor(fontType: FontType): FontFamily {
     }
 }
 fun String.detectPrimaryScript(): ScriptCategory {
-    for (char in this) {
+    if (isEmpty()) return ScriptCategory.LATIN
+
+    for (i in indices) {
+        val char = this[i]
+        if (char.code in 0x0000..0x007F) continue
+
         val block = Character.UnicodeBlock.of(char) ?: continue
-        when (block) {
-            // Arab
+
+        val category = when (block) {
             Character.UnicodeBlock.ARABIC,
             Character.UnicodeBlock.ARABIC_SUPPLEMENT,
             Character.UnicodeBlock.ARABIC_EXTENDED_A,
             Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A,
-            Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B -> return ScriptCategory.ARABIC
+            Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B -> ScriptCategory.ARABIC
 
-            // Jepang (Hiragana, Katakana, Kanji)
             Character.UnicodeBlock.HIRAGANA,
             Character.UnicodeBlock.KATAKANA,
-            Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS -> return ScriptCategory.JAPANESE
+            Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS -> ScriptCategory.JAPANESE
 
-            // Korea (Hangul)
             Character.UnicodeBlock.HANGUL_SYLLABLES,
             Character.UnicodeBlock.HANGUL_JAMO,
-            Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO -> return ScriptCategory.KOREAN
+            Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO -> ScriptCategory.KOREAN
 
-            // Cina (Hanzi)
             Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS,
-            Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A -> return ScriptCategory.CHINESE
+            Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A -> ScriptCategory.CHINESE
 
-            // Thai
-            Character.UnicodeBlock.THAI -> return ScriptCategory.THAI
-
-            // India / Hindi (Devanagari)
-            Character.UnicodeBlock.DEVANAGARI -> return ScriptCategory.DEVANAGARI
-            Character.UnicodeBlock.KHMER -> return  ScriptCategory.KHMER
-            else -> continue
+            Character.UnicodeBlock.THAI -> ScriptCategory.THAI
+            Character.UnicodeBlock.DEVANAGARI -> ScriptCategory.DEVANAGARI
+            Character.UnicodeBlock.KHMER -> ScriptCategory.KHMER
+            else -> null
         }
+
+        if (category != null) return category
     }
     return ScriptCategory.LATIN
 }

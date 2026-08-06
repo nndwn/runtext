@@ -47,7 +47,7 @@ fun TextOutlineConfig(
             LabeledSlider(
                 label = stringResource(R.string.set_config_text_outline_width),
                 value = config.width,
-                valueRange = 0f..15f,
+                valueRange = 0f..10f,
                 displayValueText = "${config.width.roundToInt()}",
                 onValueChange = { onEvent(MainUiEvent.UpdateStrokeWidth(it)) }
             )

@@ -119,9 +119,6 @@ private fun InteractivePreviewWrapper(
                 shadow = settings.shadow.copy(radius = event.radius)
             )
 
-            is MainUiEvent.UpdateShadowDistance -> settings.copy(
-                shadow = settings.shadow.copy(distance = event.distance)
-            )
 
             is MainUiEvent.UpdateShadowRotation -> settings.copy(
                 shadow = settings.shadow.copy(rotation = event.rotation)

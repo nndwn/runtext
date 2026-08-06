@@ -160,7 +160,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFF000000).toArgbLong(),
                 radius = 2f,
-                distance = 6f,
                 rotation = 45f
             )
         )
@@ -183,7 +182,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFFFFFFFF).toArgbLong(),
                 radius = 6f,
-                distance = 3f,
                 rotation = 45f
             )
         )
@@ -203,7 +201,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFF000000).toArgbLong(),
                 radius = 4f,
-                distance = 8f,
                 rotation = 90f
             )
         )
@@ -226,7 +223,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFFFF007F).toArgbLong(),
                 radius = 16f,
-                distance = 0f
             )
         )
     ),
@@ -251,7 +247,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFF00FFFF).toArgbLong(), // Cyan
                 radius = 8f,
-                distance = 4f,
                 rotation = 135f
             )
         )
@@ -272,7 +267,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFF00FF66).toArgbLong(),
                 radius = 12f,
-                distance = 0f
             )
         )
     ),
@@ -296,7 +290,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFFFF512F).toArgbLong(),
                 radius = 10f,
-                distance = 4f,
                 rotation = 45f
             )
         )
@@ -322,7 +315,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFFFFD54F).toArgbLong(),
                 radius = 8f,
-                distance = 0f
             )
         )
     ),
@@ -352,7 +344,6 @@ val Presets = listOf(
                 isEnabled = true,
                 colorArgb = Color(0xFF80DEEA).toArgbLong(),
                 radius = 12f,
-                distance = 0f
             )
         )
     ),

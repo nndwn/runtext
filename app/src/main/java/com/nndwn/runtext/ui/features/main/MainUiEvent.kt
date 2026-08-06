@@ -43,7 +43,6 @@ sealed interface MainUiEvent {
     data class ToggleShadow(val isEnabled: Boolean) : MainUiEvent
     data class UpdateShadowColor(val colorArgb: Long) : MainUiEvent
     data class UpdateShadowRadius(val radius: Float) : MainUiEvent
-    data class UpdateShadowDistance(val distance: Float) : MainUiEvent
     data class UpdateShadowRotation(val rotation: Float) : MainUiEvent
 
     data class UpdateMorseWpm(val wpm: Int) : MainUiEvent

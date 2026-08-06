@@ -115,7 +115,8 @@ fun DisplayScreen(
                 detectTapGestures {
                     isOverlayVisible = !isOverlayVisible
                 }
-            }
+            },
+        contentAlignment = Alignment.Center
     ) {
         when (currentSettings.mode) {
             AppMode.RUNNING_TEXT -> {

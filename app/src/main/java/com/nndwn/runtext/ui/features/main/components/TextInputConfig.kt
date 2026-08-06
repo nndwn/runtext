@@ -27,13 +27,20 @@ import com.nndwn.runtext.ui.theme.dimens
 fun TextInputConfig(
     modifier: Modifier = Modifier,
     text: String,
+    limitText : Int,
     onTextChange: (String) -> Unit,
     onClearText: () -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     BasicTextField(
         value = text,
-        onValueChange = onTextChange,
+        onValueChange = { newText ->
+            if (newText.length <= limitText) {
+                onTextChange(newText)
+            } else {
+                onTextChange(newText.take(limitText))
+            }
+        },
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 120.dp),
@@ -70,9 +77,8 @@ fun TextInputConfig(
                 },
                 supportingText = {
                     Text(
-                        text = "${text.length}/250",
-                        color = if (text.length > 240) MaterialTheme.colorScheme.error
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = "${text.length}/${limitText}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
                 },
