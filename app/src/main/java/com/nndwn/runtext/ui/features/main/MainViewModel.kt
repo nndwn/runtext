@@ -119,7 +119,7 @@ class MainViewModel @Inject constructor(
 
             // Stroke
             is MainUiEvent.ToggleStroke -> updateSettings { it.copy(stroke = it.stroke.copy(isEnabled = event.isEnabled)) }
-            is MainUiEvent.UpdateStrokeWidth -> updateSettings { it.copy(stroke = it.stroke.copy(width = event.width.coerceIn(0f, 10f))) }
+            is MainUiEvent.UpdateStrokeWidth -> updateSettings { it.copy(stroke = it.stroke.copy(width = event.width.coerceIn(1f, 10f))) }
             is MainUiEvent.UpdateStrokeColor -> updateSettings { it.copy(stroke = it.stroke.copy(colorArgb = event.colorArgb)) }
 
             // Shadow

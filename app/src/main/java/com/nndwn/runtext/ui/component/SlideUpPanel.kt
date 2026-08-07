@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -45,9 +44,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
+import com.nndwn.runtext.ui.utils.LocalWindowSize
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -64,7 +64,7 @@ fun SlideUpPanel(
     val offsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
 
-    val isExpand = LocalWindowWidthSize.current != WindowWidthSizeClass.Compact
+    val isExpand = LocalWindowSize.current != WindowSize.PHONE_PORTRAIT
     val dismissThreshold = with(density) { 150.dp.toPx() }
 
     LaunchedEffect(visible) {
@@ -135,7 +135,11 @@ fun SlideUpPanel(
                                     onVerticalDrag = { change, dragAmount ->
                                         change.consume()
                                         coroutineScope.launch {
-                                            offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
+                                            offsetY.snapTo(
+                                                (offsetY.value + dragAmount).coerceAtLeast(
+                                                    0f
+                                                )
+                                            )
                                         }
                                     }
                                 )
@@ -147,7 +151,7 @@ fun SlideUpPanel(
                     modifier = Modifier
                         .fillMaxWidth()
                         .then(
-                            if (isExpand){
+                            if (isExpand) {
                                 Modifier
                             } else Modifier.navigationBarsPadding()
                         )
@@ -162,7 +166,11 @@ fun SlideUpPanel(
                                 .width(MaterialTheme.dimens.extraLarge)
                                 .height(MaterialTheme.dimens.extraSmall)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f))
+                                .background(
+                                    MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                                        alpha = 0.3f
+                                    )
+                                )
                                 .align(Alignment.CenterHorizontally)
                         )
                     }
@@ -177,11 +185,11 @@ fun SlideUpPanel(
 
 @Preview(showSystemUi = true)
 @Composable
-private fun Preview(){
+private fun Preview() {
     var show by remember { mutableStateOf(false) }
 
     CompositionLocalProvider(
-        LocalWindowWidthSize provides WindowWidthSizeClass.Expanded
+        LocalWindowSize provides WindowSize.PHONE_PORTRAIT
     ) {
         RuntextTheme {
             Button(

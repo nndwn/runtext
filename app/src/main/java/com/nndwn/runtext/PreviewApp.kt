@@ -16,21 +16,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.utils.LocalWindowHeightSize
-import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
+import com.nndwn.runtext.ui.utils.LocalWindowSize
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun InteractivePreviewWrapper(
-    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
-    heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Compact
+    windowSize: WindowSize = WindowSize.PHONE_PORTRAIT
 ) {
     val navController = rememberNavController()
 
@@ -158,8 +157,7 @@ private fun InteractivePreviewWrapper(
         } as AppSettings
     }
     CompositionLocalProvider(
-        LocalWindowHeightSize provides heightSizeClass,
-        LocalWindowWidthSize provides widthSizeClass,
+        LocalWindowSize provides WindowSize.PHONE_PORTRAIT,
     ) {
         RuntextTheme {
             MainLayout(

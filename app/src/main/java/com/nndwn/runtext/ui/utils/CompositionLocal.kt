@@ -1,13 +1,8 @@
 package com.nndwn.runtext.ui.utils
 
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.compositionLocalOf
+import com.nndwn.runtext.extentions.WindowSize
 
 
 
-val LocalIsTablet = compositionLocalOf { false }
-
-val LocalWindowHeightSize = compositionLocalOf { WindowHeightSizeClass.Compact }
-val LocalWindowWidthSize = compositionLocalOf { WindowWidthSizeClass.Compact }
-
+val LocalWindowSize = compositionLocalOf { WindowSize.PHONE_PORTRAIT }

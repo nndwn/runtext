@@ -63,7 +63,7 @@ data class TextStyleConfig(
 
 data class StrokeConfig(
     val isEnabled: Boolean = false,
-    val width: Float = 0f,
+    val width: Float = 1f,
     val colorArgb: Long = Color.Black.toArgbLong()
 )
 

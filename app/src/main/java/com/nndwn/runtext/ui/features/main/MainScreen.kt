@@ -40,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.Skeleton
@@ -62,7 +63,7 @@ import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.utils.LocalIsTablet
+import com.nndwn.runtext.ui.utils.LocalWindowSize
 
 @Composable
 fun MainScreen(
@@ -71,7 +72,6 @@ fun MainScreen(
     sideBarEnd: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
 
     MainScreenContent(
         uiState = uiState,
@@ -90,7 +90,7 @@ fun MainScreenContent(
     limitText: Int = 100,
     sideBarEnd: () -> Unit,
 ) {
-    val isTablet = LocalIsTablet.current
+    val windowSize = LocalWindowSize.current
     val focusManager = LocalFocusManager.current
     var expandedPickerId by remember { mutableStateOf<String?>(null) }
     var showPanelFonts by remember { mutableStateOf(false) }
@@ -147,7 +147,7 @@ fun MainScreenContent(
     Row(modifier = Modifier.fillMaxWidth()) {
         // Sidebar for Tablet
         AnimatedVisibility(
-            visible = isTablet,
+            visible = windowSize == WindowSize.EXPAND,
             enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
             exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
         ) {
@@ -161,6 +161,7 @@ fun MainScreenContent(
 //                }
 //            }
         }
+
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -178,7 +179,7 @@ fun MainScreenContent(
         ) {
             item {
                 AnimatedVisibility(
-                    visible = !isTablet,
+                    visible = windowSize == WindowSize.PHONE_PORTRAIT,
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {

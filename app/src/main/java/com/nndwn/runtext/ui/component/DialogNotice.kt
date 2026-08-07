@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -34,9 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
+import com.nndwn.runtext.ui.utils.LocalWindowSize
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -47,7 +47,7 @@ fun DialogNotice(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = {}
 ) {
-    val isExpand = LocalWindowWidthSize.current != WindowWidthSizeClass.Compact
+    val isExpand = LocalWindowSize.current == WindowSize.EXPAND
 
     LaunchedEffect(visible, text) {
         if (visible) {
@@ -133,7 +133,7 @@ fun DialogNotice(
 private fun PreviewPhone(){
     var show by remember { mutableStateOf(false) }
     CompositionLocalProvider(
-        LocalWindowWidthSize provides WindowWidthSizeClass.Expanded
+        LocalWindowSize provides WindowSize.EXPAND
     ) {
         RuntextTheme {
             Column(

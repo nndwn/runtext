@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
@@ -102,7 +103,7 @@ fun RunningTextCoreOptimized(
             }
         }
 
-        // Penyiapan Brush untuk Main Gradient Text (JIKA Mode Gradient)
+
         val mainBrush = remember(settings.textStyle, textLayoutResult) {
             if (settings.textStyle.colorType == TextColorType.GRADIENT) {
                 val color1 =
@@ -133,10 +134,14 @@ fun RunningTextCoreOptimized(
         }
 
         val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
-        val startX = if (isRtl) -totalTextWidth else containerWidthPx
-        val endX = if (isRtl) containerWidthPx else -totalTextWidth
 
-        val durationMillis = remember(settings.speed, totalTextWidth, containerWidthPx) {
+        val baseStartX = if (isRtl) -totalTextWidth else containerWidthPx
+        val baseEndX = if (isRtl) containerWidthPx else -totalTextWidth
+
+        val startX = if (settings.isMirrorMode) baseEndX else baseStartX
+        val endX = if (settings.isMirrorMode) baseStartX else baseEndX
+
+        val durationMillis = remember(settings.speed, totalTextWidth, containerWidthPx, settings.isMirrorMode) {
             val dist = abs(endX - startX)
             val speedFactor = settings.speed.coerceAtLeast(1f)
             val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
@@ -198,15 +203,20 @@ fun RunningTextCoreOptimized(
             if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                 val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
 
-                drawText(
-                    textLayoutResult = textLayoutResult,
-                    color = settings.stroke.colorArgb.toComposeColor(),
-                    topLeft = baseTopLeft,
-                    drawStyle = Stroke(
-                        width = scaledStrokeWidthPx * 2f,
-                        join = StrokeJoin.Round
+                drawIntoCanvas { canvas ->
+                    canvas.save()
+                    canvas.translate(baseTopLeft.x, baseTopLeft.y)
+
+                    textLayoutResult.multiParagraph.paint(
+                        canvas = canvas,
+                        color = settings.stroke.colorArgb.toComposeColor(),
+                        drawStyle = Stroke(
+                            width = scaledStrokeWidthPx * 2f,
+                            join = StrokeJoin.Round
+                        )
                     )
-                )
+                    canvas.restore()
+                }
             }
 
             if (mainBrush != null) {

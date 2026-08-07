@@ -12,11 +12,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.nndwn.runtext.extentions.toCustomWindowSize
 import com.nndwn.runtext.ui.RunTextApp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.DeviceSpecsLogger
-import com.nndwn.runtext.ui.utils.LocalWindowHeightSize
-import com.nndwn.runtext.ui.utils.LocalWindowWidthSize
+import com.nndwn.runtext.ui.utils.LocalWindowSize
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val context = LocalContext.current
-
+            val customWindowSize = windowSizeClass.toCustomWindowSize()
             if (BuildConfig.DEBUG) {
                 LaunchedEffect(Unit) {
                     DeviceSpecsLogger.logSpecs(
@@ -48,8 +48,7 @@ class MainActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(
-                 LocalWindowHeightSize provides windowSizeClass.heightSizeClass,
-                LocalWindowWidthSize provides windowSizeClass.widthSizeClass
+                LocalWindowSize provides customWindowSize,
             ) {
                 RuntextTheme {
                     RunTextApp()
