@@ -19,9 +19,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -144,30 +148,44 @@ fun MainScreenContent(
 
 
 
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(padding)
+    ) {
         // Sidebar for Tablet
         AnimatedVisibility(
-            visible = windowSize == WindowSize.EXPAND,
+            visible = windowSize == WindowSize.EXPAND || windowSize == WindowSize.PHONE_LANDSCAPE,
             enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
             exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
         ) {
-//            Scaffold(
-//                modifier = Modifier.width(300.dp),
-//                containerColor = Palette.Black3,
-//                topBar = { HeaderStartSideBar() }
-//            ) { innerPadding ->
-//                Box(modifier = Modifier.padding(innerPadding)) {
-//                    // Configuration UI for tablet could go here
-//                }
-//            }
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(250.dp)
+                    .padding(start = MaterialTheme.dimens.medium)
+            ) {
+                LogoText(
+                    modifier = Modifier
+                        .padding(vertical = MaterialTheme.dimens.medium)
+                )
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
+                if (windowSize == WindowSize.PHONE_LANDSCAPE && uiState is MainUiState.Success) {
+                    PreviewAndStart(
+                        settings = uiState.settings,
+                        onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+                    )
+                }
+            }
+
         }
+
 
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f)
-                .padding(padding),
+                .weight(1f),
             contentPadding = PaddingValues(
                 bottom = padding.calculateBottomPadding(),
                 start = MaterialTheme.dimens.medium,
@@ -185,7 +203,7 @@ fun MainScreenContent(
                 ) {
                     LogoText(
                         modifier = Modifier
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = MaterialTheme.dimens.small),
                         content = {
                             ThreeDotsHorizontal(onClick = { sideBarEnd() })
                         }
@@ -194,11 +212,13 @@ fun MainScreenContent(
             }
             when (uiState) {
                 is MainUiState.Loading -> {
-                    stickyHeader {
-                        Skeleton(
-                            shimmerProgress = shimmerProgress,
-                            height = 140.dp
-                        )
+                    if (windowSize != WindowSize.PHONE_LANDSCAPE) {
+                        stickyHeader {
+                            Skeleton(
+                                shimmerProgress = shimmerProgress,
+                                height = 140.dp
+                            )
+                        }
                     }
                     item {
                         Skeleton(
@@ -216,11 +236,13 @@ fun MainScreenContent(
 
                 is MainUiState.Success -> {
                     val settings = uiState.settings
-                    stickyHeader {
-                        PreviewAndStart(
-                            settings = settings,
-                            onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
-                        )
+                    if (windowSize != WindowSize.PHONE_LANDSCAPE) {
+                        stickyHeader {
+                            PreviewAndStart(
+                                settings = settings,
+                                onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+                            )
+                        }
                     }
 
                     item {

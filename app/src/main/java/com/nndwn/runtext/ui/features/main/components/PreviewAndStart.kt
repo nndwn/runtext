@@ -39,77 +39,85 @@ import com.nndwn.runtext.ui.theme.toComposeColor
 
 @Composable
 fun PreviewAndStart(
+    modifier: Modifier = Modifier,
     settings: AppSettings,
     onNavigateToDisplay: () -> Unit
 ) {
     val shape = MaterialTheme.shapes.medium
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .border(
-                width = MaterialTheme.dimens.borderMedium,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
-                shape = shape
-            )
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp)
-                .background(settings.bgColorArgb.toComposeColor())
-                .pointerInput(Unit){}
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            if (settings.mode == AppMode.RUNNING_TEXT) {
-                RunningTextCoreOptimized(
-                    settings = settings,
+                .clip(shape)
+                .border(
+                    width = MaterialTheme.dimens.borderMedium,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
+                    shape = shape
                 )
-
-            } else {
-                MorseFlashPreview(settings)
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .clickable(
-                    indication = ripple(),
-                    interactionSource = remember { MutableInteractionSource() },
-                ) { onNavigateToDisplay() }
-                .padding(
-                    horizontal = MaterialTheme.dimens.medium,
-                    vertical = MaterialTheme.dimens.small),
-            contentAlignment = Alignment.Center
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(MaterialTheme.dimens.small)
+                    .height(140.dp)
+                    .background(settings.bgColorArgb.toComposeColor())
+                    .pointerInput(Unit) {},
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_play),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-                )
-                Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
-                Text(
-                    text = stringResource(R.string.btn_start),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                if (settings.mode == AppMode.RUNNING_TEXT) {
+                    RunningTextCoreOptimized(
+                        settings = settings,
+                        editor = true
+                    )
+
+                } else {
+                    MorseFlashPreview(settings)
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable(
+                        indication = ripple(),
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) { onNavigateToDisplay() }
+                    .padding(
+                        horizontal = MaterialTheme.dimens.medium,
+                        vertical = MaterialTheme.dimens.small
                     ),
-                )
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.dimens.small)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                    )
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
+                    Text(
+                        text = stringResource(R.string.btn_start),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                    )
+                }
             }
         }
     }
+
 }
 
 @Preview

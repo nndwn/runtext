@@ -1,5 +1,6 @@
 package com.nndwn.runtext.extentions
 
+import android.util.Log
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -29,17 +30,21 @@ fun CornerBasedShape.shrinkRadius(padding: Dp): CornerBasedShape {
 enum class WindowSize {
     PHONE_PORTRAIT,
     PHONE_LANDSCAPE,
-    TABLET,
+    TABLET_PORTRAIT,
+    TABLET_LANDSCAPE,
     FOLDABLE,
     EXPAND
 }
 
 fun WindowSizeClass.toCustomWindowSize(): WindowSize {
+    Log.d("test", "$widthSizeClass $heightSizeClass")
     return when (widthSizeClass) {
-        WindowWidthSizeClass.Compact if heightSizeClass == WindowHeightSizeClass.Expanded -> WindowSize.PHONE_PORTRAIT
-        WindowWidthSizeClass.Compact if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE
-        WindowWidthSizeClass.Medium -> WindowSize.FOLDABLE
-        WindowWidthSizeClass.Expanded -> WindowSize.TABLET
+        WindowWidthSizeClass.Compact if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.PHONE_PORTRAIT
+        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE
+        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.FOLDABLE
+        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Expanded -> WindowSize.TABLET_PORTRAIT
+        WindowWidthSizeClass.Expanded if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.TABLET_LANDSCAPE
+        WindowWidthSizeClass.Expanded if widthSizeClass != WindowWidthSizeClass.Compact -> WindowSize.EXPAND
         else -> WindowSize.EXPAND
     }
 }

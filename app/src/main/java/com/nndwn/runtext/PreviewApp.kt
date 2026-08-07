@@ -2,8 +2,6 @@ package com.nndwn.runtext
 
 import android.content.res.Configuration
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -39,9 +37,13 @@ private fun InteractivePreviewWrapper(
     var isSidebarOpen by remember { mutableStateOf(false) }
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
-    var settings by remember { mutableStateOf(AppSettings(
-        lastText = "test preview"
-    )) }
+    var settings by remember {
+        mutableStateOf(
+            AppSettings(
+                lastText = "test preview"
+            )
+        )
+    }
 
     var noticeMessage by remember { mutableStateOf<Int?>(null) }
 
@@ -151,31 +153,30 @@ private fun InteractivePreviewWrapper(
                 morseConfig = settings.morseConfig.copy(isVibrateEnabled = event.isVibrateEnabled)
             )
 
-            is MainUiEvent.NavigateToDisplay ->  navController.navigate(Routes.DISPLAY)
+            is MainUiEvent.NavigateToDisplay -> navController.navigate(Routes.DISPLAY)
             is MainUiEvent.NavigateBack -> navController.popBackStack()
             is MainUiEvent.Toast -> noticeMessage = event.message
         } as AppSettings
     }
     CompositionLocalProvider(
-        LocalWindowSize provides WindowSize.PHONE_PORTRAIT,
+        LocalWindowSize provides windowSize,
     ) {
         RuntextTheme {
             MainLayout(
                 isSidebarOpen = sidebarAllowed,
                 onCloseSidebar = { isSidebarOpen = false },
-                sideBarRight = { }
-            ) {innerPadding ->
+                sideBarRight = { }) { innerPadding ->
                 NavHost(
                     navController = navController,
                     startDestination = Routes.INPUT
                 ) {
                     composable(Routes.INPUT) {
-                       MainScreenContent(
-                           uiState = MainUiState.Success(settings),
-                           onEvent = handleEvent,
-                           sideBarEnd = { isSidebarOpen = true },
-                           padding =  innerPadding
-                       )
+                        MainScreenContent(
+                            uiState = MainUiState.Success(settings),
+                            onEvent = handleEvent,
+                            sideBarEnd = { isSidebarOpen = true },
+                            padding = innerPadding
+                        )
                     }
                     composable(Routes.DISPLAY) {
                         // Display Screen
@@ -198,8 +199,13 @@ private fun InteractivePreviewWrapper(
 //private fun PreviewTabletLight(){
 //    InteractivePreviewWrapper(false)
 //}
-@Preview(device = "spec:width=1080px,height=2340px,dpi=480" , uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    device = "spec:width=1080px,height=2340px,dpi=480,orientation=landscape",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
-private fun PreviewTabletDark(){
-    InteractivePreviewWrapper()
+private fun PreviewTabletDark() {
+    InteractivePreviewWrapper(
+        windowSize = WindowSize.PHONE_LANDSCAPE
+    )
 }

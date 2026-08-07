@@ -1,5 +1,7 @@
 package com.nndwn.runtext.ui.component
 
+import android.util.Log
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -10,6 +12,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,9 +21,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
@@ -32,10 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
+import kotlinx.coroutines.isActive
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -45,6 +53,7 @@ import kotlin.math.sin
 fun RunningTextCoreOptimized(
     settings: AppSettings,
     modifier: Modifier = Modifier,
+    editor : Boolean = false,
     defaultPreviewText: String = "PREVIEW"
 ) {
     val rawText = settings.lastText.ifEmpty { defaultPreviewText }
@@ -134,12 +143,15 @@ fun RunningTextCoreOptimized(
         }
 
         val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
-
-        val baseStartX = if (isRtl) -totalTextWidth else containerWidthPx
-        val baseEndX = if (isRtl) containerWidthPx else -totalTextWidth
-
-        val startX = if (settings.isMirrorMode) baseEndX else baseStartX
-        val endX = if (settings.isMirrorMode) baseStartX else baseEndX
+        val (startX, endX) = remember(containerWidthPx, totalTextWidth, isRtl, settings.isMirrorMode) {
+            val moveRightToLeft = !isRtl
+            val effectiveMoveRightToLeft = if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
+            if (effectiveMoveRightToLeft) {
+                containerWidthPx to -totalTextWidth
+            } else {
+                -totalTextWidth to containerWidthPx
+            }
+        }
 
         val durationMillis = remember(settings.speed, totalTextWidth, containerWidthPx, settings.isMirrorMode) {
             val dist = abs(endX - startX)
@@ -148,94 +160,145 @@ fun RunningTextCoreOptimized(
             (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
         }
 
-        val transition = rememberInfiniteTransition(label = "marquee")
-        val animatedOffsetX by transition.animateFloat(
-            initialValue = startX,
-            targetValue = endX,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = durationMillis, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "offsetX"
-        )
+
+        val animatedOffsetX: Float = if (editor) {
+            val progress = remember { Animatable(0f) }
+
+            LaunchedEffect(durationMillis) {
+                while (isActive) {
+                    val remainingRatio = (1f - progress.value).coerceIn(0f, 1f)
+                    val adjustedDuration = (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
+
+                    progress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = adjustedDuration,
+                            easing = LinearEasing
+                        )
+                    )
+
+                    if (progress.value >= 1f) {
+                        progress.snapTo(0f)
+                    }
+                }
+            }
+
+            lerp(startX, endX, progress.value)
+        } else {
+            val transition = rememberInfiniteTransition(label = "marquee")
+            val offset by transition.animateFloat(
+                initialValue = startX,
+                targetValue = endX,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = durationMillis, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "offsetX"
+            )
+            offset
+        }
 
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
                     translationX = animatedOffsetX
-                    rotationY = if (settings.isMirrorMode) 180f else 0f
                     clip = false
                 }
         ) {
             val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
             val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
 
-            if (settings.shadow.isEnabled) {
-                val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
+            val drawContent: DrawScope.() -> Unit = {
+                if (settings.shadow.isEnabled) {
+                    val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
+                    val baseDistancePx = distanceShadow.dp.toPx()
+                    val strokeOffsetPx = if (settings.stroke.isEnabled && settings.stroke.width > 0) {
+                        settings.stroke.width.dp.toPx()
+                    } else {
+                        0f
+                    }
 
+                    val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
+                    val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()
+                    val shadowOffsetY = (totalShadowDistancePx * sin(angleInRadians)).toFloat()
 
-                val baseDistancePx = distanceShadow.dp.toPx()
-
-                val strokeOffsetPx = if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-                    settings.stroke.width.dp.toPx()
-                } else {
-                    0f
-                }
-
-                val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
-
-                val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()
-                val shadowOffsetY = (totalShadowDistancePx * sin(angleInRadians)).toFloat()
-
-                drawText(
-                    textLayoutResult = textLayoutResult,
-                    color = settings.shadow.colorArgb.toComposeColor(),
-                    topLeft = baseTopLeft,
-                    shadow = Shadow(
+                    drawText(
+                        textLayoutResult = textLayoutResult,
                         color = settings.shadow.colorArgb.toComposeColor(),
-                        offset = Offset(shadowOffsetX, shadowOffsetY),
-                        blurRadius = settings.shadow.radius
-                    )
-                )
-            }
-
-            if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-                val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
-
-                drawIntoCanvas { canvas ->
-                    canvas.save()
-                    canvas.translate(baseTopLeft.x, baseTopLeft.y)
-
-                    textLayoutResult.multiParagraph.paint(
-                        canvas = canvas,
-                        color = settings.stroke.colorArgb.toComposeColor(),
-                        drawStyle = Stroke(
-                            width = scaledStrokeWidthPx * 2f,
-                            join = StrokeJoin.Round
+                        topLeft = baseTopLeft,
+                        shadow = Shadow(
+                            color = settings.shadow.colorArgb.toComposeColor(),
+                            offset = Offset(shadowOffsetX, shadowOffsetY),
+                            blurRadius = settings.shadow.radius
                         )
                     )
-                    canvas.restore()
+                }
+
+                if (settings.stroke.isEnabled && settings.stroke.width > 0) {
+                    val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
+
+                    drawIntoCanvas { canvas ->
+                        canvas.save()
+                        canvas.translate(baseTopLeft.x, baseTopLeft.y)
+
+                        textLayoutResult.multiParagraph.paint(
+                            canvas = canvas,
+                            color = settings.stroke.colorArgb.toComposeColor(),
+                            drawStyle = Stroke(
+                                width = scaledStrokeWidthPx * 2f,
+                                join = StrokeJoin.Round
+                            )
+                        )
+                        canvas.restore()
+                    }
+                }
+
+                if (mainBrush != null) {
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        brush = mainBrush,
+                        topLeft = baseTopLeft,
+                        drawStyle = Fill,
+                        shadow = Shadow.None
+                    )
+                } else {
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        color = settings.textStyle.colorArgb.toComposeColor(),
+                        topLeft = baseTopLeft,
+                        drawStyle = Fill,
+                        shadow = Shadow.None
+                    )
                 }
             }
 
-            if (mainBrush != null) {
-                drawText(
-                    textLayoutResult = textLayoutResult,
-                    brush = mainBrush,
-                    topLeft = baseTopLeft,
-                    drawStyle = Fill,
-                    shadow = Shadow.None
-                )
+            if (settings.isMirrorMode) {
+                val textCenterX = baseTopLeft.x + (textLayoutResult.size.width / 2f)
+                val textCenterY = baseTopLeft.y + (textLayoutResult.size.height / 2f)
+                val pivot = Offset(textCenterX, textCenterY)
+
+                scale(scaleX = -1f, scaleY = 1f, pivot = pivot) {
+                    drawContent()
+                }
             } else {
-                drawText(
-                    textLayoutResult = textLayoutResult,
-                    color = settings.textStyle.colorArgb.toComposeColor(),
-                    topLeft = baseTopLeft,
-                    drawStyle = Fill,
-                    shadow = Shadow.None
-                )
+                drawContent()
             }
+        }
+
+
+
+        if (BuildConfig.DEBUG) {
+            val sb = StringBuilder().apply {
+                appendLine("isRtl: $isRtl")
+                appendLine("totalTextWidth: $totalTextWidth")
+                appendLine("containerWidthPx: $containerWidthPx")
+                appendLine("startX: $startX")
+                appendLine("endX: $endX")
+                appendLine("durationMillis: $durationMillis")
+                appendLine("isMirrorMode: ${settings.isMirrorMode}")
+            }
+            Log.d("DEBUG_RUNNING_TEXT", sb.toString())
         }
     }
 }
