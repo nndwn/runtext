@@ -66,7 +66,7 @@ import com.nndwn.runtext.ui.utils.LocalIsTablet
 
 @Composable
 fun MainScreen(
-    viewModel : MainViewModel = hiltViewModel(),
+    viewModel: MainViewModel = hiltViewModel(),
     padding: PaddingValues,
     sideBarEnd: () -> Unit,
 ) {
@@ -77,7 +77,7 @@ fun MainScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         sideBarEnd = sideBarEnd,
-        padding =  padding,
+        padding = padding,
         limitText = viewModel.limitText
     )
 }
@@ -87,18 +87,18 @@ fun MainScreenContent(
     padding: PaddingValues,
     uiState: MainUiState,
     onEvent: (MainUiEvent) -> Unit,
-    limitText : Int = 100,
+    limitText: Int = 100,
     sideBarEnd: () -> Unit,
 ) {
     val isTablet = LocalIsTablet.current
     val focusManager = LocalFocusManager.current
     var expandedPickerId by remember { mutableStateOf<String?>(null) }
     var showPanelFonts by remember { mutableStateOf(false) }
-    
+
     val closePicker = { expandedPickerId = null }
 
     val togglePicker: (String) -> Unit = { id ->
-        expandedPickerId = if (expandedPickerId == id) null else id
+        expandedPickerId =  if (expandedPickerId == id) null else id
         focusManager.clearFocus()
     }
 
@@ -135,7 +135,7 @@ fun MainScreenContent(
     }
     if (uiState is MainUiState.Success) {
         LaunchedEffect(uiState.settings.mode) {
-            expandedPickerId = when (uiState.settings.mode){
+            expandedPickerId = when (uiState.settings.mode) {
                 AppMode.MORSE_CODE -> "morse_color"
                 AppMode.RUNNING_TEXT -> "text_presets"
             }
@@ -170,10 +170,10 @@ fun MainScreenContent(
             contentPadding = PaddingValues(
                 bottom = padding.calculateBottomPadding(),
                 start = MaterialTheme.dimens.medium,
-                end =  MaterialTheme.dimens.medium,
+                end = MaterialTheme.dimens.medium,
 
-            ),
-            verticalArrangement = Arrangement.spacedBy( MaterialTheme.dimens.medium)
+                ),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
 
         ) {
             item {
@@ -184,7 +184,7 @@ fun MainScreenContent(
                 ) {
                     LogoText(
                         modifier = Modifier
-                            .padding( vertical = 8.dp),
+                            .padding(vertical = 8.dp),
                         content = {
                             ThreeDotsHorizontal(onClick = { sideBarEnd() })
                         }
@@ -212,12 +212,13 @@ fun MainScreenContent(
                         )
                     }
                 }
+
                 is MainUiState.Success -> {
                     val settings = uiState.settings
                     stickyHeader {
                         PreviewAndStart(
                             settings = settings,
-                            onNavigateToDisplay = {dispatch(MainUiEvent.NavigateToDisplay)}
+                            onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
                         )
                     }
 
@@ -234,7 +235,8 @@ fun MainScreenContent(
                         AppModeSettings(
                             currentMode = settings.mode,
                             onModeChange = {
-                                dispatch(MainUiEvent.UpdateMode(it)) }
+                                dispatch(MainUiEvent.UpdateMode(it))
+                            }
                         )
                     }
 
@@ -272,12 +274,18 @@ fun MainScreenContent(
                                                 title = stringResource(R.string.set_config_text_mirror),
                                                 subtitle = stringResource(R.string.set_config_text_mirror_desc),
                                                 checked = settings.isMirrorMode,
-                                                onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
+                                                onCheckedChange = {
+                                                    dispatchAndClosePicker(
+                                                        MainUiEvent.UpdateMirrorMode(it)
+                                                    )
+                                                },
                                             )
                                         }
                                         TextFontStyleConfig(
                                             config = settings.textStyle,
-                                            onClick = { closePicker(); showPanelFonts = !showPanelFonts }
+                                            onClick = {
+                                                closePicker(); showPanelFonts = !showPanelFonts
+                                            }
                                         )
                                         TextSpacingConfig(
                                             config = settings.textStyle,
@@ -291,7 +299,13 @@ fun MainScreenContent(
                                                 color = settings.bgColorArgb.toComposeColor(),
                                                 isExpanded = expandedPickerId == "bg",
                                                 onToggleExpand = { togglePicker("bg") },
-                                                onColorChange = { dispatch(MainUiEvent.UpdateBgColor(it)) }
+                                                onColorChange = {
+                                                    dispatch(
+                                                        MainUiEvent.UpdateBgColor(
+                                                            it
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                         TextColorPickerConfig(
@@ -336,7 +350,13 @@ fun MainScreenContent(
                                                 title = stringResource(R.string.set_config_morse_flash_screen),
                                                 subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
                                                 checked = settings.morseConfig.isFlashScreen,
-                                                onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+                                                onCheckedChange = {
+                                                    dispatch(
+                                                        MainUiEvent.UpdateFlashScreen(
+                                                            it
+                                                        )
+                                                    )
+                                                },
                                             )
                                         }
                                         MorseTorchConfig(
@@ -348,7 +368,13 @@ fun MainScreenContent(
                                                 title = stringResource(R.string.set_config_morse_sound),
                                                 subtitle = stringResource(R.string.set_config_morse_sound_desc),
                                                 checked = settings.morseConfig.isSoundEnabled,
-                                                onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+                                                onCheckedChange = {
+                                                    dispatch(
+                                                        MainUiEvent.UpdateSoundEnabled(
+                                                            it
+                                                        )
+                                                    )
+                                                },
                                             )
                                         }
                                         ConfigCard {
@@ -356,7 +382,13 @@ fun MainScreenContent(
                                                 title = stringResource(R.string.set_config_morse_vibration),
                                                 subtitle = stringResource(R.string.set_config_morse_vibration_desc),
                                                 checked = settings.morseConfig.isVibrateEnabled,
-                                                onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+                                                onCheckedChange = {
+                                                    dispatch(
+                                                        MainUiEvent.UpdateVibrateEnabled(
+                                                            it
+                                                        )
+                                                    )
+                                                },
                                             )
                                         }
                                     }

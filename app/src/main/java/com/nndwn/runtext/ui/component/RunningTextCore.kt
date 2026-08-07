@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -69,7 +71,7 @@ fun RunningTextCoreOptimized(
             }
         }
 
-        val baseTextStyle = remember(fontFamily, settings.textStyle.letterSpacingSp, dynamicFontSizeSp) {
+        val baseTextStyle = remember(fontFamily, settings.textStyle.letterSpacingSp) {
             TextStyle(
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Normal,
@@ -82,9 +84,6 @@ fun RunningTextCoreOptimized(
             rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
         }
 
-        // =========================================================================
-        // SATU-SATUNYA UKURAN & LAYOUT RESULT (Menghemat hingga 66% Alokasi RAM Teks)
-        // =========================================================================
         val textLayoutResult = remember(annotatedText, baseTextStyle) {
             textMeasurer.measure(
                 text = annotatedText,
@@ -97,7 +96,8 @@ fun RunningTextCoreOptimized(
         val extraPaddingPx = remember(settings.shadow, settings.stroke, density) {
             with(density) {
                 val strokePadding = if (settings.stroke.isEnabled) settings.stroke.width else 0f
-                val shadowPadding = if (settings.shadow.isEnabled) (distanceShadow + settings.shadow.radius) else 0f
+                val shadowPadding =
+                    if (settings.shadow.isEnabled) (distanceShadow + settings.shadow.radius) else 0f
                 (maxOf(strokePadding, shadowPadding) + 5f).dp.toPx()
             }
         }
@@ -105,8 +105,12 @@ fun RunningTextCoreOptimized(
         // Penyiapan Brush untuk Main Gradient Text (JIKA Mode Gradient)
         val mainBrush = remember(settings.textStyle, textLayoutResult) {
             if (settings.textStyle.colorType == TextColorType.GRADIENT) {
-                val color1 = settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }.toComposeColor()
-                val color2 = settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }.toComposeColor()
+                val color1 =
+                    settings.textStyle.gradientColorsArgb.getOrElse(0) { settings.textStyle.colorArgb }
+                        .toComposeColor()
+                val color2 =
+                    settings.textStyle.gradientColorsArgb.getOrElse(1) { settings.textStyle.colorArgb }
+                        .toComposeColor()
                 val dist = settings.textStyle.gradientDistance.coerceIn(0f, 1f)
 
                 val textWidth = textLayoutResult.size.width.toFloat()
@@ -162,23 +166,35 @@ fun RunningTextCoreOptimized(
             val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
             val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
 
-            // 1. PAS PERTAMA: DOKAN DROP SHADOW (Gunakan offset posisi + color override)
             if (settings.shadow.isEnabled) {
                 val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
-                val scaledDistancePx = distanceShadow.dp.toPx()
-                val shadowOffsetX = (scaledDistancePx * cos(angleInRadians)).toFloat()
-                val shadowOffsetY = (scaledDistancePx * sin(angleInRadians)).toFloat()
 
-                val shadowTopLeft = baseTopLeft + Offset(shadowOffsetX, shadowOffsetY)
+
+                val baseDistancePx = distanceShadow.dp.toPx()
+
+                val strokeOffsetPx = if (settings.stroke.isEnabled && settings.stroke.width > 0) {
+                    settings.stroke.width.dp.toPx()
+                } else {
+                    0f
+                }
+
+                val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
+
+                val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()
+                val shadowOffsetY = (totalShadowDistancePx * sin(angleInRadians)).toFloat()
 
                 drawText(
                     textLayoutResult = textLayoutResult,
                     color = settings.shadow.colorArgb.toComposeColor(),
-                    topLeft = shadowTopLeft
+                    topLeft = baseTopLeft,
+                    shadow = Shadow(
+                        color = settings.shadow.colorArgb.toComposeColor(),
+                        offset = Offset(shadowOffsetX, shadowOffsetY),
+                        blurRadius = settings.shadow.radius
+                    )
                 )
             }
 
-            // 2. PAS KEDUA: DRAW STROKE / OUTLINE (Ubah drawStyle tanpa re-measure)
             if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                 val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
 
@@ -193,23 +209,27 @@ fun RunningTextCoreOptimized(
                 )
             }
 
-            // 3. PAS KETIGA: DRAW MAIN TEXT (Isi Tengah)
             if (mainBrush != null) {
                 drawText(
                     textLayoutResult = textLayoutResult,
                     brush = mainBrush,
-                    topLeft = baseTopLeft
+                    topLeft = baseTopLeft,
+                    drawStyle = Fill,
+                    shadow = Shadow.None
                 )
             } else {
                 drawText(
                     textLayoutResult = textLayoutResult,
                     color = settings.textStyle.colorArgb.toComposeColor(),
-                    topLeft = baseTopLeft
+                    topLeft = baseTopLeft,
+                    drawStyle = Fill,
+                    shadow = Shadow.None
                 )
             }
         }
     }
 }
+
 private fun String.toWordSpacedAnnotatedString(wordSpacingSp: Float): AnnotatedString {
     if (wordSpacingSp <= 0f || !this.contains(' ')) {
         return AnnotatedString(this)
