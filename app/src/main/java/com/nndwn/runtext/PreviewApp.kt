@@ -2,6 +2,9 @@ package com.nndwn.runtext
 
 import android.content.res.Configuration
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -14,20 +17,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.utils.LocalWindowSize
+import com.nndwn.runtext.ui.utils.LocalSizeHeight
+import com.nndwn.runtext.ui.utils.LocalSizeWidth
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun InteractivePreviewWrapper(
-    windowSize: WindowSize = WindowSize.PHONE_PORTRAIT
+    widowSizeHeight : WindowHeightSizeClass = WindowHeightSizeClass.Compact,
+    windowWidth : WindowWidthSizeClass = WindowWidthSizeClass.Compact
 ) {
     val navController = rememberNavController()
 
@@ -159,7 +163,8 @@ private fun InteractivePreviewWrapper(
         } as AppSettings
     }
     CompositionLocalProvider(
-        LocalWindowSize provides windowSize,
+        LocalSizeHeight provides widowSizeHeight,
+        LocalSizeWidth provides windowWidth
     ) {
         RuntextTheme {
             MainLayout(
@@ -207,6 +212,7 @@ private fun InteractivePreviewWrapper(
 @Composable
 private fun PreviewTabletDark() {
     InteractivePreviewWrapper(
-        windowSize = WindowSize.EXPAND
+        widowSizeHeight = WindowHeightSizeClass.Medium,
+        windowWidth = WindowWidthSizeClass.Medium
     )
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.LocalIsPremium

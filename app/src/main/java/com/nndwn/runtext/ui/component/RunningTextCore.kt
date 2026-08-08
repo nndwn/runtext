@@ -72,9 +72,10 @@ fun RunningTextCoreOptimized(
         if (rawText.isEmpty()) false
         else java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
     }
+    val fontResolver = LocalFontFamilyResolver.current
 
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
-    val fontResolver = LocalFontFamilyResolver.current
+
     val fontLoadState by produceState(
         initialValue = fontResolver.resolve(fontFamily).value,
         key1 = fontFamily

@@ -1,15 +1,10 @@
 package com.nndwn.runtext.extentions
 
-import android.util.Log
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import com.nndwn.runtext.BuildConfig
 
 private fun CornerSize.shrinkRadius(padding: Dp): CornerSize = object : CornerSize {
     override fun toPx(shapeSize: Size, density: Density): Float {
@@ -28,28 +23,4 @@ fun CornerBasedShape.shrinkRadius(padding: Dp): CornerBasedShape {
     )
 }
 
-enum class WindowSize {
-    PHONE_PORTRAIT,
-    PHONE_LANDSCAPE,
-    TABLET_PORTRAIT,
-    TABLET_LANDSCAPE,
-    FOLDABLE,
-    EXPAND
-}
 
-fun WindowSizeClass.toCustomWindowSize(): WindowSize {
-    if (BuildConfig.DEBUG){
-        Log.d("test", "$widthSizeClass $heightSizeClass")
-    }
-    return when (widthSizeClass) {
-        WindowWidthSizeClass.Expanded if widthSizeClass != WindowWidthSizeClass.Compact -> WindowSize.EXPAND
-        WindowWidthSizeClass.Compact if (heightSizeClass == WindowHeightSizeClass.Medium || heightSizeClass == WindowHeightSizeClass.Expanded) -> WindowSize.PHONE_PORTRAIT
-        WindowWidthSizeClass.Expanded if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE
-        WindowWidthSizeClass.Medium if (heightSizeClass == WindowHeightSizeClass.Compact) -> WindowSize.PHONE_LANDSCAPE
-        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.FOLDABLE
-        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Expanded -> WindowSize.TABLET_PORTRAIT
-        WindowWidthSizeClass.Expanded if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.TABLET_LANDSCAPE
-
-        else -> WindowSize.EXPAND
-    }
-}

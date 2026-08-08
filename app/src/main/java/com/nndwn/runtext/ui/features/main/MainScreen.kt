@@ -31,6 +31,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,7 +48,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
-import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.MenuOptions
@@ -71,8 +72,9 @@ import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
+import com.nndwn.runtext.ui.utils.LocalSizeHeight
+import com.nndwn.runtext.ui.utils.LocalSizeWidth
 import com.nndwn.runtext.ui.utils.LocalToggleSidebar
-import com.nndwn.runtext.ui.utils.LocalWindowSize
 
 @Composable
 fun MainScreen(
@@ -101,7 +103,8 @@ fun MainScreenContent(
     menus : (MenuOptions) -> Unit,
     sideBarEnd: () -> Unit,
 ) {
-    val windowSize = LocalWindowSize.current
+    val widowSizeHeight = LocalSizeHeight.current
+    val widowSizeWidth = LocalSizeWidth.current
     val focusManager = LocalFocusManager.current
     var expandedPickerId by remember { mutableStateOf<String?>(null) }
     var showPanelFonts by remember { mutableStateOf(false) }
@@ -160,7 +163,7 @@ fun MainScreenContent(
             .fillMaxWidth()
             .padding(padding)
     ) {
-        if ( windowSize == WindowSize.EXPAND || windowSize == WindowSize.PHONE_LANDSCAPE){
+        if (widowSizeWidth != WindowWidthSizeClass.Compact){
             Surface(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -175,7 +178,7 @@ fun MainScreenContent(
                             .padding(vertical = MaterialTheme.dimens.medium , horizontal = MaterialTheme.dimens.small)
                     )
                     Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
-                    if (windowSize == WindowSize.PHONE_LANDSCAPE && uiState is MainUiState.Success) {
+                    if (widowSizeHeight == WindowHeightSizeClass.Compact && uiState is MainUiState.Success) {
                         PreviewAndStart(
                             settings = uiState.settings,
                             modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small),
@@ -183,7 +186,7 @@ fun MainScreenContent(
 
                         )
                     }
-                    if (windowSize != WindowSize.PHONE_LANDSCAPE){
+                    if (widowSizeHeight != WindowHeightSizeClass.Compact){
                         MenuOptions (
                             onMenuSelected = menus
                         )
@@ -211,7 +214,7 @@ fun MainScreenContent(
         ) {
             item {
                 AnimatedVisibility(
-                    visible = windowSize == WindowSize.PHONE_PORTRAIT || windowSize == WindowSize.TABLET_PORTRAIT,
+                    visible = widowSizeWidth == WindowWidthSizeClass.Compact,
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {
@@ -226,8 +229,8 @@ fun MainScreenContent(
             }
             when (uiState) {
                 is MainUiState.Loading -> {
-                    if (windowSize != WindowSize.PHONE_LANDSCAPE) {
-                        stickyHeader {
+                    if (widowSizeHeight != WindowHeightSizeClass.Compact) {
+                        item {
                             Skeleton(
                                 shimmerProgress = shimmerProgress,
                                 height = 140.dp
@@ -250,7 +253,7 @@ fun MainScreenContent(
 
                 is MainUiState.Success -> {
                     val settings = uiState.settings
-                    if (windowSize != WindowSize.PHONE_LANDSCAPE) {
+                    if (widowSizeHeight != WindowHeightSizeClass.Compact) {
                         stickyHeader {
                             PreviewAndStart(
                                 settings = settings,

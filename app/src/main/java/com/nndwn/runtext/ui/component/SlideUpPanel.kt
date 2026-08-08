@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -44,10 +45,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalWindowSize
+import com.nndwn.runtext.ui.utils.LocalSizeWidth
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -64,7 +64,7 @@ fun SlideUpPanel(
     val offsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
 
-    val isExpand = LocalWindowSize.current != WindowSize.PHONE_PORTRAIT
+    val isExpand = LocalSizeWidth.current != WindowWidthSizeClass.Compact
     val dismissThreshold = with(density) { 150.dp.toPx() }
 
     LaunchedEffect(visible) {
@@ -189,7 +189,7 @@ private fun Preview() {
     var show by remember { mutableStateOf(false) }
 
     CompositionLocalProvider(
-        LocalWindowSize provides WindowSize.PHONE_PORTRAIT
+        LocalSizeWidth provides WindowWidthSizeClass.Compact
     ) {
         RuntextTheme {
             Button(
