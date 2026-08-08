@@ -15,6 +15,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -159,28 +161,35 @@ fun MainScreenContent(
             .padding(padding)
     ) {
         if ( windowSize == WindowSize.EXPAND || windowSize == WindowSize.PHONE_LANDSCAPE){
-            Column(
+            Surface(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(250.dp)
-                    .padding(start = MaterialTheme.dimens.medium)
+
+                ,
+                color = MaterialTheme.colorScheme.secondary
             ) {
-                LogoText(
-                    modifier = Modifier
-                        .padding(vertical = MaterialTheme.dimens.medium)
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
-                if (windowSize == WindowSize.PHONE_LANDSCAPE && uiState is MainUiState.Success) {
-                    PreviewAndStart(
-                        settings = uiState.settings,
-                        onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    LogoText(
+                        modifier = Modifier
+                            .padding(vertical = MaterialTheme.dimens.medium , horizontal = MaterialTheme.dimens.small)
                     )
-                }else {
-                    MenuOptions (
-                        onMenuSelected = menus
-                    )
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
+                    if (windowSize == WindowSize.PHONE_LANDSCAPE && uiState is MainUiState.Success) {
+                        PreviewAndStart(
+                            settings = uiState.settings,
+                            modifier = Modifier.padding(start = MaterialTheme.dimens.medium),
+                            onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+
+                        )
+                    }else {
+                        MenuOptions (
+                            onMenuSelected = menus
+                        )
+                    }
                 }
             }
+
         }
 
 

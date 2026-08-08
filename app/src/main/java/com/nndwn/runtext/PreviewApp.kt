@@ -201,12 +201,12 @@ private fun InteractivePreviewWrapper(
 //    InteractivePreviewWrapper(false)
 //}
 @Preview(
-    device = "spec:width=1080px,height=2340px,dpi=480,orientation=landscape",
+    device = "spec:width=1280dp,height=800dp,dpi=240",
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
 private fun PreviewTabletDark() {
     InteractivePreviewWrapper(
-        windowSize = WindowSize.PHONE_LANDSCAPE
+        windowSize = WindowSize.EXPAND
     )
 }

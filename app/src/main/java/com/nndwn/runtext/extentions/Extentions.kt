@@ -9,6 +9,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import com.nndwn.runtext.BuildConfig
 
 private fun CornerSize.shrinkRadius(padding: Dp): CornerSize = object : CornerSize {
     override fun toPx(shapeSize: Size, density: Density): Float {
@@ -37,7 +38,9 @@ enum class WindowSize {
 }
 
 fun WindowSizeClass.toCustomWindowSize(): WindowSize {
-    Log.d("test", "$widthSizeClass $heightSizeClass")
+    if (BuildConfig.DEBUG){
+        Log.d("test", "$widthSizeClass $heightSizeClass")
+    }
     return when (widthSizeClass) {
         WindowWidthSizeClass.Compact if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.PHONE_PORTRAIT
         WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE

@@ -296,21 +296,6 @@ fun RunningTextCoreOptimized(
                 drawContent()
             }
         }
-
-
-
-        if (BuildConfig.DEBUG) {
-            val sb = StringBuilder().apply {
-                appendLine("isRtl: $isRtl")
-                appendLine("totalTextWidth: $totalTextWidth")
-                appendLine("containerWidthPx: $containerWidthPx")
-                appendLine("startX: $startX")
-                appendLine("endX: $endX")
-                appendLine("durationMillis: $durationMillis")
-                appendLine("isMirrorMode: ${settings.isMirrorMode}")
-            }
-            Log.d("DEBUG_RUNNING_TEXT", sb.toString())
-        }
     }
 }
 
