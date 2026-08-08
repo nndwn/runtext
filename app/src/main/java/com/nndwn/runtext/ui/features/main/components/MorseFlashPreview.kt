@@ -44,10 +44,13 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun MorseFlashPreview(
     modifier: Modifier = Modifier,
-    rawText: String = "SOS",
+    text: String = "SOS",
     settings: MorseConfig
 ) {
 
+    val rawText = remember(text) {
+        text.ifEmpty { "PREVIEW" }
+    }
     val morseElement = remember(rawText) {
         if (rawText.equals("SOS", ignoreCase = true)) {
             MorseEngine.SOS_PATTERN

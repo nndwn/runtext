@@ -32,10 +32,13 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun MorseCodeCore(
     modifier: Modifier = Modifier,
-    rawText: String = "SOS",
+    text: String = "SOS",
     settings: MorseConfig,
 ) {
     val context = LocalContext.current
+    val rawText = remember(text) {
+        text.ifEmpty { "PREVIEW" }
+    }
 
     val torchManager = remember { CameraTorchManager(context) }
     val morseVibrator = remember { MorseVibrator(context) }

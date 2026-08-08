@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -53,7 +56,7 @@ import kotlin.math.sin
 @Composable
 fun RunningTextCoreOptimized(
     modifier: Modifier = Modifier,
-    rawText: String = "PREVIEW",
+    text: String = "PREVIEW",
     settings: TextConfig,
     editor: Boolean = false,
 ) {
@@ -61,12 +64,25 @@ fun RunningTextCoreOptimized(
     val density = LocalDensity.current
     val distanceShadow = 4f
 
+    val rawText = remember(text) {
+        text.ifEmpty { "PREVIEW" }
+    }
+
     val isRtl = remember(rawText) {
         if (rawText.isEmpty()) false
         else java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
     }
 
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
+    val fontResolver = LocalFontFamilyResolver.current
+    val fontLoadState by produceState(
+        initialValue = fontResolver.resolve(fontFamily).value,
+        key1 = fontFamily
+    ) {
+        snapshotFlow { fontResolver.resolve(fontFamily).value }
+            .collect { value = it }
+    }
+
 
     BoxWithConstraints(
         modifier = modifier
@@ -96,7 +112,7 @@ fun RunningTextCoreOptimized(
             rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
         }
 
-        val textLayoutResult = remember(annotatedText, baseTextStyle) {
+        val textLayoutResult = remember(annotatedText, baseTextStyle, fontLoadState) {
             textMeasurer.measure(
                 text = annotatedText,
                 style = baseTextStyle,

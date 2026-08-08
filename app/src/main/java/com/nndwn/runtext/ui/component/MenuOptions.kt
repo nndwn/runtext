@@ -63,7 +63,7 @@ fun MenuOptions(
         MenuOptions.entries
             .filter {
                 when (it) {
-                    MenuOptions.DEBUG -> BuildConfig.DEBUG
+                    MenuOptions.DEBUG -> false
                     MenuOptions.REMOVE_ADS -> !isPremium
                     else -> true
                 }

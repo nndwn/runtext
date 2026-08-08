@@ -42,12 +42,14 @@ fun WindowSizeClass.toCustomWindowSize(): WindowSize {
         Log.d("test", "$widthSizeClass $heightSizeClass")
     }
     return when (widthSizeClass) {
-        WindowWidthSizeClass.Compact if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.PHONE_PORTRAIT
-        WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE
+        WindowWidthSizeClass.Expanded if widthSizeClass != WindowWidthSizeClass.Compact -> WindowSize.EXPAND
+        WindowWidthSizeClass.Compact if (heightSizeClass == WindowHeightSizeClass.Medium || heightSizeClass == WindowHeightSizeClass.Expanded) -> WindowSize.PHONE_PORTRAIT
+        WindowWidthSizeClass.Expanded if heightSizeClass == WindowHeightSizeClass.Compact -> WindowSize.PHONE_LANDSCAPE
+        WindowWidthSizeClass.Medium if (heightSizeClass == WindowHeightSizeClass.Compact) -> WindowSize.PHONE_LANDSCAPE
         WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.FOLDABLE
         WindowWidthSizeClass.Medium if heightSizeClass == WindowHeightSizeClass.Expanded -> WindowSize.TABLET_PORTRAIT
         WindowWidthSizeClass.Expanded if heightSizeClass == WindowHeightSizeClass.Medium -> WindowSize.TABLET_LANDSCAPE
-        WindowWidthSizeClass.Expanded if widthSizeClass != WindowWidthSizeClass.Compact -> WindowSize.EXPAND
+
         else -> WindowSize.EXPAND
     }
 }

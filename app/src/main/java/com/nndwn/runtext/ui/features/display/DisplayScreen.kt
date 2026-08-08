@@ -117,14 +117,14 @@ fun DisplayScreen(
         when (currentSettings.mode) {
             AppMode.RUNNING_TEXT -> {
                 RunningTextCoreOptimized(
-                    rawText = currentSettings.lastText,
+                    text = currentSettings.lastText,
                     settings = currentSettings.textConfig,
                 )
             }
 
             AppMode.MORSE_CODE -> {
                 MorseCodeCore(
-                    rawText = currentSettings.lastText,
+                    text = currentSettings.lastText,
                     settings = currentSettings.morseConfig,
                 )
             }

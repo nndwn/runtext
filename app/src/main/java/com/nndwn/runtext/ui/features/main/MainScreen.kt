@@ -178,15 +178,17 @@ fun MainScreenContent(
                     if (windowSize == WindowSize.PHONE_LANDSCAPE && uiState is MainUiState.Success) {
                         PreviewAndStart(
                             settings = uiState.settings,
-                            modifier = Modifier.padding(start = MaterialTheme.dimens.medium),
+                            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small),
                             onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
 
                         )
-                    }else {
+                    }
+                    if (windowSize != WindowSize.PHONE_LANDSCAPE){
                         MenuOptions (
                             onMenuSelected = menus
                         )
                     }
+
                 }
             }
 
@@ -209,7 +211,7 @@ fun MainScreenContent(
         ) {
             item {
                 AnimatedVisibility(
-                    visible = windowSize == WindowSize.PHONE_PORTRAIT,
+                    visible = windowSize == WindowSize.PHONE_PORTRAIT || windowSize == WindowSize.TABLET_PORTRAIT,
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
                 ) {

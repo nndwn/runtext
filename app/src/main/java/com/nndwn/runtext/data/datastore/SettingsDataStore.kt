@@ -163,8 +163,8 @@ class SettingsDataStore @Inject constructor(
             prefs[Keys.STROKE_WIDTH] = settings.textConfig.stroke.width
             prefs[Keys.STROKE_COLOR] = settings.textConfig.stroke.colorArgb
 
-            // Shadow
-            prefs[Keys.IS_SHADOW_ENABLED] = settings.textConfig.stroke.isEnabled
+            // Shadow PERBAIKAN: Gunakan settings.textConfig.shadow.isEnabled
+            prefs[Keys.IS_SHADOW_ENABLED] = settings.textConfig.shadow.isEnabled
             prefs[Keys.SHADOW_COLOR] = settings.textConfig.shadow.colorArgb
             prefs[Keys.SHADOW_RADIUS] = settings.textConfig.shadow.radius
             prefs[Keys.SHADOW_ROTATION] = settings.textConfig.shadow.rotation

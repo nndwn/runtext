@@ -67,14 +67,14 @@ fun PreviewAndStart(
             ) {
                 if (settings.mode == AppMode.RUNNING_TEXT) {
                     RunningTextCoreOptimized(
-                        rawText = settings.lastText,
+                        text = settings.lastText,
                         settings = settings.textConfig,
                         editor = true
                     )
 
                 } else {
                     MorseFlashPreview(
-                        rawText = settings.lastText,
+                        text = settings.lastText,
                         settings = settings.morseConfig
                     )
                 }
