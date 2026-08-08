@@ -16,6 +16,7 @@ import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.data.model.ShadowConfig
 import com.nndwn.runtext.data.model.StrokeConfig
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.data.model.TextStyleConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -27,7 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class SettingsDataStore @Inject constructor(
     private val dataStore: DataStore<Preferences>
-){
+) {
     private object Keys {
         val LAST_TEXT = stringPreferencesKey("last_text")
         val MODE = stringPreferencesKey("mode")
@@ -75,52 +76,63 @@ class SettingsDataStore @Inject constructor(
                 mode = prefs[Keys.MODE]?.let { name ->
                     runCatching { AppMode.valueOf(name) }.getOrDefault(default.mode)
                 } ?: default.mode,
-                speed = prefs[Keys.SPEED] ?: default.speed,
-                bgColorArgb = prefs[Keys.BG_COLOR] ?: default.bgColorArgb,
-                isMirrorMode = prefs[Keys.MIRROR_MODE] ?: default.isMirrorMode,
 
-                textStyle = TextStyleConfig(
-                    colorArgb = prefs[Keys.TEXT_COLOR] ?: default.textStyle.colorArgb,
-                    colorType = prefs[Keys.TEXT_COLOR_TYPE]?.let { name ->
-                        runCatching { TextColorType.valueOf(name) }.getOrDefault(default.textStyle.colorType)
-                    } ?: default.textStyle.colorType,
-                    gradientColorsArgb = prefs[Keys.GRADIENT_COLORS]?.let { str ->
-                        str.split(",").mapNotNull { it.toLongOrNull() }.ifEmpty { null }
-                    } ?: default.textStyle.gradientColorsArgb,
-                    gradientDistance = prefs[Keys.GRADIENT_DISTANCE]
-                        ?: default.textStyle.gradientDistance,
-                    isGradientHorizontal = prefs[Keys.GRADIENT_POSITION]
-                        ?: default.textStyle.isGradientHorizontal,
-                    fontType = prefs[Keys.FONT_TYPE]?.let { name ->
-                        runCatching { FontType.valueOf(name) }.getOrDefault(default.textStyle.fontType)
-                    } ?: default.textStyle.fontType,
-                    googleFontName = prefs[Keys.GOOGLE_FONT_NAME]
-                        ?: default.textStyle.googleFontName,
-                    letterSpacingSp = prefs[Keys.LETTER_SPACING] ?: default.textStyle.letterSpacingSp,
-                    wordSpacingSp = prefs[Keys.WORD_SPACING] ?: default.textStyle.wordSpacingSp
+                textConfig = TextConfig(
+                    speed = prefs[Keys.SPEED] ?: default.textConfig.speed,
+                    bgColorArgb = prefs[Keys.BG_COLOR] ?: default.textConfig.bgColorArgb,
+                    isMirrorMode = prefs[Keys.MIRROR_MODE] ?: default.textConfig.isMirrorMode,
+
+                    textStyle = TextStyleConfig(
+                        colorArgb = prefs[Keys.TEXT_COLOR]
+                            ?: default.textConfig.textStyle.colorArgb,
+                        colorType = prefs[Keys.TEXT_COLOR_TYPE]?.let { name ->
+                            runCatching { TextColorType.valueOf(name) }.getOrDefault(default.textConfig.textStyle.colorType)
+                        } ?: default.textConfig.textStyle.colorType,
+                        gradientColorsArgb = prefs[Keys.GRADIENT_COLORS]?.let { str ->
+                            str.split(",").mapNotNull { it.toLongOrNull() }.ifEmpty { null }
+                        } ?: default.textConfig.textStyle.gradientColorsArgb,
+                        gradientDistance = prefs[Keys.GRADIENT_DISTANCE]
+                            ?: default.textConfig.textStyle.gradientDistance,
+                        isGradientHorizontal = prefs[Keys.GRADIENT_POSITION]
+                            ?: default.textConfig.textStyle.isGradientHorizontal,
+                        fontType = prefs[Keys.FONT_TYPE]?.let { name ->
+                            runCatching { FontType.valueOf(name) }.getOrDefault(default.textConfig.textStyle.fontType)
+                        } ?: default.textConfig.textStyle.fontType,
+                        googleFontName = prefs[Keys.GOOGLE_FONT_NAME]
+                            ?: default.textConfig.textStyle.googleFontName,
+                        letterSpacingSp = prefs[Keys.LETTER_SPACING]
+                            ?: default.textConfig.textStyle.letterSpacingSp,
+                        wordSpacingSp = prefs[Keys.WORD_SPACING]
+                            ?: default.textConfig.textStyle.wordSpacingSp
+                    ),
+
+                    stroke = StrokeConfig(
+                        isEnabled = prefs[Keys.IS_STROKE_ENABLED]
+                            ?: default.textConfig.stroke.isEnabled,
+                        width = prefs[Keys.STROKE_WIDTH] ?: default.textConfig.stroke.width,
+                        colorArgb = prefs[Keys.STROKE_COLOR] ?: default.textConfig.stroke.colorArgb
+                    ),
+
+                    shadow = ShadowConfig(
+                        isEnabled = prefs[Keys.IS_SHADOW_ENABLED]
+                            ?: default.textConfig.shadow.isEnabled,
+                        colorArgb = prefs[Keys.SHADOW_COLOR] ?: default.textConfig.shadow.colorArgb,
+                        radius = prefs[Keys.SHADOW_RADIUS] ?: default.textConfig.shadow.radius,
+                        rotation = prefs[Keys.SHADOW_ROTATION] ?: default.textConfig.shadow.rotation
+                    )
                 ),
 
-                stroke = StrokeConfig(
-                    isEnabled = prefs[Keys.IS_STROKE_ENABLED] ?: default.stroke.isEnabled,
-                    width = prefs[Keys.STROKE_WIDTH] ?: default.stroke.width,
-                    colorArgb = prefs[Keys.STROKE_COLOR] ?: default.stroke.colorArgb
-                ),
-
-                shadow = ShadowConfig(
-                    isEnabled = prefs[Keys.IS_SHADOW_ENABLED] ?: default.shadow.isEnabled,
-                    colorArgb = prefs[Keys.SHADOW_COLOR] ?: default.shadow.colorArgb,
-                    radius = prefs[Keys.SHADOW_RADIUS] ?: default.shadow.radius,
-                    rotation = prefs[Keys.SHADOW_ROTATION] ?: default.shadow.rotation
-                ),
                 morseConfig = MorseConfig(
                     morseWpm = prefs[Keys.MORSE_WPM] ?: default.morseConfig.morseWpm,
                     isFlashScreen = prefs[Keys.FLASH_SCREEN] ?: default.morseConfig.isFlashScreen,
-                    isTorchEnabled = prefs[Keys.TORCH_ENABLED] ?: default.morseConfig.isTorchEnabled,
+                    isTorchEnabled = prefs[Keys.TORCH_ENABLED]
+                        ?: default.morseConfig.isTorchEnabled,
                     bgColorMorse = prefs[Keys.MORSE_BG_COLOR] ?: default.morseConfig.bgColorMorse,
-                    isSoundEnabled = prefs[Keys.IS_SOUND_ENABLED] ?: default.morseConfig.isSoundEnabled,
-                    isVibrateEnabled = prefs[Keys.IS_VIBRATE_ENABLED] ?: default.morseConfig.isVibrateEnabled
+                    isSoundEnabled = prefs[Keys.IS_SOUND_ENABLED]
+                        ?: default.morseConfig.isSoundEnabled,
+                    isVibrateEnabled = prefs[Keys.IS_VIBRATE_ENABLED]
+                        ?: default.morseConfig.isVibrateEnabled
                 )
-
             )
         }
 
@@ -128,31 +140,34 @@ class SettingsDataStore @Inject constructor(
         dataStore.edit { prefs ->
             prefs[Keys.LAST_TEXT] = settings.lastText
             prefs[Keys.MODE] = settings.mode.name
-            prefs[Keys.SPEED] = settings.speed
-            prefs[Keys.BG_COLOR] = settings.bgColorArgb
-            prefs[Keys.MIRROR_MODE] = settings.isMirrorMode
+
+            // TextConfig
+            prefs[Keys.SPEED] = settings.textConfig.speed
+            prefs[Keys.BG_COLOR] = settings.textConfig.bgColorArgb
+            prefs[Keys.MIRROR_MODE] = settings.textConfig.isMirrorMode
 
             // Text Style
-            prefs[Keys.TEXT_COLOR] = settings.textStyle.colorArgb
-            prefs[Keys.TEXT_COLOR_TYPE] = settings.textStyle.colorType.name
-            prefs[Keys.GRADIENT_COLORS] = settings.textStyle.gradientColorsArgb.joinToString(",")
-            prefs[Keys.GRADIENT_DISTANCE] = settings.textStyle.gradientDistance
-            prefs[Keys.GRADIENT_POSITION] = settings.textStyle.isGradientHorizontal
-            prefs[Keys.FONT_TYPE] = settings.textStyle.fontType.name
-            prefs[Keys.GOOGLE_FONT_NAME] = settings.textStyle.googleFontName
-            prefs[Keys.LETTER_SPACING] = settings.textStyle.letterSpacingSp
-            prefs[Keys.WORD_SPACING] = settings.textStyle.wordSpacingSp
+            prefs[Keys.TEXT_COLOR] = settings.textConfig.textStyle.colorArgb
+            prefs[Keys.TEXT_COLOR_TYPE] = settings.textConfig.textStyle.colorType.name
+            prefs[Keys.GRADIENT_COLORS] =
+                settings.textConfig.textStyle.gradientColorsArgb.joinToString(",")
+            prefs[Keys.GRADIENT_DISTANCE] = settings.textConfig.textStyle.gradientDistance
+            prefs[Keys.GRADIENT_POSITION] = settings.textConfig.textStyle.isGradientHorizontal
+            prefs[Keys.FONT_TYPE] = settings.textConfig.textStyle.fontType.name
+            prefs[Keys.GOOGLE_FONT_NAME] = settings.textConfig.textStyle.googleFontName
+            prefs[Keys.LETTER_SPACING] = settings.textConfig.textStyle.letterSpacingSp
+            prefs[Keys.WORD_SPACING] = settings.textConfig.textStyle.wordSpacingSp
 
             // Stroke
-            prefs[Keys.IS_STROKE_ENABLED] = settings.stroke.isEnabled
-            prefs[Keys.STROKE_WIDTH] = settings.stroke.width
-            prefs[Keys.STROKE_COLOR] = settings.stroke.colorArgb
+            prefs[Keys.IS_STROKE_ENABLED] = settings.textConfig.stroke.isEnabled
+            prefs[Keys.STROKE_WIDTH] = settings.textConfig.stroke.width
+            prefs[Keys.STROKE_COLOR] = settings.textConfig.stroke.colorArgb
 
             // Shadow
-            prefs[Keys.IS_SHADOW_ENABLED] = settings.shadow.isEnabled
-            prefs[Keys.SHADOW_COLOR] = settings.shadow.colorArgb
-            prefs[Keys.SHADOW_RADIUS] = settings.shadow.radius
-            prefs[Keys.SHADOW_ROTATION] = settings.shadow.rotation
+            prefs[Keys.IS_SHADOW_ENABLED] = settings.textConfig.stroke.isEnabled
+            prefs[Keys.SHADOW_COLOR] = settings.textConfig.shadow.colorArgb
+            prefs[Keys.SHADOW_RADIUS] = settings.textConfig.shadow.radius
+            prefs[Keys.SHADOW_ROTATION] = settings.textConfig.shadow.rotation
 
             // Morse
             prefs[Keys.MORSE_WPM] = settings.morseConfig.morseWpm

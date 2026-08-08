@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -39,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.nndwn.runtext.BuildConfig
-import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlinx.coroutines.isActive
@@ -51,12 +52,11 @@ import kotlin.math.sin
 
 @Composable
 fun RunningTextCoreOptimized(
-    settings: AppSettings,
     modifier: Modifier = Modifier,
-    editor : Boolean = false,
-    defaultPreviewText: String = "PREVIEW"
+    rawText: String = "PREVIEW",
+    settings: TextConfig,
+    editor: Boolean = false,
 ) {
-    val rawText = settings.lastText.ifEmpty { defaultPreviewText }
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val distanceShadow = 4f
@@ -69,7 +69,9 @@ fun RunningTextCoreOptimized(
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
 
     BoxWithConstraints(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(settings.bgColorArgb.toComposeColor()),
         contentAlignment = Alignment.CenterStart
     ) {
         val containerHeightPx = constraints.maxHeight.toFloat()
@@ -143,9 +145,15 @@ fun RunningTextCoreOptimized(
         }
 
         val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
-        val (startX, endX) = remember(containerWidthPx, totalTextWidth, isRtl, settings.isMirrorMode) {
+        val (startX, endX) = remember(
+            containerWidthPx,
+            totalTextWidth,
+            isRtl,
+            settings.isMirrorMode
+        ) {
             val moveRightToLeft = !isRtl
-            val effectiveMoveRightToLeft = if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
+            val effectiveMoveRightToLeft =
+                if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
             if (effectiveMoveRightToLeft) {
                 containerWidthPx to -totalTextWidth
             } else {
@@ -153,12 +161,13 @@ fun RunningTextCoreOptimized(
             }
         }
 
-        val durationMillis = remember(settings.speed, totalTextWidth, containerWidthPx, settings.isMirrorMode) {
-            val dist = abs(endX - startX)
-            val speedFactor = settings.speed.coerceAtLeast(1f)
-            val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
-            (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
-        }
+        val durationMillis =
+            remember(settings.speed, totalTextWidth, containerWidthPx, settings.isMirrorMode) {
+                val dist = abs(endX - startX)
+                val speedFactor = settings.speed.coerceAtLeast(1f)
+                val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
+                (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
+            }
 
 
         val animatedOffsetX: Float = if (editor) {
@@ -167,7 +176,8 @@ fun RunningTextCoreOptimized(
             LaunchedEffect(durationMillis) {
                 while (isActive) {
                     val remainingRatio = (1f - progress.value).coerceIn(0f, 1f)
-                    val adjustedDuration = (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
+                    val adjustedDuration =
+                        (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
 
                     progress.animateTo(
                         targetValue = 1f,
@@ -213,11 +223,12 @@ fun RunningTextCoreOptimized(
                 if (settings.shadow.isEnabled) {
                     val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
                     val baseDistancePx = distanceShadow.dp.toPx()
-                    val strokeOffsetPx = if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-                        settings.stroke.width.dp.toPx()
-                    } else {
-                        0f
-                    }
+                    val strokeOffsetPx =
+                        if (settings.stroke.isEnabled && settings.stroke.width > 0) {
+                            settings.stroke.width.dp.toPx()
+                        } else {
+                            0f
+                        }
 
                     val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
                     val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()

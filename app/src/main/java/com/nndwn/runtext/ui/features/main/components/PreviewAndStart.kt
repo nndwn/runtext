@@ -35,7 +35,6 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.theme.toComposeColor
 
 @Composable
 fun PreviewAndStart(
@@ -63,18 +62,21 @@ fun PreviewAndStart(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
-                    .background(settings.bgColorArgb.toComposeColor())
                     .pointerInput(Unit) {},
                 contentAlignment = Alignment.Center
             ) {
                 if (settings.mode == AppMode.RUNNING_TEXT) {
                     RunningTextCoreOptimized(
-                        settings = settings,
+                        rawText = settings.lastText,
+                        settings = settings.textConfig,
                         editor = true
                     )
 
                 } else {
-                    MorseFlashPreview(settings)
+                    MorseFlashPreview(
+                        rawText = settings.lastText,
+                        settings = settings.morseConfig
+                    )
                 }
             }
 
@@ -122,7 +124,7 @@ fun PreviewAndStart(
 
 @Preview
 @Composable
-private fun Preview(){
+private fun Preview() {
     RuntextTheme {
         PreviewAndStart(
             settings = AppSettings().copy(

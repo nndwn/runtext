@@ -1,6 +1,5 @@
 package com.nndwn.runtext.ui.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -24,44 +23,42 @@ object Routes {
 @Composable
 fun AppNavigation(
     padding: PaddingValues,
-    sidebarEnd: () -> Unit,
     navController: NavHostController,
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.INPUT
+        startDestination = Routes.INPUT,
     ) {
         composable(
             route = Routes.INPUT
         ) {
             MainScreen(
-                padding =  padding,
-                sideBarEnd = sidebarEnd
+                padding = padding
             )
         }
         composable(
             route = Routes.DISPLAY,
             enterTransition = {
                 scaleIn(
-                    initialScale = 0.8f, // Mulai dari 80% ukuran asli
+                    initialScale = 0.8f,
                     animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
                 ) + fadeIn(animationSpec = tween(durationMillis = 400))
             },
             exitTransition = {
                 scaleOut(
-                    targetScale = 1.1f, // Membesar ke 110% saat menghilang
+                    targetScale = 1.1f,
                     animationSpec = tween(durationMillis = 350)
                 ) + fadeOut(animationSpec = tween(durationMillis = 350))
             },
             popEnterTransition = {
                 scaleIn(
-                    initialScale = 1.1f, // Mulai dari 110% lalu mengecil ke normal
+                    initialScale = 1.1f,
                     animationSpec = tween(durationMillis = 350)
                 ) + fadeIn(animationSpec = tween(durationMillis = 350))
             },
             popExitTransition = {
                 scaleOut(
-                    targetScale = 0.8f, // Mengecil ke 80% saat menutup
+                    targetScale = 0.8f,
                     animationSpec = tween(durationMillis = 400, easing = FastOutLinearInEasing)
                 ) + fadeOut(animationSpec = tween(durationMillis = 400))
             }

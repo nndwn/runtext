@@ -47,6 +47,7 @@ import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.extentions.WindowSize
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
+import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.component.Skeleton
 import com.nndwn.runtext.ui.component.SwitchRow
 import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
@@ -67,22 +68,25 @@ import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
+import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
+import com.nndwn.runtext.ui.utils.LocalToggleSidebar
 import com.nndwn.runtext.ui.utils.LocalWindowSize
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
     padding: PaddingValues,
-    sideBarEnd: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val toggleSidebar = LocalToggleSidebar.current
+    val onMenuSelected = LocalMenuOptionHandler.current
     MainScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
-        sideBarEnd = sideBarEnd,
+        sideBarEnd = toggleSidebar,
         padding = padding,
-        limitText = viewModel.limitText
+        limitText = viewModel.limitText,
+        menus = onMenuSelected
     )
 }
 
@@ -92,6 +96,7 @@ fun MainScreenContent(
     uiState: MainUiState,
     onEvent: (MainUiEvent) -> Unit,
     limitText: Int = 100,
+    menus : (MenuOptions) -> Unit,
     sideBarEnd: () -> Unit,
 ) {
     val windowSize = LocalWindowSize.current
@@ -153,12 +158,7 @@ fun MainScreenContent(
             .fillMaxWidth()
             .padding(padding)
     ) {
-        // Sidebar for Tablet
-        AnimatedVisibility(
-            visible = windowSize == WindowSize.EXPAND || windowSize == WindowSize.PHONE_LANDSCAPE,
-            enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
-            exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-        ) {
+        if ( windowSize == WindowSize.EXPAND || windowSize == WindowSize.PHONE_LANDSCAPE){
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -175,9 +175,12 @@ fun MainScreenContent(
                         settings = uiState.settings,
                         onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
                     )
+                }else {
+                    MenuOptions (
+                        onMenuSelected = menus
+                    )
                 }
             }
-
         }
 
 
@@ -289,14 +292,14 @@ fun MainScreenContent(
                                             onEvent = dispatch
                                         )
                                         TextSpeedConfig(
-                                            speed = settings.speed,
+                                            speed = settings.textConfig.speed,
                                             onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
                                         )
                                         ConfigCard {
                                             SwitchRow(
                                                 title = stringResource(R.string.set_config_text_mirror),
                                                 subtitle = stringResource(R.string.set_config_text_mirror_desc),
-                                                checked = settings.isMirrorMode,
+                                                checked = settings.textConfig.isMirrorMode,
                                                 onCheckedChange = {
                                                     dispatchAndClosePicker(
                                                         MainUiEvent.UpdateMirrorMode(it)
@@ -305,13 +308,13 @@ fun MainScreenContent(
                                             )
                                         }
                                         TextFontStyleConfig(
-                                            config = settings.textStyle,
+                                            config = settings.textConfig.textStyle,
                                             onClick = {
                                                 closePicker(); showPanelFonts = !showPanelFonts
                                             }
                                         )
                                         TextSpacingConfig(
-                                            config = settings.textStyle,
+                                            config = settings.textConfig.textStyle,
                                             expandedId = expandedPickerId,
                                             onToggle = togglePicker,
                                             onEvent = dispatch
@@ -319,7 +322,7 @@ fun MainScreenContent(
                                         ConfigCard {
                                             ColorPickerField(
                                                 label = stringResource(R.string.set_config_color_background),
-                                                color = settings.bgColorArgb.toComposeColor(),
+                                                color = settings.textConfig.bgColorArgb.toComposeColor(),
                                                 isExpanded = expandedPickerId == "bg",
                                                 onToggleExpand = { togglePicker("bg") },
                                                 onColorChange = {
@@ -333,19 +336,19 @@ fun MainScreenContent(
                                         }
                                         TextColorPickerConfig(
                                             label = stringResource(R.string.set_config_text_color_text),
-                                            config = settings.textStyle,
+                                            config = settings.textConfig.textStyle,
                                             expandedPickerId = expandedPickerId,
                                             onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
                                         TextOutlineConfig(
-                                            config = settings.stroke,
+                                            config = settings.textConfig.stroke,
                                             expandedPickerId = expandedPickerId,
                                             onPickerToggle = togglePicker,
                                             onEvent = dispatch
                                         )
                                         TextShadowConfig(
-                                            config = settings.shadow,
+                                            config = settings.textConfig.shadow,
                                             expandedPickerId = expandedPickerId,
                                             onPickerToggle = togglePicker,
                                             onEvent = dispatch

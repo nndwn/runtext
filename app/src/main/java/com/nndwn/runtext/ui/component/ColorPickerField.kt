@@ -9,6 +9,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +37,10 @@ fun ColorPickerField(
     onToggleExpand: () -> Unit,
     onColorChange: (Long) -> Unit,
 ) {
-    Column(modifier = modifier.animateContentSize()) {
+    Column(modifier = modifier
+        .animateContentSize(),
+       verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
+    ) {
         if (label != null) {
             Text(label, style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
@@ -52,7 +56,7 @@ fun ColorPickerField(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
+
             ColorSliders(
                 alpha = alpha,
                 color = color,
@@ -88,7 +92,10 @@ private fun ColorSliders(
     onColorChange: (Long) -> Unit,
     alpha: Boolean = false
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small)
+        ) {
         val r = (color.red * 255).toInt()
         val g = (color.green * 255).toInt()
         val b = (color.blue * 255).toInt()

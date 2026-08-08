@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -32,13 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
-import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.domain.morse.MorseEngine
-import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlinx.coroutines.delay
@@ -46,23 +42,29 @@ import kotlinx.coroutines.isActive
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun MorseFlashPreview(settings: AppSettings) {
-    val rawText = settings.lastText.ifEmpty { "SOS" }
+fun MorseFlashPreview(
+    modifier: Modifier = Modifier,
+    rawText: String = "SOS",
+    settings: MorseConfig
+) {
 
-    val morseElement = remember (rawText){
-        val elements = MorseEngine.textToMorseElements(rawText)
-        elements.ifEmpty { MorseEngine.SOS_PATTERN }
+    val morseElement = remember(rawText) {
+        if (rawText.equals("SOS", ignoreCase = true)) {
+            MorseEngine.SOS_PATTERN
+        } else {
+            MorseEngine.textToMorseElements(rawText)
+        }
     }
 
-    val unitMs = remember(settings.morseConfig.morseWpm){
-        MorseEngine.getUnitDurationMs(settings.morseConfig.morseWpm)
+    val unitMs = remember(settings.morseWpm) {
+        MorseEngine.getUnitDurationMs(settings.morseWpm)
     }
     var isSignalActive by remember { mutableStateOf(false) }
     val colorOff = MaterialTheme.colorScheme.background
-    val activeMorseColor = settings.morseConfig.bgColorMorse.toComposeColor()
+    val activeMorseColor = settings.bgColorMorse.toComposeColor()
 
     LaunchedEffect(morseElement, unitMs) {
-        while (isActive){
+        while (isActive) {
             for (element in morseElement) {
                 if (!isActive) break
                 val isSignal = MorseEngine.isSignalElement(element)
@@ -80,32 +82,31 @@ fun MorseFlashPreview(settings: AppSettings) {
         label = "MorseFlashAnimation"
     )
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(animatedBgColor)
             .padding(MaterialTheme.dimens.medium)
-    ){
+    ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                ,
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
             IconRound(
-                show = settings.morseConfig.isTorchEnabled,
+                show = settings.isTorchEnabled,
                 color = activeMorseColor,
                 icon = R.drawable.ic_flash,
                 animateSlide = false,
             )
             IconRound(
-                show = settings.morseConfig.isSoundEnabled,
+                show = settings.isSoundEnabled,
                 color = activeMorseColor,
                 icon = R.drawable.ic_music,
                 animateSlide = true,
             )
             IconRound(
-                show = settings.morseConfig.isVibrateEnabled,
+                show = settings.isVibrateEnabled,
                 color = activeMorseColor,
                 icon = R.drawable.ic_wave,
                 animateSlide = true,
@@ -113,6 +114,7 @@ fun MorseFlashPreview(settings: AppSettings) {
         }
     }
 }
+
 @Composable
 private fun IconRound(
     show: Boolean,
@@ -120,7 +122,7 @@ private fun IconRound(
     @DrawableRes icon: Int,
     animateSlide: Boolean = true,
 
-) {
+    ) {
     AnimatedVisibility(
         visible = show,
         enter = if (animateSlide) {
@@ -159,30 +161,5 @@ private fun IconRound(
                 )
             }
         }
-    }
-}
-@Preview
-@Composable
-private fun Preview() {
-    RuntextTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(140.dp)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            MorseFlashPreview(
-                settings = AppSettings().copy(
-                    morseConfig = MorseConfig(
-                        isFlashScreen = true,
-                        isSoundEnabled = true,
-                        isVibrateEnabled = true,
-                        isTorchEnabled = true
-                    )
-                )
-            )
-        }
-
     }
 }

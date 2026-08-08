@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.domain.morse.MorseElement
 import com.nndwn.runtext.domain.morse.MorseEngine
 import com.nndwn.runtext.ui.features.display.utils.CameraTorchManager
@@ -31,13 +31,12 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun MorseCodeCore(
-    settings: AppSettings,
     modifier: Modifier = Modifier,
-    defaultString: String = "SOS",
+    rawText: String = "SOS",
+    settings: MorseConfig,
 ) {
     val context = LocalContext.current
-    val rawText = settings.lastText.ifEmpty { defaultString }
-    val morseConfig = settings.morseConfig
+
     val torchManager = remember { CameraTorchManager(context) }
     val morseVibrator = remember { MorseVibrator(context) }
 
@@ -50,8 +49,8 @@ fun MorseCodeCore(
         permissionCamera = isGranted
     }
 
-    LaunchedEffect(morseConfig.isTorchEnabled) {
-        if (morseConfig.isTorchEnabled) {
+    LaunchedEffect(settings.isTorchEnabled) {
+        if (settings.isTorchEnabled) {
             val hasPermission = ContextCompat.checkSelfPermission(
                 context, Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
@@ -67,10 +66,10 @@ fun MorseCodeCore(
     }
     LaunchedEffect(
         rawText,
-        morseConfig.morseWpm,
-        morseConfig.isTorchEnabled,
-        morseConfig.isSoundEnabled,
-        morseConfig.isVibrateEnabled,
+        settings.morseWpm,
+        settings.isTorchEnabled,
+        settings.isSoundEnabled,
+        settings.isVibrateEnabled,
         permissionCamera
     ) {
         val elements = if (rawText.equals("SOS", ignoreCase = true)) {
@@ -81,8 +80,8 @@ fun MorseCodeCore(
 
         if (elements.isEmpty()) return@LaunchedEffect
 
-        val canUseTorch = morseConfig.isTorchEnabled && permissionCamera
-        val unitDurationMs = MorseEngine.getUnitDurationMs(morseConfig.morseWpm)
+        val canUseTorch = settings.isTorchEnabled && permissionCamera
+        val unitDurationMs = MorseEngine.getUnitDurationMs(settings.morseWpm)
 
         try {
             while (isActive) {
@@ -96,10 +95,10 @@ fun MorseCodeCore(
                         if (canUseTorch) {
                             torchManager.setTorchEnabled(true)
                         }
-                        if (morseConfig.isSoundEnabled) {
+                        if (settings.isSoundEnabled) {
                             MorseAudioPlayer.playBeep(durationMs)
                         }
-                        if (morseConfig.isVibrateEnabled) {
+                        if (settings.isVibrateEnabled) {
                             morseVibrator.vibrate(durationMs)
                         }
 
@@ -138,11 +137,11 @@ fun MorseCodeCore(
         }
     }
 
-    val activeColor = remember(morseConfig.bgColorMorse) {
-        morseConfig.bgColorMorse.toComposeColor()
+    val activeColor = remember(settings.bgColorMorse) {
+        settings.bgColorMorse.toComposeColor()
     }
 
-    val displayColor = if (morseConfig.isFlashScreen && isSignalOn) {
+    val displayColor = if (settings.isFlashScreen && isSignalOn) {
         activeColor
     } else {
         Color.Black

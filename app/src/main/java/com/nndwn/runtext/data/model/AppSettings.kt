@@ -25,34 +25,26 @@ enum class TextColorType( @param:StringRes val displayName: Int, @param:Drawable
 data class AppSettings(
     val lastText: String = "",
     val mode: AppMode = AppMode.RUNNING_TEXT,
+    val textConfig: TextConfig = TextConfig(),
+    val morseConfig: MorseConfig = MorseConfig()
+)
 
-    // Nested Configurations
+data class TextConfig(
     val speed: Float = 150f,
     val bgColorArgb: Long = Palette.White.toArgbLong(),
     val isMirrorMode: Boolean = false,
     val textStyle: TextStyleConfig = TextStyleConfig(),
     val stroke: StrokeConfig = StrokeConfig(),
     val shadow: ShadowConfig = ShadowConfig(),
-
-    // Morse Code config
-    val morseConfig: MorseConfig = MorseConfig()
 )
-
-data class MorseConfig(
-    val morseWpm: Int = 15,
-    val bgColorMorse : Long = Palette.White.toArgbLong(),
-    val isFlashScreen: Boolean = true,
-    val isTorchEnabled: Boolean = false,
-    val isSoundEnabled: Boolean = true,
-    val isVibrateEnabled: Boolean = false
-)
-
-
 
 data class TextStyleConfig(
     val colorArgb: Long = Palette.PitchBlack.toArgbLong(),
     val colorType: TextColorType = TextColorType.SOLID,
-    val gradientColorsArgb: List<Long> = listOf(Palette.Yellow.toArgbLong(), Palette.NeonPink.toArgbLong()),
+    val gradientColorsArgb: List<Long> = listOf(
+        Palette.Yellow.toArgbLong(),
+        Palette.NeonPink.toArgbLong()
+    ),
     val gradientDistance: Float = 0.5f,
     val isGradientHorizontal: Boolean = false,
     val fontType: FontType = FontType.ANTON,
@@ -72,4 +64,12 @@ data class ShadowConfig(
     val colorArgb: Long = Color.Black.copy(alpha = 0.75f).toArgbLong(),
     val radius: Float = 8f,
     val rotation: Float = 45f
+)
+data class MorseConfig(
+    val morseWpm: Int = 15,
+    val bgColorMorse : Long = Palette.White.toArgbLong(),
+    val isFlashScreen: Boolean = true,
+    val isTorchEnabled: Boolean = false,
+    val isSoundEnabled: Boolean = true,
+    val isVibrateEnabled: Boolean = false
 )

@@ -32,7 +32,7 @@ fun TextSpacingConfig(
         onToggle = onToggle
     ) {
         Column(
-            Modifier.padding(MaterialTheme.dimens.medium)
+            Modifier.padding(vertical = MaterialTheme.dimens.medium)
         ){
             LabeledSlider(
                 label = stringResource(R.string.set_config_text_spacing_text),

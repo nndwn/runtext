@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,14 +45,13 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.features.display.components.MorseCodeCore
 import com.nndwn.runtext.ui.features.display.components.ScreenBrightness
-import com.nndwn.runtext.ui.theme.toComposeColor
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun DisplayScreen(
     viewModel: DisplayViewModel = hiltViewModel(),
-){
+) {
     val context = LocalContext.current
     val view = LocalView.current
 
@@ -70,18 +68,17 @@ fun DisplayScreen(
         val activity = context as? Activity
         val window = activity?.window
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        val originalOrientation =
+            activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
-        // B. Paksa Layar Berubah ke Landscape (Bisa Kiri / Kanan menyesuaikan orientasi HP)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
-        // C. Paksa Layar Tidak Sleep
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         onDispose {
             activity?.requestedOrientation = originalOrientation
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (window != null){
+            if (window != null) {
                 val insetsController = WindowCompat.getInsetsController(window, view)
                 insetsController.show(WindowInsetsCompat.Type.systemBars())
             }
@@ -110,7 +107,6 @@ fun DisplayScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(currentSettings.bgColorArgb.toComposeColor())
             .pointerInput(Unit) {
                 detectTapGestures {
                     isOverlayVisible = !isOverlayVisible
@@ -120,15 +116,16 @@ fun DisplayScreen(
     ) {
         when (currentSettings.mode) {
             AppMode.RUNNING_TEXT -> {
-
                 RunningTextCoreOptimized(
-                    settings = currentSettings,
+                    rawText = currentSettings.lastText,
+                    settings = currentSettings.textConfig,
                 )
             }
 
             AppMode.MORSE_CODE -> {
                 MorseCodeCore(
-                    settings = currentSettings,
+                    rawText = currentSettings.lastText,
+                    settings = currentSettings.morseConfig,
                 )
             }
         }

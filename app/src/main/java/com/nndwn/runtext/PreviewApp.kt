@@ -53,80 +53,80 @@ private fun InteractivePreviewWrapper(
             is MainUiEvent.UpdateText -> settings.copy(lastText = event.text)
             is MainUiEvent.ClearText -> settings.copy(lastText = "")
             is MainUiEvent.UpdateMode -> settings.copy(mode = event.mode)
-            is MainUiEvent.UpdateSpeed -> settings.copy(speed = event.speed)
-            is MainUiEvent.UpdateBgColor -> settings.copy(bgColorArgb = event.colorArgb)
-            is MainUiEvent.UpdateMirrorMode -> settings.copy(isMirrorMode = !settings.isMirrorMode)
+            is MainUiEvent.UpdateSpeed -> settings.textConfig.copy(speed = event.speed)
+            is MainUiEvent.UpdateBgColor -> settings.textConfig.copy(bgColorArgb = event.colorArgb)
+            is MainUiEvent.UpdateMirrorMode -> settings.textConfig.copy(isMirrorMode = !settings.textConfig.isMirrorMode)
 
             // Text Style
-            is MainUiEvent.UpdateTextColor -> settings.copy(
-                textStyle = settings.textStyle.copy(colorArgb = event.colorArgb)
+            is MainUiEvent.UpdateTextColor -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(colorArgb = event.colorArgb)
             )
 
-            is MainUiEvent.UpdateTextColorType -> settings.copy(
-                textStyle = settings.textStyle.copy(colorType = event.type)
+            is MainUiEvent.UpdateTextColorType -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(colorType = event.type)
             )
 
-            is MainUiEvent.UpdateGradientColors -> settings.copy(
-                textStyle = settings.textStyle.copy(gradientColorsArgb = event.colors)
+            is MainUiEvent.UpdateGradientColors -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(gradientColorsArgb = event.colors)
             )
 
-            is MainUiEvent.UpdateGradientDistance -> settings.copy(
-                textStyle = settings.textStyle.copy(gradientDistance = event.distance)
+            is MainUiEvent.UpdateGradientDistance -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(gradientDistance = event.distance)
             )
 
-            is MainUiEvent.ToggleGradientHorizontal -> settings.copy(
-                textStyle = settings.textStyle.copy(isGradientHorizontal = event.isHorizontal)
+            is MainUiEvent.ToggleGradientHorizontal -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(isGradientHorizontal = event.isHorizontal)
             )
 
-            is MainUiEvent.UpdateFontType -> settings.copy(
-                textStyle = settings.textStyle.copy(fontType = event.fontType)
+            is MainUiEvent.UpdateFontType -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(fontType = event.fontType)
             )
 
-            is MainUiEvent.UpdateGoogleFontName -> settings.copy(
-                textStyle = settings.textStyle.copy(googleFontName = event.fontName)
+            is MainUiEvent.UpdateGoogleFontName -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(googleFontName = event.fontName)
             )
 
-            is MainUiEvent.UpdateLetterSpacing -> settings.copy(
-                textStyle = settings.textStyle.copy(letterSpacingSp = event.spacingSp)
+            is MainUiEvent.UpdateLetterSpacing -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(letterSpacingSp = event.spacingSp)
             )
 
-            is MainUiEvent.UpdateWordSpacing -> settings.copy(
-                textStyle = settings.textStyle.copy(wordSpacingSp = event.spacingSp)
+            is MainUiEvent.UpdateWordSpacing -> settings.textConfig.copy(
+                textStyle = settings.textConfig.textStyle.copy(wordSpacingSp = event.spacingSp)
             )
 
             // Stroke
-            is MainUiEvent.ToggleStroke -> settings.copy(
-                stroke = settings.stroke.copy(isEnabled = event.isEnabled)
+            is MainUiEvent.ToggleStroke -> settings.textConfig.copy(
+                stroke = settings.textConfig.stroke.copy(isEnabled = event.isEnabled)
             )
 
-            is MainUiEvent.UpdateStrokeWidth -> settings.copy(
-                stroke = settings.stroke.copy(width = event.width)
+            is MainUiEvent.UpdateStrokeWidth -> settings.textConfig.copy(
+                stroke = settings.textConfig.stroke.copy(width = event.width)
             )
 
-            is MainUiEvent.UpdateStrokeColor -> settings.copy(
-                stroke = settings.stroke.copy(colorArgb = event.colorArgb)
+            is MainUiEvent.UpdateStrokeColor -> settings.textConfig.copy(
+                stroke = settings.textConfig.stroke.copy(colorArgb = event.colorArgb)
             )
 
             // Shadow
-            is MainUiEvent.ToggleShadow -> settings.copy(
-                shadow = settings.shadow.copy(isEnabled = event.isEnabled)
+            is MainUiEvent.ToggleShadow -> settings.textConfig.copy(
+                shadow = settings.textConfig.shadow.copy(isEnabled = event.isEnabled)
             )
 
-            is MainUiEvent.UpdateShadowColor -> settings.copy(
-                shadow = settings.shadow.copy(colorArgb = event.colorArgb)
+            is MainUiEvent.UpdateShadowColor -> settings.textConfig.copy(
+                shadow = settings.textConfig.shadow.copy(colorArgb = event.colorArgb)
             )
 
-            is MainUiEvent.UpdateShadowRadius -> settings.copy(
-                shadow = settings.shadow.copy(radius = event.radius)
+            is MainUiEvent.UpdateShadowRadius -> settings.textConfig.copy(
+                shadow = settings.textConfig.shadow.copy(radius = event.radius)
             )
 
 
-            is MainUiEvent.UpdateShadowRotation -> settings.copy(
-                shadow = settings.shadow.copy(rotation = event.rotation)
+            is MainUiEvent.UpdateShadowRotation -> settings.textConfig.copy(
+                shadow = settings.textConfig.shadow.copy(rotation = event.rotation)
             )
 
-            is MainUiEvent.ApplyPreset -> event.settings.copy(
-                lastText = settings.lastText
+            is MainUiEvent.ApplyPreset -> settings.copy(
+                textConfig = settings.textConfig
             )
 
             is MainUiEvent.UpdateMorseWpm -> settings.copy(
@@ -175,7 +175,8 @@ private fun InteractivePreviewWrapper(
                             uiState = MainUiState.Success(settings),
                             onEvent = handleEvent,
                             sideBarEnd = { isSidebarOpen = true },
-                            padding = innerPadding
+                            padding = innerPadding,
+                            menus = {}
                         )
                     }
                     composable(Routes.DISPLAY) {

@@ -37,13 +37,13 @@
     <string name="set_config_morse_sound_desc">Play audio tone for morse signal</string>
     <string name="set_config_morse_vibration">Vibration</string>
     <string name="set_config_morse_vibration_desc">Vibrate phone with morse signal</string>
-    <string name="notice_camera_permission_denied">
-        Camera access is needed to use the flashlight. You can enable it anytime!
-    </string>
-    <string name="notice_camera_permission_permanently_denied">
-        Camera permission is turned off. Please allow it in your phone settings to turn on the flashlight.
-    </string>
+    <string name="notice_camera_permission_denied">Camera access is needed to use the flashlight. You can enable it anytime!</string>
+    <string name="notice_camera_permission_permanently_denied">Camera permission is turned off. Please allow it in your phone settings to turn on the flashlight.</string>
     <string name="notice_morse_output_required">Enable Screen Flash or Flashlight to display the Morse code.</string>
     <string name="clear">Clear</string>
     <string name="stop">Stop</string>
+    <string name="menu_remove_ad">Remove Ads</string>
+    <string name="menu_review">Rate Our App</string>
+    <string name="menu_report_issue">Report Issue</string>
+    <string name="menu_debug">Debug Panel</string>
 </resources>
