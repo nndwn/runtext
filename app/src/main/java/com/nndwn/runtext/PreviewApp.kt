@@ -206,7 +206,7 @@ private fun InteractivePreviewWrapper(
 //    InteractivePreviewWrapper(false)
 //}
 @Preview(
-    device = "spec:width=1280dp,height=800dp,dpi=240",
+    device = "spec:width=673dp,height=841dp",
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
