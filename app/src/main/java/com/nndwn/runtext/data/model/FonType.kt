@@ -9,7 +9,8 @@ enum class ScriptCategory {
     KOREAN,
     THAI,
     DEVANAGARI,
-    KHMER
+    KHMER,
+    HEBREW
 }
 enum class FontType(
     val displayName: String,
@@ -44,14 +45,14 @@ enum class FontType(
     // ── Retro & Pixel ──
     PRESS_START_2P("Press Start 2P"),
     SILKSCREEN("Silkscreen"),
-    DOT_GOTHIC("DotGothic16"),
+
     VT323("VT323"),
     COURIER_PRIME("Courier Prime"),
 
     // ── Decorative & Fun ──
     BANGERS("Bangers"),
     ORBITRON("Orbitron"),
-    FREDOKA("Fredoka"),
+
     COMFORTAA("Comfortaa"),
     PATRICK_HAND("Patrick Hand"),
     SATISFY("Satisfy"),
@@ -65,6 +66,8 @@ enum class FontType(
     // ── International Support ──
     DELA_GOTHIC_ONE("Dela Gothic One (日本語)", ScriptCategory.JAPANESE),
     KOSUGI_MARU("Kosugi Maru (小杉丸ゴシック)", ScriptCategory.JAPANESE),
+    CHERRY_BOMB_ONE("Cherry Bomb One", ScriptCategory.JAPANESE),
+    DOT_GOTHIC("DotGothic16", ScriptCategory.JAPANESE),
 
     BLACK_HAN_SANS("Black Han Sans (한국어)", ScriptCategory.KOREAN),
 
@@ -79,7 +82,10 @@ enum class FontType(
 
     KALAM("Kalam (हिन्दी)", ScriptCategory.DEVANAGARI),
     RAJDHANI("Rajdhani (हिन्दी)", ScriptCategory.DEVANAGARI),
+    MODAK("Modak (िन्दी)", ScriptCategory.DEVANAGARI),
+
 
     ITIM("Itim (ไทย)", ScriptCategory.THAI),
-    ANKOR("Ankor (សួស្តី)", ScriptCategory.KHMER)
+    ANKOR("Ankor (សួស្តី)", ScriptCategory.KHMER),
+    FREDOKA("Fredoka", ScriptCategory.HEBREW),
 }

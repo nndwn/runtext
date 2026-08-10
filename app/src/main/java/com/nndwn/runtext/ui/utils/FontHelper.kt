@@ -92,6 +92,7 @@ fun String.detectPrimaryScript(): ScriptCategory {
             Character.UnicodeBlock.THAI -> ScriptCategory.THAI
             Character.UnicodeBlock.DEVANAGARI -> ScriptCategory.DEVANAGARI
             Character.UnicodeBlock.KHMER -> ScriptCategory.KHMER
+            Character.UnicodeBlock.HEBREW -> ScriptCategory.HEBREW
             else -> null
         }
 

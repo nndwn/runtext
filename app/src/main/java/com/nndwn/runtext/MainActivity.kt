@@ -51,4 +51,9 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    private fun checkUpdate() {
+        if (AppFlavor.current == AppFlavor.PLAYSTORE) {
+
+        }
+    }
 }

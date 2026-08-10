@@ -1,4 +1,5 @@
 import java.util.Properties
+import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.apply
 
 plugins {
@@ -13,6 +14,25 @@ val localProperties = Properties().apply {
     if (localPropertiesFile.exists()) {
         load(localPropertiesFile.inputStream())
     }
+}
+
+fun getAppNameFromStrings(): String {
+    val stringsFile = File(projectDir, "src/main/res/values/strings.xml")
+    if (!stringsFile.exists()) return "App"
+
+    val doc = DocumentBuilderFactory
+        .newInstance()
+        .newDocumentBuilder()
+        .parse(stringsFile)
+    val nodeList = doc.getElementsByTagName("string")
+
+    for (i in 0 until nodeList.length) {
+        val node = nodeList.item(i)
+        if (node.attributes?.getNamedItem("name")?.nodeValue == "app_name") {
+            return node.textContent ?: "App"
+        }
+    }
+    return "App"
 }
 
 android {
@@ -48,6 +68,8 @@ android {
         manifestPlaceholders[adsApiKey] = localProperties.getProperty(adsApiKey) ?: ""
     }
 
+    
+
     signingConfigs {
         create("release") {
             val keyFile = localProperties.getProperty("KEY_FILE")
@@ -80,10 +102,23 @@ android {
 
 }
 
+androidComponents {
+    onVariants(selector().withFlavor("distribution" to "foss")) { variant ->
+        variant.outputs.forEach { output ->
+            val appName = getAppNameFromStrings().replace(" ", "-")
+            val vName = output.versionName.get()
+            output.outputFileName.set("$appName-v$vName-foss-${variant.buildType}.apk")
+        }
+    }
+}
+
 dependencies {
 
 
     "playstoreImplementation"(libs.play.services.ads)
+    "playstoreImplementation"(libs.app.update.ktx)
+
+
     //Compose Bom
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
@@ -115,8 +150,6 @@ dependencies {
 
     //Testing
     testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
