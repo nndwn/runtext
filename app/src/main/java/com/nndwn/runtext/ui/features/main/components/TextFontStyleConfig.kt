@@ -110,8 +110,6 @@ fun SelectorFonts(
                 key = { index -> sortedFonts[index].name }
             ) { index ->
                 val item = sortedFonts[index]
-                //val isSelected = settings.textStyle.fontType == item
-                // val isRecommended = item.scriptCategory == activeScript && activeScript != ScriptCategory.LATIN
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,22 +136,6 @@ fun SelectorFonts(
                                 fontFamily = fontFamilyFor(item)
                             )
                         )
-
-
-//                            if (isRecommended) {
-//                                Text(
-//                                    text = "Recommended",
-//                                    fontSize = 12.sp,
-//                                    fontWeight = FontWeight.Medium,
-//                                    color = MaterialTheme.colorScheme.primary,
-//                                    modifier = Modifier
-//                                        .background(
-//                                            color = MaterialTheme.colorScheme.primaryContainer,
-//                                            shape = RoundedCornerShape(4.dp)
-//                                        )
-//                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-//                                )
-//                            }
                     }
                 }
             }

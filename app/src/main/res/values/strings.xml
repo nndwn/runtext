@@ -46,4 +46,9 @@
     <string name="menu_review">Rate Our App</string>
     <string name="menu_report_issue">Report Issue</string>
     <string name="menu_debug">Debug Panel</string>
+    <string name="buy_coffee">Buy Me a Coffee?</string>
+    <string name="text_dialog_watch_ads">Support my work by watching a quick ad or remove them with a coffee tip. Feel free to skip!</string>
+    <string name="btn_text_watch_ad">Watch a Quick ad (Free)</string>
+    <string name="btn_text_remove_ad">Remove Ads Forever</string>
+    <string name="btn_maybe_later">Skip for now</string>
 </resources>

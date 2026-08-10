@@ -17,13 +17,16 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.component.DialogNotice
+import com.nndwn.runtext.ui.component.DialogWatchAds
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.navigation.AppNavigation
@@ -44,14 +47,22 @@ fun RunTextApp(
     val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
     var noticeMessage by remember { mutableStateOf<Int?>(null) }
+    var showAdsDialog by remember { mutableStateOf(false) }
+    var pendingRoute by remember { mutableStateOf<String?>(null) }
+
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
+    val isPremium by appViewModel.isPremium.collectAsStateWithLifecycle()
+    val shouldShowAd by appViewModel.shouldShowAd.collectAsStateWithLifecycle()
 
     val handleMenuOption: (MenuOptions) -> Unit = { menu ->
         when (menu) {
-            MenuOptions.DEBUG -> {}
+            MenuOptions.DEBUG -> navController.navigate(Routes.DEBUG)
             MenuOptions.RATE_APP -> gotoPlayStore(context)
-            MenuOptions.REMOVE_ADS -> {}
+            MenuOptions.REMOVE_ADS -> {
+                if (!isPremium) showAdsDialog = true
+            }
+
             MenuOptions.REPORT_ISSUE -> gotoMail(context)
         }
         isSidebarOpen = false
@@ -71,6 +82,16 @@ fun RunTextApp(
                         navController.navigate(effect.route)
                     }
 
+                    is UiEffect.RequestNavigationWithAdCheck -> {
+                        val isPlayStore = AppFlavor.current == AppFlavor.PLAYSTORE
+                        if (isPlayStore && shouldShowAd && !isPremium) {
+                            pendingRoute = effect.targetRoute
+                            showAdsDialog = true
+                        } else {
+                            navController.navigate(effect.targetRoute)
+                        }
+                    }
+
                     is UiEffect.NavigateBack -> {
                         navController.popBackStack()
                     }
@@ -78,9 +99,9 @@ fun RunTextApp(
             }
 
     }
-    //todo : put provides google billing
+
     CompositionLocalProvider(
-        LocalIsPremium provides false,
+        LocalIsPremium provides isPremium,
         LocalToggleSidebar provides toggleSidebar,
         LocalMenuOptionHandler provides handleMenuOption
     ) {
@@ -93,6 +114,24 @@ fun RunTextApp(
                 )
             },
             overlayContent = {
+                DialogWatchAds(
+                    showPanel = showAdsDialog,
+                    onDismiss = {
+                        showAdsDialog = false
+                        appViewModel.recordAdShown()
+                        pendingRoute?.let {
+                            navController.navigate(it)
+                            pendingRoute = null
+                        }
+                    },
+                    onWatchAds = {
+                        // appViewModel.onWatchAdCompleted() // Handled by recordAdShown in onDismiss
+                    },
+                    onRemoveAds = {
+                        appViewModel.onRemoveAdsClicked()
+                    }
+                )
+
                 DialogNotice(
                     visible = noticeMessage != null,
                     text = noticeMessage?.let { stringResource(it) } ?: "",

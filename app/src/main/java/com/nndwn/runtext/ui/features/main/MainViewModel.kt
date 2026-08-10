@@ -156,7 +156,7 @@ class MainViewModel @Inject constructor(
                 return
             }
         }
-        uiEffectController.sendEffect(UiEffect.NavigateTo(Routes.DISPLAY))
+        uiEffectController.sendEffect(UiEffect.RequestNavigationWithAdCheck(Routes.DISPLAY))
     }
 
     private fun handleMorseOutputToggle(

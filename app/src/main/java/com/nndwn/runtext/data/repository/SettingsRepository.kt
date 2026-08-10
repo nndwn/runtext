@@ -17,8 +17,24 @@ class SettingsRepository @Inject constructor(
     /** Emits the latest [AppSettings]. Always emits at least the default values. */
     val settingsFlow: Flow<AppSettings> = dataStore.settingsFlow
 
+    val isPremium: Flow<Boolean> = dataStore.isPremium
+
+    val shouldShowAd: Flow<Boolean> = dataStore.shouldShowAd
+
     /** Persist the entire [AppSettings] object to DataStore. */
     suspend fun saveSettings(settings: AppSettings) {
         dataStore.saveSettings(settings)
+    }
+
+    suspend fun setPremiumStatus(isPremium: Boolean) {
+        dataStore.setPremiumStatus(isPremium)
+    }
+
+    suspend fun recordAdShown() {
+        dataStore.recordAdShown()
+    }
+
+    suspend fun recordAdShownIfFirstTime() {
+        dataStore.recordAdShownIfFirstTime()
     }
 }

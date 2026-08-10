@@ -15,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.nndwn.runtext.ui.theme.dimens
 
@@ -27,6 +29,7 @@ fun ThreeDotsHorizontal(
         modifier = Modifier
             .size(MaterialTheme.dimens.iconExtraLarge)
             .clip(CircleShape)
+            .semantics { contentDescription = "Menu" }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(),

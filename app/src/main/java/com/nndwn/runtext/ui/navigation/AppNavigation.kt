@@ -12,12 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.nndwn.runtext.ui.features.debug.DebugScreen
 import com.nndwn.runtext.ui.features.display.DisplayScreen
 import com.nndwn.runtext.ui.features.main.MainScreen
 
 object Routes {
     const val INPUT = "input"
     const val DISPLAY = "display"
+    const val DEBUG = "debug"
 }
 
 @Composable
@@ -64,6 +66,11 @@ fun AppNavigation(
             }
         ) {
             DisplayScreen()
+        }
+        if (com.nndwn.runtext.BuildConfig.DEBUG) {
+            composable(route = Routes.DEBUG) {
+                DebugScreen(onBack = { navController.popBackStack() })
+            }
         }
     }
 }

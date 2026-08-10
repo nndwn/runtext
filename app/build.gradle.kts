@@ -119,18 +119,15 @@ androidComponents {
 
 dependencies {
 
-
     "playstoreImplementation"(libs.play.services.ads)
     "playstoreImplementation"(libs.app.update.ktx)
 
-
-    //Compose Bom
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    //implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.compose.material3.window.size.class1)
 
@@ -154,6 +151,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     //Testing
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    debugImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
