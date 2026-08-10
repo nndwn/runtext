@@ -13,4 +13,14 @@
 
 -keep class com.namapackage.app.data.model.** { *; }
 
+# ============================================================================
+# 3. ADMOB & JAVASCRIPT INTERFACE (Penting untuk Iklan Web/Reward)
+# ============================================================================
+-keepattributes JavascriptInterface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+
+
 -keepattributes SourceFile,LineNumberTable

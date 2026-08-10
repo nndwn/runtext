@@ -7,7 +7,7 @@ hiltAndroid = "2.60.1"
 hiltAndroidCompiler = "2.60.1"
 hiltNavigationCompose = "1.4.0"
 kotlin = "2.4.10"
-agp = "9.2.1"
+agp = "9.3.0"
 coreKtx = "1.19.0"
 coreSplashscreen = "1.2.0"
 junit = "4.13.2"
@@ -17,10 +17,11 @@ lifecycleRuntimeCompose = "2.11.0"
 lifecycleRuntimeKtx = "2.11.0"
 lifecycleViewmodelCompose = "2.11.0"
 navigationCompose = "2.9.8"
+playServicesAds = "25.4.0"
 uiGraphics = "1.11.4"
 uiTextGoogleFonts = "1.11.4"
 hiltDagger =  "2.60.1"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.11"
 material3WindowSizeClass = "1.4.0"
 animationCore = "1.11.4"
 
@@ -54,6 +55,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-material3-window-size-class1 = { group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "material3WindowSizeClass" }
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

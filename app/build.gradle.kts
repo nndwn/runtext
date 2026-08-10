@@ -19,15 +19,33 @@ android {
     namespace = "com.nndwn.runtext"
     compileSdk = 37
 
+    flavorDimensions.add("distribution")
+    productFlavors {
+        create("playstore") {
+            dimension = "distribution"
+        }
+        create("foss") {
+            dimension = "distribution"
+            applicationIdSuffix = ".foss"
+            versionNameSuffix = "-foss"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.nndwn.runtext"
         minSdk = 28
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "0.0.3-alpha"
+
+        val adsApiKey = "ADS_API_KEY"
+        val adsApiAlt = "ADS_API_ALT"
+        val email = "EMAIL"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "EMAIL", "\"${localProperties.getProperty("EMAIL")}\"")
+        buildConfigField("String", email, "\"${localProperties.getProperty(email) ?: ""}\"")
+        buildConfigField("String", adsApiAlt, "\"${localProperties.getProperty(adsApiAlt) ?: ""}\"")
+        manifestPlaceholders[adsApiKey] = localProperties.getProperty(adsApiKey) ?: ""
     }
 
     signingConfigs {
@@ -45,7 +63,7 @@ android {
     buildTypes {
         release {
             optimization {
-                enable = false
+                enable = true
             }
             signingConfig = signingConfigs.getByName("release")
         }
@@ -59,12 +77,13 @@ android {
         compose = true
         buildConfig = true
     }
+
 }
 
 dependencies {
 
 
-
+    "playstoreImplementation"(libs.play.services.ads)
     //Compose Bom
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)

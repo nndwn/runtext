@@ -1,6 +1,5 @@
 package com.nndwn.runtext.ui.component
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -27,7 +26,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -42,7 +40,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.ui.theme.toComposeColor
@@ -77,11 +74,9 @@ fun RunningTextCoreOptimized(
     val fontFamily = fontFamilyFor(settings.textStyle.fontType)
 
     val fontLoadState by produceState(
-        initialValue = fontResolver.resolve(fontFamily).value,
-        key1 = fontFamily
+        initialValue = fontResolver.resolve(fontFamily).value, key1 = fontFamily
     ) {
-        snapshotFlow { fontResolver.resolve(fontFamily).value }
-            .collect { value = it }
+        snapshotFlow { fontResolver.resolve(fontFamily).value }.collect { value = it }
     }
 
 
@@ -115,10 +110,7 @@ fun RunningTextCoreOptimized(
 
         val textLayoutResult = remember(annotatedText, baseTextStyle, fontLoadState) {
             textMeasurer.measure(
-                text = annotatedText,
-                style = baseTextStyle,
-                maxLines = 1,
-                softWrap = false
+                text = annotatedText, style = baseTextStyle, maxLines = 1, softWrap = false
             )
         }
 
@@ -154,19 +146,14 @@ fun RunningTextCoreOptimized(
                 }
 
                 Brush.linearGradient(
-                    colors = listOf(color1, color2),
-                    start = startOffset,
-                    end = endOffset
+                    colors = listOf(color1, color2), start = startOffset, end = endOffset
                 )
             } else null
         }
 
         val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
         val (startX, endX) = remember(
-            containerWidthPx,
-            totalTextWidth,
-            isRtl,
-            settings.isMirrorMode
+            containerWidthPx, totalTextWidth, isRtl, settings.isMirrorMode
         ) {
             val moveRightToLeft = !isRtl
             val effectiveMoveRightToLeft =
@@ -197,10 +184,8 @@ fun RunningTextCoreOptimized(
                         (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
 
                     progress.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(
-                            durationMillis = adjustedDuration,
-                            easing = LinearEasing
+                        targetValue = 1f, animationSpec = tween(
+                            durationMillis = adjustedDuration, easing = LinearEasing
                         )
                     )
 
@@ -214,13 +199,10 @@ fun RunningTextCoreOptimized(
         } else {
             val transition = rememberInfiniteTransition(label = "marquee")
             val offset by transition.animateFloat(
-                initialValue = startX,
-                targetValue = endX,
-                animationSpec = infiniteRepeatable(
+                initialValue = startX, targetValue = endX, animationSpec = infiniteRepeatable(
                     animation = tween(durationMillis = durationMillis, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
-                ),
-                label = "offsetX"
+                ), label = "offsetX"
             )
             offset
         }
@@ -231,8 +213,7 @@ fun RunningTextCoreOptimized(
                 .graphicsLayer {
                     translationX = animatedOffsetX
                     clip = false
-                }
-        ) {
+                }) {
             val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
             val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
 
@@ -266,20 +247,14 @@ fun RunningTextCoreOptimized(
                 if (settings.stroke.isEnabled && settings.stroke.width > 0) {
                     val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
 
-                    drawIntoCanvas { canvas ->
-                        canvas.save()
-                        canvas.translate(baseTopLeft.x, baseTopLeft.y)
-
-                        textLayoutResult.multiParagraph.paint(
-                            canvas = canvas,
-                            color = settings.stroke.colorArgb.toComposeColor(),
-                            drawStyle = Stroke(
-                                width = scaledStrokeWidthPx * 2f,
-                                join = StrokeJoin.Round
-                            )
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        color = settings.stroke.colorArgb.toComposeColor(),
+                        topLeft = baseTopLeft,
+                        drawStyle = Stroke(
+                            width = scaledStrokeWidthPx * 2f, join = StrokeJoin.Round
                         )
-                        canvas.restore()
-                    }
+                    )
                 }
 
                 if (mainBrush != null) {
