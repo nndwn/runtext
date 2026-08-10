@@ -16,14 +16,16 @@ import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.utils.DeviceSpecsLogger
 import com.nndwn.runtext.ui.utils.LocalSizeHeight
 import com.nndwn.runtext.ui.utils.LocalSizeWidth
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+abstract class BaseMainActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        onInitialize()
+
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
@@ -51,9 +53,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    private fun checkUpdate() {
-        if (AppFlavor.current == AppFlavor.PLAYSTORE) {
 
-        }
-    }
+    open fun onInitialize() {}
 }
