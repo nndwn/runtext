@@ -85,9 +85,7 @@ fun DialogWatchAds(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                     ),
-                    onClick = {
-                        onWatchAds()
-                        onDismiss() },
+                    onClick = onWatchAds,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -104,10 +102,7 @@ fun DialogWatchAds(
                     colors = ButtonDefaults.outlinedButtonColors().copy(
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     ),
-                    onClick = {
-                        onRemoveAds()
-                        onDismiss()
-                    },
+                    onClick = onRemoveAds,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(

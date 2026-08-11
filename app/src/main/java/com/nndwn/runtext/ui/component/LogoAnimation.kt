@@ -17,12 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.PathParser
 
 @Composable
 fun LogoAnimation(
     modifier: Modifier = Modifier,
+    sizeLogo : Dp = 200.dp,
     tint : Color
 ) {
     val pathBase = remember {
@@ -88,7 +90,7 @@ fun LogoAnimation(
         label = "Dash2Alpha"
     )
 
-    Canvas(modifier = modifier.size(200.dp)) {
+    Canvas(modifier = modifier.size(sizeLogo)) {
         val viewportSize = 305.32f
         val scaleX = size.width / viewportSize
         val scaleY = size.height / viewportSize

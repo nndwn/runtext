@@ -54,5 +54,11 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
     }
 
-    open fun onInitialize() {}
+
+    open fun onInitialize() {
+        //     * Hook for subclasses to perform additional initialization before the UI is set.
+        //     * This is intentionally empty in the base class to allow flavor-specific
+        //     * implementations (e.g., initializing ads or app updates in the Play Store flavor)
+        //     * without cluttering the base logic or FOSS flavor.
+    }
 }

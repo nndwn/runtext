@@ -1,9 +1,6 @@
 package com.nndwn.runtext.ui
 
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.os.Build
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -13,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -23,10 +19,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.AppFlavor
-import com.nndwn.runtext.BuildConfig
-import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.component.DialogNotice
 import com.nndwn.runtext.ui.component.DialogWatchAds
+import com.nndwn.runtext.ui.component.LoadingScreen
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.navigation.AppNavigation
@@ -34,54 +29,38 @@ import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.utils.LocalIsPremium
 import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.utils.LocalToggleSidebar
+import com.nndwn.runtext.ui.utils.gotoMail
+import com.nndwn.runtext.ui.utils.gotoPlayStore
 
 @Composable
 fun RunTextApp(
     appViewModel: AppViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    
+    val isPremium by appViewModel.isPremium.collectAsStateWithLifecycle()
+    val shouldShowAd by appViewModel.shouldShowAd.collectAsStateWithLifecycle()
+    val isLoadingAd by appViewModel.isLoadingAd.collectAsStateWithLifecycle()
 
     var isSidebarOpen by remember { mutableStateOf(false) }
-    val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
-
     var noticeMessage by remember { mutableStateOf<Int?>(null) }
     var showAdsDialog by remember { mutableStateOf(false) }
     var pendingRoute by remember { mutableStateOf<String?>(null) }
 
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val context = LocalContext.current
-    val isPremium by appViewModel.isPremium.collectAsStateWithLifecycle()
-    val shouldShowAd by appViewModel.shouldShowAd.collectAsStateWithLifecycle()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
-    val handleMenuOption: (MenuOptions) -> Unit = { menu ->
-        when (menu) {
-            MenuOptions.DEBUG -> navController.navigate(Routes.DEBUG)
-            MenuOptions.RATE_APP -> gotoPlayStore(context)
-            MenuOptions.REMOVE_ADS -> {
-                if (!isPremium) showAdsDialog = true
-            }
-
-            MenuOptions.REPORT_ISSUE -> gotoMail(context)
-        }
-        isSidebarOpen = false
-    }
-
-    val toggleSidebar: () -> Unit = { isSidebarOpen = !isSidebarOpen }
-
+    // UI Effects handling
     LaunchedEffect(appViewModel.uiEffect, lifecycle) {
         appViewModel.uiEffect.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .collect { effect ->
                 when (effect) {
-                    is UiEffect.ShowToast -> {
-                        noticeMessage = effect.message
-                    }
-
-                    is UiEffect.NavigateTo -> {
-                        navController.navigate(effect.route)
-                    }
-
+                    is UiEffect.ShowToast -> noticeMessage = effect.message
+                    is UiEffect.NavigateTo -> navController.navigate(effect.route)
+                    is UiEffect.NavigateBack -> navController.popBackStack()
                     is UiEffect.RequestNavigationWithAdCheck -> {
                         val isPlayStore = AppFlavor.current == AppFlavor.PLAYSTORE
                         if (isPlayStore && shouldShowAd && !isPremium) {
@@ -91,89 +70,86 @@ fun RunTextApp(
                             navController.navigate(effect.targetRoute)
                         }
                     }
-
-                    is UiEffect.NavigateBack -> {
-                        navController.popBackStack()
-                    }
                 }
             }
+    }
 
+    val handleMenuOption: (MenuOptions) -> Unit = { menu ->
+        isSidebarOpen = false
+        when (menu) {
+            MenuOptions.DEBUG -> navController.navigate(Routes.DEBUG)
+            MenuOptions.RATE_APP -> gotoPlayStore(context)
+            MenuOptions.REMOVE_ADS -> if (!isPremium) showAdsDialog = true
+            MenuOptions.REPORT_ISSUE -> gotoMail(context)
+        }
     }
 
     CompositionLocalProvider(
         LocalIsPremium provides isPremium,
-        LocalToggleSidebar provides toggleSidebar,
+        LocalToggleSidebar provides { isSidebarOpen = !isSidebarOpen },
         LocalMenuOptionHandler provides handleMenuOption
     ) {
         MainLayout(
             isSidebarOpen = sidebarAllowed,
             onCloseSidebar = { isSidebarOpen = false },
-            sideBarRight = {
-                MenuOptions(
-                    onMenuSelected = handleMenuOption
-                )
-            },
+            sideBarRight = { MenuOptions(onMenuSelected = handleMenuOption) },
             overlayContent = {
-                DialogWatchAds(
-                    showPanel = showAdsDialog,
-                    onDismiss = {
+                AppOverlay(
+                    showAdsDialog = showAdsDialog,
+                    isLoadingAd = isLoadingAd,
+                    noticeMessage = noticeMessage,
+                    onWatchAds = {
+                        val activity = context as? Activity ?: return@AppOverlay
+                        appViewModel.performAdFlow(activity) {
+                            showAdsDialog = false
+                            pendingRoute?.let { route ->
+                                navController.navigate(route)
+                                pendingRoute = null
+                            }
+                        }
+                    },
+                    onDismissAds = {
                         showAdsDialog = false
-                        appViewModel.recordAdShown()
-                        pendingRoute?.let {
-                            navController.navigate(it)
+                        pendingRoute?.let { route ->
+                            navController.navigate(route)
                             pendingRoute = null
                         }
                     },
-                    onWatchAds = {
-                        // appViewModel.onWatchAdCompleted() // Handled by recordAdShown in onDismiss
-                    },
                     onRemoveAds = {
+                        showAdsDialog = false
                         appViewModel.onRemoveAdsClicked()
-                    }
+                    },
+                    onDismissNotice = { noticeMessage = null }
                 )
-
-                DialogNotice(
-                    visible = noticeMessage != null,
-                    text = noticeMessage?.let { stringResource(it) } ?: "",
-                    onDismiss = { noticeMessage = null })
-            }) { innerPadding ->
-            AppNavigation(
-                navController = navController,
-                padding = innerPadding,
-            )
+            }
+        ) { innerPadding ->
+            AppNavigation(navController = navController, padding = innerPadding)
         }
     }
 }
 
-private fun gotoPlayStore(context: Context) {
-    val packageName = context.packageName
-    val marketIntent = Intent(
-        Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()
+@Composable
+private fun AppOverlay(
+    showAdsDialog: Boolean,
+    isLoadingAd: Boolean,
+    noticeMessage: Int?,
+    onWatchAds: () -> Unit,
+    onDismissAds: () -> Unit,
+    onRemoveAds: () -> Unit,
+    onDismissNotice: () -> Unit
+) {
+    DialogWatchAds(
+        showPanel = showAdsDialog,
+        onDismiss = onDismissAds,
+        onWatchAds = onWatchAds,
+        onRemoveAds = onRemoveAds
     )
-    marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    try {
-        context.startActivity(marketIntent)
-    } catch (_: ActivityNotFoundException) {
-        val webIntent = Intent(
-            Intent.ACTION_VIEW, "https://play.google.com/store/apps/details?id=$packageName".toUri()
-        )
-        context.startActivity(webIntent)
-    }
-}
 
-private fun gotoMail(context: Context) {
-    val deviceModel = Build.MODEL
-    val androidVersion = Build.VERSION.RELEASE
-    val appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    LoadingScreen(show = isLoadingAd)
 
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = "mailto:".toUri()
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(BuildConfig.EMAIL))
-        putExtra(Intent.EXTRA_SUBJECT, "Report Issue - ${context.getString(R.string.app_name)}")
-        putExtra(
-            Intent.EXTRA_TEXT,
-            "\n\n\n---\nDevice: $deviceModel\nAndroid: $androidVersion\nApp Version: $appVersion"
-        )
-    }
-    context.startActivity(Intent.createChooser(intent, "Send Email"))
+    DialogNotice(
+        visible = noticeMessage != null,
+        text = noticeMessage?.let { stringResource(it) } ?: "",
+        onDismiss = onDismissNotice
+    )
 }
