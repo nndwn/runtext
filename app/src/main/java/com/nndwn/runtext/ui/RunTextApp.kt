@@ -1,6 +1,8 @@
 package com.nndwn.runtext.ui
 
 import android.app.Activity
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -8,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -26,6 +29,7 @@ import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
+import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.LocalIsPremium
 import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.utils.LocalToggleSidebar
@@ -93,7 +97,11 @@ fun RunTextApp(
         MainLayout(
             isSidebarOpen = sidebarAllowed,
             onCloseSidebar = { isSidebarOpen = false },
-            sideBarRight = { MenuOptions(onMenuSelected = handleMenuOption) },
+            sideBarRight = { MenuOptions(
+                onMenuSelected = handleMenuOption,
+                modifier = Modifier.padding(vertical = MaterialTheme.dimens.large)
+            )
+                           },
             overlayContent = {
                 AppOverlay(
                     showAdsDialog = showAdsDialog,

@@ -42,7 +42,7 @@
     <string name="notice_morse_output_required">Enable Screen Flash or Flashlight to display the Morse code.</string>
     <string name="clear">Clear</string>
     <string name="stop">Stop</string>
-    <string name="menu_remove_ad">Coffee Tip (No Ads)</string>
+    <string name="menu_remove_ad">Coffee Tip</string>
     <string name="menu_review">Rate Our App</string>
     <string name="menu_report_issue">Report Issue</string>
     <string name="menu_debug">Debug Panel</string>

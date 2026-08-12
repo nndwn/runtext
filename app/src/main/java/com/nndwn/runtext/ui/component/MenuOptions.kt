@@ -97,12 +97,12 @@ private fun ItemOptions(
         Icon(
             painter = painterResource(menu.iconRes),
             contentDescription = "icon ${stringResource(menu.label)}",
-            modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
+            modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
         )
         Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium))
         Text(
             text = stringResource(menu.label),
-            style = MaterialTheme.typography.titleSmall
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
