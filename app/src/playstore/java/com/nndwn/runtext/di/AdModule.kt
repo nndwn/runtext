@@ -1,6 +1,8 @@
 package com.nndwn.runtext.di
 
 import com.nndwn.runtext.ads.AdHelper
+import com.nndwn.runtext.ads.BillingHelper
+import com.nndwn.runtext.ads.BillingManager
 import com.nndwn.runtext.ads.RewardedAdHelper
 import dagger.Module
 import dagger.Provides
@@ -15,5 +17,11 @@ object AdModule {
     @Singleton
     fun provideAdHelper(): AdHelper {
         return RewardedAdHelper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideBillingHelper(billingManager: BillingManager): BillingHelper {
+        return billingManager
     }
 }

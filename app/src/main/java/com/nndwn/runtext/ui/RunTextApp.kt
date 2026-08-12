@@ -43,6 +43,7 @@ fun RunTextApp(
     val isPremium by appViewModel.isPremium.collectAsStateWithLifecycle()
     val shouldShowAd by appViewModel.shouldShowAd.collectAsStateWithLifecycle()
     val isLoadingAd by appViewModel.isLoadingAd.collectAsStateWithLifecycle()
+    val adPrice by appViewModel.removeAdsPrice.collectAsStateWithLifecycle()
 
     var isSidebarOpen by remember { mutableStateOf(false) }
     var noticeMessage by remember { mutableStateOf<Int?>(null) }
@@ -98,6 +99,7 @@ fun RunTextApp(
                     showAdsDialog = showAdsDialog,
                     isLoadingAd = isLoadingAd,
                     noticeMessage = noticeMessage,
+                    adPrice = adPrice,
                     onWatchAds = {
                         val activity = context as? Activity ?: return@AppOverlay
                         appViewModel.performAdFlow(activity) {
@@ -116,8 +118,9 @@ fun RunTextApp(
                         }
                     },
                     onRemoveAds = {
+                        val activity = context as? Activity ?: return@AppOverlay
                         showAdsDialog = false
-                        appViewModel.onRemoveAdsClicked()
+                        appViewModel.onRemoveAdsClicked(activity)
                     },
                     onDismissNotice = { noticeMessage = null }
                 )
@@ -133,6 +136,7 @@ private fun AppOverlay(
     showAdsDialog: Boolean,
     isLoadingAd: Boolean,
     noticeMessage: Int?,
+    adPrice: String?,
     onWatchAds: () -> Unit,
     onDismissAds: () -> Unit,
     onRemoveAds: () -> Unit,
@@ -140,6 +144,7 @@ private fun AppOverlay(
 ) {
     DialogWatchAds(
         showPanel = showAdsDialog,
+        price = adPrice,
         onDismiss = onDismissAds,
         onWatchAds = onWatchAds,
         onRemoveAds = onRemoveAds

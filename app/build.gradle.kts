@@ -46,7 +46,6 @@ android {
         }
         create("foss") {
             dimension = "distribution"
-            applicationIdSuffix = ".foss"
             versionNameSuffix = "-foss"
         }
     }
@@ -55,8 +54,8 @@ android {
         applicationId = "com.nndwn.runtext"
         minSdk = 28
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.0.3-alpha"
+        versionCode = 4
+        versionName = "1.0.0-beta"
 
         val adsApiKey = "ADS_API_KEY"
         val adsApiAlt = "ADS_API_ALT"

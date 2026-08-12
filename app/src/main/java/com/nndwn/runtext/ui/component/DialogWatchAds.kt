@@ -37,6 +37,7 @@ import com.nndwn.runtext.ui.utils.LocalSizeWidth
 @Composable
 fun DialogWatchAds(
     showPanel : Boolean,
+    price: String? = null,
     onDismiss : () -> Unit = {},
     onWatchAds : () -> Unit = {},
     onRemoveAds : () -> Unit = {}
@@ -105,8 +106,13 @@ fun DialogWatchAds(
                     onClick = onRemoveAds,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    val label = if (price != null) {
+                        "${stringResource(R.string.btn_text_remove_ad)} ($price)"
+                    } else {
+                        stringResource(R.string.btn_text_remove_ad)
+                    }
                     Text(
-                        text = stringResource(R.string.btn_text_remove_ad),
+                        text = label,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(vertical = MaterialTheme.dimens.small)
                     )

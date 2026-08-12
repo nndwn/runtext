@@ -51,4 +51,5 @@
     <string name="btn_text_watch_ad">Watch a Quick ad (Free)</string>
     <string name="btn_text_remove_ad">Remove Ads Forever</string>
     <string name="btn_maybe_later">Skip for now</string>
+    <string name="msg_premium_activated">Thank you for your support.</string>
 </resources>
