@@ -1,5 +1,8 @@
 package com.nndwn.runtext.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -17,15 +20,21 @@ fun LoadingScreen(
     Scrim(
         active = show, onDismiss = {}
     )
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        LogoAnimation(
-            modifier = Modifier,
-            tint = MaterialTheme.colorScheme.onBackground,
-            sizeLogo = 150.dp
-        )
+    AnimatedVisibility(
+        visible = show,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            LogoAnimation(
+                modifier = Modifier,
+                tint = MaterialTheme.colorScheme.onBackground,
+                sizeLogo = 150.dp
+            )
+        }
     }
 }
 

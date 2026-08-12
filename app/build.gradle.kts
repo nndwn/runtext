@@ -60,10 +60,12 @@ android {
         val adsApiKey = "ADS_API_KEY"
         val adsApiAlt = "ADS_API_ALT"
         val email = "EMAIL"
+        val tipMe = "PURCHASE_ID_1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", email, "\"${localProperties.getProperty(email) ?: ""}\"")
         buildConfigField("String", adsApiAlt, "\"${localProperties.getProperty(adsApiAlt) ?: ""}\"")
+        buildConfigField("String", tipMe, "\"${localProperties.getProperty(tipMe) ?: ""}\"")
         manifestPlaceholders[adsApiKey] = localProperties.getProperty(adsApiKey) ?: ""
     }
 

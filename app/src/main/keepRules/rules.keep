@@ -1,26 +1,46 @@
-# Add project specific R8 rules here.
-# AGP will combine all keep rule files in src/main/keepRules to pass to R8
-#
-# For more details, see
-#   https://d.android.com/r/tools/r8/keep-rules
+# ====================================================================
+# 1. KOTLIN & COROUTINES
+# ====================================================================
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
--keep class com.namapackage.app.data.model.** { *; }
-
-# ============================================================================
-# 3. ADMOB & JAVASCRIPT INTERFACE (Penting untuk Iklan Web/Reward)
-# ============================================================================
--keepattributes JavascriptInterface
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
+-keepattributes RuntimeVisibleAnnotations
+-keep class kotlin.Metadata { *; }
+-keepclassmembers class **$WhenMappings {
+    <fields>;
 }
 
+# ====================================================================
+# 2. METADATA PARSING (JSON / RETROFIT / SERIALIZATION)
+# ====================================================================
 
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+
+# (Opsional jika pakai kotlinx-serialization)
+-keepclassmembers class * {
+    @kotlinx.serialization.SerialName <fields>;
+}
+-keepclassmembers class * {
+    public static ** Companion;
+    public static ** $serializer;
+}
+
+# ====================================================================
+# 3. DEBUGGING & CRASHLYTICS
+# ====================================================================
 
 -keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# ====================================================================
+# 4. ANDROID ARCHITECTURE COMPONENTS (ROOM & WORKMANAGER)
+# ====================================================================
+
+# -keep class * extends androidx.room.RoomDatabase
+# -keep class androidx.work.impl.WorkDatabase_Impl {
+#    public <init>();
+# }
+ -keep class * extends androidx.work.impl.WorkDatabase {
+     public <init>();
+ }
+
+
+-keep class com.nndwn.runtext.data.model.** { *; }
