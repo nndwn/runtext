@@ -4,9 +4,7 @@
 - ~~perlu pengaturan spasi line text~~
 - ~~datastore perlu waktu untuk memulai meskipun hanya butuh beberapa detik, maka karena itu di butuhkan shimmer~~
 - ~~agar user tidak perlu mengatur-mengatur lagi perlu nama preset, biarkan ai agent membut desain presetsnya~~
-- smart scroll ketika pengataran terexpand ke bawah
 - ~~perlu pengaturan kecerahan pada hape~~
-  - lebih pengaturn ini lebih cocok di detail langsung ubah kecerahan 100%
 - ~~issue pada gradient jadi buat batasan 50 jadikan 100~~
 - ~~perlu perubahan pengaturan defaul di sesuaikan dengan thema bawaan~~
 - ~~seperti perlu ganti warna tombol play tidak konsisten warnanya~~
@@ -17,4 +15,7 @@
 - ~~bagaimana seluruh pilihan false pada pengaturan false ? perlu berikan tanda peringatan kepada user~~
 - ~~buat dialog toast khusus untuk global~~
 - ~~pada flashLight berikan perintah permission camera pada saat true~~
-- buat halaman display
+- ~~buat halaman display~~
+- ganti logo tip pada MenuOptions 
+- berikan spasi tulisan pembelian dan harga
+- setelah publish playstore , publish versi foss ke f-Droid.org
