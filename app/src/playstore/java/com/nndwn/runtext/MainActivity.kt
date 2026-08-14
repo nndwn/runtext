@@ -4,6 +4,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -12,10 +13,17 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.nndwn.runtext.data.repository.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : BaseMainActivity() {
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     private lateinit var appUpdateManager : AppUpdateManager
     private var isUpdateDownloaded by mutableStateOf(false)
@@ -34,8 +42,12 @@ class MainActivity : BaseMainActivity() {
         appUpdateManager = AppUpdateManagerFactory.create(this)
         appUpdateManager.registerListener(installStateUpdatedListener)
         checkUpdate()
-        MobileAds.initialize(this)
 
+        lifecycleScope.launch {
+            if (!settingsRepository.isPremium.first()) {
+                MobileAds.initialize(this@MainActivity)
+            }
+        }
     }
 
     override fun onResume() {
@@ -89,7 +101,7 @@ class MainActivity : BaseMainActivity() {
         return try {
             val pInfo = packageManager.getPackageInfo(packageName, 0)
             pInfo.longVersionCode.toInt()
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
             0
         }
     }

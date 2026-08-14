@@ -29,7 +29,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: SettingsRepository, private val uiEffectController: UiEffectController
+    private val repository: SettingsRepository,
+    private val uiEffectController: UiEffectController
 ) : ViewModel() {
 
     val limitText = 100

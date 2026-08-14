@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.theme.dimens
@@ -34,7 +35,7 @@ enum class MenuOptions(
 ) {
     REMOVE_ADS(
         label = R.string.menu_remove_ad,
-        iconRes = R.drawable.ic_crown
+        iconRes = R.drawable.ic_coffee
     ),
     RATE_APP(
         label = R.string.menu_review,
@@ -64,7 +65,7 @@ fun MenuOptions(
             .filter {
                 when (it) {
                     MenuOptions.DEBUG -> BuildConfig.DEBUG
-                    MenuOptions.REMOVE_ADS -> !isPremium
+                    MenuOptions.REMOVE_ADS -> !isPremium || AppFlavor.current == AppFlavor.PLAYSTORE
                     else -> true
                 }
             }

@@ -16,6 +16,5 @@
 - ~~buat dialog toast khusus untuk global~~
 - ~~pada flashLight berikan perintah permission camera pada saat true~~
 - ~~buat halaman display~~
-- ganti logo tip pada MenuOptions 
-- berikan spasi tulisan pembelian dan harga
+- ~~ganti logo tip pada MenuOptions~~
 - setelah publish playstore , publish versi foss ke f-Droid.org

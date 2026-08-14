@@ -26,13 +26,6 @@ data class Dimens(
     val buttonHeight: Dp = 48.dp
 )
 
-//val tabletDimens = Dimens(
-//    extraSmall = 8.dp,
-//    small = 16.dp,
-//    medium = 24.dp,
-//    large = 32.dp,
-//    extraLarge = 48.dp
-//)
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }
 

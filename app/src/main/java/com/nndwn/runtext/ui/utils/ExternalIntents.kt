@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.net.toUri
-import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
 
 fun gotoPlayStore(context: Context) {
@@ -27,11 +26,20 @@ fun gotoPlayStore(context: Context) {
 fun gotoMail(context: Context) {
     val deviceModel = Build.MODEL
     val androidVersion = Build.VERSION.RELEASE
-    val appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+
+    val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        context.packageManager.getPackageInfo(context.packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0))
+    } else {
+        @Suppress("DEPRECATION")
+        context.packageManager.getPackageInfo(context.packageName, 0)
+    }
+
+    val appVersion = packageInfo.versionName
+    val developerEmail = "nandawan.libya@gmail.com"
 
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = "mailto:".toUri()
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(BuildConfig.EMAIL))
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(developerEmail))
         putExtra(Intent.EXTRA_SUBJECT, "Report Issue - ${context.getString(R.string.app_name)}")
         putExtra(
             Intent.EXTRA_TEXT,
