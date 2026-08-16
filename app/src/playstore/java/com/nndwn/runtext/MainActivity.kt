@@ -1,5 +1,7 @@
 package com.nndwn.runtext
 
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,7 +101,12 @@ class MainActivity : BaseMainActivity() {
 
     private fun getCurrentVersionCode(): Int {
         return try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            val pInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0)
+            }
             pInfo.longVersionCode.toInt()
         } catch (_: Exception) {
             0

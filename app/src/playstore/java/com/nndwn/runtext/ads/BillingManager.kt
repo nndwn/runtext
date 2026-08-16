@@ -106,7 +106,7 @@ class BillingManager @Inject constructor(
             .build()
         billingClient.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK){
-                val list = queryProductDetailsResult.productDetailsList
+                val list = queryProductDetailsResult.productDetailsList.toList()
                 _productDetails.value = list.firstOrNull()
             }
         }

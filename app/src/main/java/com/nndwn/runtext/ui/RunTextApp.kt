@@ -26,6 +26,7 @@ import com.nndwn.runtext.ui.component.DialogNotice
 import com.nndwn.runtext.ui.component.DialogWatchAds
 import com.nndwn.runtext.ui.component.LoadingScreen
 import com.nndwn.runtext.ui.component.MainLayout
+import com.nndwn.runtext.ui.component.MainLayoutState
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
@@ -95,13 +96,15 @@ fun RunTextApp(
         LocalMenuOptionHandler provides handleMenuOption
     ) {
         MainLayout(
-            isSidebarOpen = sidebarAllowed,
+            state = MainLayoutState().copy(
+                isOpen = sidebarAllowed,
+                sidebarBackgroundColor = MaterialTheme.colorScheme.secondary
+            ),
             onCloseSidebar = { isSidebarOpen = false },
-            sideBarRight = { MenuOptions(
-                onMenuSelected = handleMenuOption,
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.large)
-            )
-                           },
+            sideBarEnd = {
+                MenuOptions(
+                    onMenuSelected = handleMenuOption,
+                    modifier = Modifier.padding(vertical = MaterialTheme.dimens.large))},
             overlayContent = {
                 AppOverlay(
                     showAdsDialog = showAdsDialog,
