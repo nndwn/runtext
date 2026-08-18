@@ -33,6 +33,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -45,6 +46,7 @@ import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.features.display.components.MorseCodeCore
 import com.nndwn.runtext.ui.features.display.components.ScreenBrightness
+import com.nndwn.runtext.ui.theme.dimens
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -145,20 +147,20 @@ fun DisplayScreen(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
                 border = BorderStroke(
-                    width = 1.dp,
+                    width = MaterialTheme.dimens.borderMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(MaterialTheme.dimens.medium)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_clear),
-                        contentDescription = "Stop Display",
+                        contentDescription = stringResource(R.string.stop),
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
                     )
                 }
             }

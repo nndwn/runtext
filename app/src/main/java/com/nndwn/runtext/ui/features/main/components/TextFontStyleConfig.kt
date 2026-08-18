@@ -29,6 +29,7 @@ import com.nndwn.runtext.data.model.ScriptCategory
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.SlideUpPanel
+import com.nndwn.runtext.ui.component.SlideUpPanelState
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.detectPrimaryScript
 import com.nndwn.runtext.ui.utils.fontFamilyFor
@@ -85,8 +86,11 @@ fun SelectorFonts(
     }
 
     SlideUpPanel(
-        visible = showPanelFonts,
-        enableDragToDismiss = true,
+        state = SlideUpPanelState(
+            visible = showPanelFonts,
+            enabledDragToDismiss = true,
+            containerColor = MaterialTheme.colorScheme.onSecondaryContainer
+        ),
         onDismiss = dismissPanel
     ) {
         Text(

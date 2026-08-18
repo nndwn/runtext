@@ -43,7 +43,10 @@ fun DialogWatchAds(
     onRemoveAds : () -> Unit = {}
 ) {
     SlideUpPanel(
-        visible = showPanel
+        state = SlideUpPanelState(
+            visible = showPanel,
+            containerColor = MaterialTheme.colorScheme.onSecondary
+        )
     ) {
         Column(
             modifier = Modifier
