@@ -45,7 +45,7 @@ fun DialogWatchAds(
     SlideUpPanel(
         state = SlideUpPanelState(
             visible = showPanel,
-            containerColor = MaterialTheme.colorScheme.onSecondary
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
@@ -139,6 +139,7 @@ fun DialogWatchAds(
         }
     }
 }
+
 
 @Preview(device = "id:medium_phone")
 @Composable

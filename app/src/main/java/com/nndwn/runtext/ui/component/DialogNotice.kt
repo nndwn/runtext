@@ -1,6 +1,8 @@
 package com.nndwn.runtext.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -10,7 +12,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -31,7 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.RuntextTheme
@@ -42,13 +45,14 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun DialogNotice(
+    modifier: Modifier = Modifier,
     visible: Boolean,
     text: String,
-    modifier: Modifier = Modifier,
+    containerColor: Color = Color.Unspecified,
     onDismiss: () -> Unit = {}
 ) {
     val isExpand = LocalSizeWidth.current != WindowWidthSizeClass.Compact
-
+    val backgroundColor = containerColor.takeOrElse { MaterialTheme.colorScheme.surface }
 
     LaunchedEffect(visible, text) {
         if (visible) {
@@ -57,8 +61,26 @@ fun DialogNotice(
         }
     }
 
-    val enterAnimation = remember(isExpand) {
-        if (isExpand) {
+    val (enterAnim, exitAnim) = rememberDialogNoticeTransitions(isExpand)
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = enterAnim,
+        exit = exitAnim,
+    ) {
+        DialogNoticeContent(
+            modifier = modifier,
+            isExpand = isExpand,
+            backgroundColor = backgroundColor,
+            text = text
+        )
+    }
+}
+
+@Composable
+private fun rememberDialogNoticeTransitions(isExpand: Boolean): Pair<EnterTransition, ExitTransition> {
+    return remember(isExpand) {
+        val enter = if (isExpand) {
             slideInHorizontally(
                 initialOffsetX = { it },
                 animationSpec = spring(
@@ -75,10 +97,8 @@ fun DialogNotice(
                 )
             ) + fadeIn(animationSpec = tween(200))
         }
-    }
 
-    val exitAnimation = remember(isExpand) {
-        if (isExpand) {
+        val exit = if (isExpand) {
             slideOutHorizontally(
                 targetOffsetX = { it },
                 animationSpec = tween(200)
@@ -89,40 +109,46 @@ fun DialogNotice(
                 animationSpec = tween(150)
             ) + fadeOut(animationSpec = tween(150))
         }
+        enter to exit
     }
+}
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = enterAnimation,
-        exit = exitAnimation,
+@Composable
+private fun DialogNoticeContent(
+    modifier: Modifier,
+    isExpand: Boolean,
+    backgroundColor: Color,
+    text: String
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(
+                horizontal = MaterialTheme.dimens.medium,
+                vertical = MaterialTheme.dimens.large
+            )
+            .navigationBarsPadding(),
+        contentAlignment = if (isExpand) Alignment.BottomEnd else Alignment.BottomCenter
     ) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = MaterialTheme.dimens.medium,
-                    vertical = MaterialTheme.dimens.large)
-                .navigationBarsPadding()
-            ,
-            contentAlignment = if (isExpand) Alignment.BottomEnd else Alignment.BottomCenter
+        Surface(
+            color = backgroundColor,
+            shape = MaterialTheme.shapes.large,
         ) {
             Box(
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.large)
-                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
                     .padding(
                         vertical = MaterialTheme.dimens.small,
-                        horizontal = MaterialTheme.dimens.large)
+                        horizontal = MaterialTheme.dimens.large
+                    )
                     .then(
                         if (isExpand) Modifier.widthIn(max = 560.dp)
                         else Modifier.fillMaxWidth()
-                    ) ,
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -147,7 +173,7 @@ private fun PreviewPhone(){
                     Text("Show")
                 }
                 DialogNotice(
-                    visible = show,
+                    visible = true,
                     text = "Test",
                     onDismiss = { show = false }
                 )

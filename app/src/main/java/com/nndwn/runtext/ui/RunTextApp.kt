@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -22,12 +21,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.AppFlavor
-import com.nndwn.runtext.ui.component.DialogNotice
-import com.nndwn.runtext.ui.component.DialogWatchAds
-import com.nndwn.runtext.ui.component.LoadingScreen
+import com.nndwn.runtext.ui.component.OverlayScreen
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MainLayoutState
 import com.nndwn.runtext.ui.component.MenuOptions
+import com.nndwn.runtext.ui.component.OverlayScreenState
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.dimens
@@ -106,13 +104,15 @@ fun RunTextApp(
                     onMenuSelected = handleMenuOption,
                     modifier = Modifier.padding(vertical = MaterialTheme.dimens.large))},
             overlayContent = {
-                AppOverlay(
-                    showAdsDialog = showAdsDialog,
-                    isLoadingAd = isLoadingAd,
-                    noticeMessage = noticeMessage,
-                    adPrice = adPrice,
+                OverlayScreen(
+                    state = OverlayScreenState(
+                        showAdsDialog,
+                        isLoadingAd,
+                        noticeMessage,
+                        adPrice
+                    ),
                     onWatchAds = {
-                        val activity = context as? Activity ?: return@AppOverlay
+                        val activity = context as? Activity ?: return@OverlayScreen
                         appViewModel.performAdFlow(activity) {
                             showAdsDialog = false
                             pendingRoute?.let { route ->
@@ -127,13 +127,16 @@ fun RunTextApp(
                             navController.navigate(route)
                             pendingRoute = null
                         }
+                        appViewModel.recordAdShown()
                     },
                     onRemoveAds = {
-                        val activity = context as? Activity ?: return@AppOverlay
+                        val activity = context as? Activity ?: return@OverlayScreen
                         showAdsDialog = false
                         appViewModel.onRemoveAdsClicked(activity)
                     },
-                    onDismissNotice = { noticeMessage = null }
+                    onDismissNoticeMessage = {
+                        noticeMessage = null
+                    }
                 )
             }
         ) { innerPadding ->
@@ -142,30 +145,3 @@ fun RunTextApp(
     }
 }
 
-@Composable
-private fun AppOverlay(
-    showAdsDialog: Boolean,
-    isLoadingAd: Boolean,
-    noticeMessage: Int?,
-    adPrice: String?,
-    onWatchAds: () -> Unit,
-    onDismissAds: () -> Unit,
-    onRemoveAds: () -> Unit,
-    onDismissNotice: () -> Unit
-) {
-    DialogWatchAds(
-        showPanel = showAdsDialog,
-        price = adPrice,
-        onDismiss = onDismissAds,
-        onWatchAds = onWatchAds,
-        onRemoveAds = onRemoveAds
-    )
-
-    LoadingScreen(show = isLoadingAd)
-
-    DialogNotice(
-        visible = noticeMessage != null,
-        text = noticeMessage?.let { stringResource(it) } ?: "",
-        onDismiss = onDismissNotice
-    )
-}

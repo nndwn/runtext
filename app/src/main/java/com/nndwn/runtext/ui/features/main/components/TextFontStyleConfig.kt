@@ -89,7 +89,7 @@ fun SelectorFonts(
         state = SlideUpPanelState(
             visible = showPanelFonts,
             enabledDragToDismiss = true,
-            containerColor = MaterialTheme.colorScheme.onSecondaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         onDismiss = dismissPanel
     ) {

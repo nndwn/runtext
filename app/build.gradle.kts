@@ -54,8 +54,8 @@ android {
         applicationId = "com.nndwn.runtext"
         minSdk = 28
         targetSdk = 37
-        versionCode = 7
-        versionName = "1.0.5-beta"
+        versionCode = 9
+        versionName = "1.0.8-beta"
 
         val adsApiKey = "ADS_API_KEY"
         val adsApiAlt = "ADS_API_ALT"
