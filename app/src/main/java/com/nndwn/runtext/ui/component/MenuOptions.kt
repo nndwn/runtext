@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
+import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.LocalIsPremium
 
@@ -35,12 +37,13 @@ enum class MenuOptions(
 ) {
     REMOVE_ADS(
         label = R.string.menu_remove_ad,
-        iconRes = R.drawable.ic_coffee
+        iconRes = R.drawable.ic_coffee2
     ),
     RATE_APP(
         label = R.string.menu_review,
         iconRes = R.drawable.ic_star
     ),
+
     REPORT_ISSUE(
         label = R.string.menu_report_issue,
         iconRes = R.drawable.ic_bug
@@ -105,5 +108,15 @@ private fun ItemOptions(
             text = stringResource(menu.label),
             style = MaterialTheme.typography.titleMedium
         )
+    }
+}
+
+@Composable
+@Preview
+private fun Preview(){
+    RuntextTheme {
+        MenuOptions(){
+
+        }
     }
 }

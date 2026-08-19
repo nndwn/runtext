@@ -48,10 +48,7 @@ RunTxt uses Gradle and supports two build flavors: **Play Store** (with Ads and 
 ### Prerequisites
 1. Android Studio Ladybug or newer.
 2. Android SDK (API 35+).
-3. Copy `local.properties.default` to `local.properties` in the root directory.
 
-### Configuration (`local.properties`)
-The `local.properties` file is used to manage sensitive keys. For a **FOSS build**, you can leave all fields empty.
 
 ### Build Variants
 You can build the FOSS version using the following Gradle command:
