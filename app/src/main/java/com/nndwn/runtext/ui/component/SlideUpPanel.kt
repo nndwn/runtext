@@ -1,5 +1,6 @@
 package com.nndwn.runtext.ui.component
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -78,6 +79,10 @@ fun SlideUpPanel(
     val containerColor = if (state.containerColor != Color.Unspecified) {
         state.containerColor
     } else MaterialTheme.colorScheme.surface
+
+    BackHandler(state.visible) {
+        onDismiss()
+    }
 
     LaunchedEffect(state.visible) {
         if (state.visible) {
