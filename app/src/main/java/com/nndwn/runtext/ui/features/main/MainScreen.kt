@@ -15,11 +15,11 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,12 +28,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +51,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
+import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.MenuOptions
@@ -82,15 +87,13 @@ fun MainScreen(
     padding: PaddingValues,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val toggleSidebar = LocalToggleSidebar.current
-    val onMenuSelected = LocalMenuOptionHandler.current
+
+
     MainScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
-        sideBarEnd = toggleSidebar,
         padding = padding,
-        limitText = viewModel.limitText,
-        menus = onMenuSelected
+        limitText = viewModel.limitText
     )
 }
 
@@ -100,354 +103,472 @@ fun MainScreenContent(
     uiState: MainUiState,
     onEvent: (MainUiEvent) -> Unit,
     limitText: Int = 100,
-    menus : (MenuOptions) -> Unit,
-    sideBarEnd: () -> Unit,
 ) {
-    val widowSizeHeight = LocalSizeHeight.current
-    val widowSizeWidth = LocalSizeWidth.current
     val focusManager = LocalFocusManager.current
+
+
     var expandedPickerId by remember { mutableStateOf<String?>(null) }
     var showPanelFonts by remember { mutableStateOf(false) }
 
-    val closePicker = { expandedPickerId = null }
-
-    val togglePicker: (String) -> Unit = { id ->
-        expandedPickerId =  if (expandedPickerId == id) null else id
-        focusManager.clearFocus()
-    }
-
     val dispatch: (MainUiEvent) -> Unit = { event ->
-        if (event !is MainUiEvent.UpdateText && event !is MainUiEvent.ClearText) {
-            focusManager.clearFocus()
-        }
+        val isTextInput = event is MainUiEvent.UpdateText || event is MainUiEvent.ClearText
+        if (!isTextInput) focusManager.clearFocus()
         onEvent(event)
     }
 
-    val dispatchAndClosePicker: (MainUiEvent) -> Unit = { event ->
+    val togglePicker: (String) -> Unit = { id ->
+        expandedPickerId = if (expandedPickerId == id) null else id
         focusManager.clearFocus()
-        closePicker()
-        dispatch(event)
     }
 
-    val transition = rememberInfiniteTransition(label = "MainShimmerTransition")
-    val shimmerProgress by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "MainShimmerProgress"
-    )
+    CompositionLocalProvider(
+                LocalPadding provides padding,
+        LocalLimitText provides limitText
+    ) {
+        MainScreenLayout(
+            uiState = uiState,
+            expandedPickerId = expandedPickerId,
+            dispatch = dispatch,
+            togglePicker = togglePicker,
+            onFontPanelToggle = {
+                expandedPickerId = null
+                showPanelFonts = !showPanelFonts
+            },
+            onAutoExpandPicker = { expandedPickerId = it }
+        )
 
+        MainFontSelector(
+            uiState = uiState,
+            showPanelFonts = showPanelFonts,
+            onDismiss = { showPanelFonts = false },
+            onUpdateFont = {
+                focusManager.clearFocus()
+                expandedPickerId = null
+                dispatch(MainUiEvent.UpdateFontType(it))
+            }
+        )
+    }
+
+}
+
+@Composable
+private fun MainScreenLayout(
+    uiState: MainUiState,
+    expandedPickerId: String?,
+    dispatch: (MainUiEvent) -> Unit,
+    togglePicker: (String) -> Unit,
+    onFontPanelToggle: () -> Unit,
+    onAutoExpandPicker: (String) -> Unit,
+) {
+
+    val widowSizeHeight = LocalSizeHeight.current
+    val widowSizeWidth = LocalSizeWidth.current
+    val focusManager = LocalFocusManager.current
+    val paddingFromRoot = LocalPadding.current
+    val toggleSidebar = LocalToggleSidebar.current
+    val onMenuSelected = LocalMenuOptionHandler.current
     val listState = rememberLazyListState()
 
     LaunchedEffect(listState.isScrollInProgress) {
-        if (listState.isScrollInProgress) {
-            focusManager.clearFocus()
-        }
+        if (listState.isScrollInProgress) focusManager.clearFocus()
     }
+
     if (uiState is MainUiState.Success) {
         LaunchedEffect(uiState.settings.mode) {
-            expandedPickerId = when (uiState.settings.mode) {
+            val id = when (uiState.settings.mode) {
                 AppMode.MORSE_CODE -> "morse_color"
                 AppMode.RUNNING_TEXT -> "text_presets"
             }
+            onAutoExpandPicker(id)
         }
     }
-
-
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(padding)
+            .padding(paddingFromRoot)
     ) {
-        if (widowSizeWidth != WindowWidthSizeClass.Compact){
-            Surface(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(250.dp)
-
-                ,
-                color = MaterialTheme.colorScheme.secondary
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    LogoText(
-                        modifier = Modifier
-                            .padding(vertical = MaterialTheme.dimens.medium , horizontal = MaterialTheme.dimens.small)
-                    )
-                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
-                    if (widowSizeHeight == WindowHeightSizeClass.Compact && uiState is MainUiState.Success) {
-                        PreviewAndStart(
-                            settings = uiState.settings,
-                            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small),
-                            onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
-
-                        )
-                    }
-                    if (widowSizeHeight != WindowHeightSizeClass.Compact){
-                        MenuOptions (
-                            onMenuSelected = menus
-                        )
-                    }
-
-                }
-            }
-
+        if (widowSizeWidth != WindowWidthSizeClass.Compact) {
+            MainSidebar(
+                uiState = uiState,
+                widowSizeHeight = widowSizeHeight,
+                menus = onMenuSelected ,
+                onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+            )
         }
 
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            contentPadding = PaddingValues(
-                bottom = padding.calculateBottomPadding(),
-                start = MaterialTheme.dimens.medium,
-                end = MaterialTheme.dimens.medium,
-
-                ),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
-
-        ) {
-            item {
-                AnimatedVisibility(
-                    visible = widowSizeWidth == WindowWidthSizeClass.Compact,
-                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
-                ) {
-                    LogoText(
-                        modifier = Modifier
-                            .padding(vertical = MaterialTheme.dimens.small),
-                        content = {
-                            ThreeDotsHorizontal(onClick = { sideBarEnd() })
-                        }
-                    )
-                }
-            }
-            when (uiState) {
-                is MainUiState.Loading -> {
-                    if (widowSizeHeight != WindowHeightSizeClass.Compact) {
-                        item {
-                            Skeleton(
-                                shimmerProgress = shimmerProgress,
-                                height = 140.dp
-                            )
-                        }
-                    }
-                    item {
-                        Skeleton(
-                            shimmerProgress = shimmerProgress,
-                            height = 120.dp
-                        )
-                    }
-                    items(7) {
-                        Skeleton(
-                            shimmerProgress = shimmerProgress,
-                            height = 56.dp
-                        )
-                    }
-                }
-
-                is MainUiState.Success -> {
-                    val settings = uiState.settings
-                    if (widowSizeHeight != WindowHeightSizeClass.Compact) {
-                        stickyHeader {
-                            PreviewAndStart(
-                                settings = settings,
-                                onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
-                            )
-                        }
-                    }
-
-                    item {
-                        TextInputConfig(
-                            text = settings.lastText,
-                            onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
-                            onClearText = { dispatch(MainUiEvent.ClearText) },
-                            limitText = limitText
-                        )
-                    }
-
-                    item {
-                        AppModeSettings(
-                            currentMode = settings.mode,
-                            onModeChange = {
-                                dispatch(MainUiEvent.UpdateMode(it))
-                            }
-                        )
-                    }
-
-                    item {
-                        AnimatedContent(
-                            targetState = settings.mode,
-                            transitionSpec = {
-                                if (targetState == AppMode.MORSE_CODE) {
-                                    slideInHorizontally { width -> width } + fadeIn() togetherWith
-                                            slideOutHorizontally { width -> -width } + fadeOut()
-                                } else {
-                                    slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                                            slideOutHorizontally { width -> width } + fadeOut()
-                                }
-                            },
-                            label = "ModeSettingsTransition"
-                        ) { mode ->
-                            when (mode) {
-                                AppMode.RUNNING_TEXT -> {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
-                                    ) {
-                                        TextPresetConfig(
-                                            expandedId = expandedPickerId,
-                                            onToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        TextSpeedConfig(
-                                            speed = settings.textConfig.speed,
-                                            onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
-                                        )
-                                        ConfigCard {
-                                            SwitchRow(
-                                                title = stringResource(R.string.set_config_text_mirror),
-                                                subtitle = stringResource(R.string.set_config_text_mirror_desc),
-                                                checked = settings.textConfig.isMirrorMode,
-                                                onCheckedChange = {
-                                                    dispatchAndClosePicker(
-                                                        MainUiEvent.UpdateMirrorMode(it)
-                                                    )
-                                                },
-                                            )
-                                        }
-                                        TextFontStyleConfig(
-                                            config = settings.textConfig.textStyle,
-                                            onClick = {
-                                                closePicker(); showPanelFonts = !showPanelFonts
-                                            }
-                                        )
-                                        TextSpacingConfig(
-                                            config = settings.textConfig.textStyle,
-                                            expandedId = expandedPickerId,
-                                            onToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        ConfigCard {
-                                            ColorPickerField(
-                                                label = stringResource(R.string.set_config_color_background),
-                                                color = settings.textConfig.bgColorArgb.toComposeColor(),
-                                                isExpanded = expandedPickerId == "bg",
-                                                onToggleExpand = { togglePicker("bg") },
-                                                onColorChange = {
-                                                    dispatch(
-                                                        MainUiEvent.UpdateBgColor(
-                                                            it
-                                                        )
-                                                    )
-                                                }
-                                            )
-                                        }
-                                        TextColorPickerConfig(
-                                            label = stringResource(R.string.set_config_text_color_text),
-                                            config = settings.textConfig.textStyle,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        TextOutlineConfig(
-                                            config = settings.textConfig.stroke,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        TextShadowConfig(
-                                            config = settings.textConfig.shadow,
-                                            expandedPickerId = expandedPickerId,
-                                            onPickerToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                    }
-                                }
-
-                                AppMode.MORSE_CODE -> {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
-                                    ) {
-                                        MorseColorConfig(
-                                            currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
-                                            expandedId = expandedPickerId,
-                                            onToggle = togglePicker,
-                                            onEvent = dispatch
-                                        )
-                                        MorseSpeedConfig(
-                                            speed = settings.morseConfig.morseWpm,
-                                            event = dispatch
-                                        )
-                                        ConfigCard {
-                                            SwitchRow(
-                                                title = stringResource(R.string.set_config_morse_flash_screen),
-                                                subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
-                                                checked = settings.morseConfig.isFlashScreen,
-                                                onCheckedChange = {
-                                                    dispatch(
-                                                        MainUiEvent.UpdateFlashScreen(
-                                                            it
-                                                        )
-                                                    )
-                                                },
-                                            )
-                                        }
-                                        MorseTorchConfig(
-                                            enable = settings.morseConfig.isTorchEnabled,
-                                            event = dispatch
-                                        )
-                                        ConfigCard {
-                                            SwitchRow(
-                                                title = stringResource(R.string.set_config_morse_sound),
-                                                subtitle = stringResource(R.string.set_config_morse_sound_desc),
-                                                checked = settings.morseConfig.isSoundEnabled,
-                                                onCheckedChange = {
-                                                    dispatch(
-                                                        MainUiEvent.UpdateSoundEnabled(
-                                                            it
-                                                        )
-                                                    )
-                                                },
-                                            )
-                                        }
-                                        ConfigCard {
-                                            SwitchRow(
-                                                title = stringResource(R.string.set_config_morse_vibration),
-                                                subtitle = stringResource(R.string.set_config_morse_vibration_desc),
-                                                checked = settings.morseConfig.isVibrateEnabled,
-                                                onCheckedChange = {
-                                                    dispatch(
-                                                        MainUiEvent.UpdateVibrateEnabled(
-                                                            it
-                                                        )
-                                                    )
-                                                },
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    (uiState as? MainUiState.Success)?.let { success ->
-
-        SelectorFonts(
-            settings = success.settings,
-            onUpdateFontType = { dispatchAndClosePicker(MainUiEvent.UpdateFontType(it)) },
-            showPanelFonts = showPanelFonts,
-            dismissPanel = { showPanelFonts = false }
+        MainConfigList(
+            listState = listState,
+            uiState = uiState,
+            expandedPickerId = expandedPickerId,
+            dispatch = dispatch,
+            togglePicker = togglePicker,
+            sideBarEnd = toggleSidebar,
+            onFontPanelToggle = onFontPanelToggle
         )
     }
 }
 
+@Composable
+private fun RowScope.MainConfigList(
+    listState: LazyListState,
+    uiState: MainUiState,
+    expandedPickerId: String?,
+    dispatch: (MainUiEvent) -> Unit,
+    togglePicker: (String) -> Unit,
+    sideBarEnd: () -> Unit,
+    onFontPanelToggle: () -> Unit,
+) {
+
+    val paddingFromRoot = LocalPadding.current
+    val widowSizeHeight = LocalSizeHeight.current
+    val widowSizeWidth = LocalSizeWidth.current
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .weight(1f),
+        contentPadding = PaddingValues(
+            bottom = paddingFromRoot.calculateBottomPadding(),
+            start = MaterialTheme.dimens.medium,
+            end = MaterialTheme.dimens.medium,
+        ),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
+    ) {
+        item {
+            MainTopBar(
+                isCompactWidth = widowSizeWidth == WindowWidthSizeClass.Compact,
+                onSidebarToggle = sideBarEnd
+            )
+        }
+
+        when (uiState) {
+            is MainUiState.Loading -> loadingContent(widowSizeHeight)
+            is MainUiState.Success -> successContent(
+                settings = uiState.settings,
+                widowSizeHeight = widowSizeHeight,
+                expandedPickerId = expandedPickerId,
+                togglePicker = togglePicker,
+                dispatch = dispatch,
+                dispatchAndClosePicker = {
+                    togglePicker("") // Simplifies dispatchAndClosePicker
+                    dispatch(it)
+                },
+                onFontPanelToggle = onFontPanelToggle
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainFontSelector(
+    uiState: MainUiState,
+    showPanelFonts: Boolean,
+    onDismiss: () -> Unit,
+    onUpdateFont: (FontType) -> Unit,
+) {
+    (uiState as? MainUiState.Success)?.let { success ->
+        SelectorFonts(
+            settings = success.settings,
+            onUpdateFontType = onUpdateFont,
+            showPanelFonts = showPanelFonts,
+            dismissPanel = onDismiss
+        )
+    }
+}
+
+@Composable
+private fun MainSidebar(
+    uiState: MainUiState,
+    widowSizeHeight: WindowHeightSizeClass,
+    menus: (MenuOptions) -> Unit,
+    onNavigateToDisplay: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(250.dp),
+        color = MaterialTheme.colorScheme.secondary
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            LogoText(
+                modifier = Modifier
+                    .padding(
+                        vertical = MaterialTheme.dimens.medium,
+                        horizontal = MaterialTheme.dimens.small
+                    )
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
+            if (widowSizeHeight == WindowHeightSizeClass.Compact && uiState is MainUiState.Success) {
+                PreviewAndStart(
+                    settings = uiState.settings,
+                    modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small),
+                    onNavigateToDisplay = onNavigateToDisplay
+                )
+            }
+            if (widowSizeHeight != WindowHeightSizeClass.Compact) {
+                MenuOptions(onMenuSelected = menus)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainTopBar(
+    isCompactWidth: Boolean,
+    onSidebarToggle: () -> Unit,
+) {
+    AnimatedVisibility(
+        visible = isCompactWidth,
+        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+    ) {
+        LogoText(
+            modifier = Modifier.padding(vertical = MaterialTheme.dimens.small),
+            content = {
+                ThreeDotsHorizontal(onClick = onSidebarToggle)
+            }
+        )
+    }
+}
+
+private fun LazyListScope.loadingContent(
+    widowSizeHeight: WindowHeightSizeClass
+) {
+    item {
+        val transition = rememberInfiniteTransition(label = "MainShimmerTransition")
+        val shimmerProgress by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 800, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "MainShimmerProgress"
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)) {
+            if (widowSizeHeight != WindowHeightSizeClass.Compact) {
+                Skeleton(shimmerProgress = shimmerProgress, height = 140.dp)
+            }
+            Skeleton(shimmerProgress = shimmerProgress, height = 120.dp)
+            repeat(7) {
+                Skeleton(shimmerProgress = shimmerProgress, height = 56.dp)
+            }
+        }
+    }
+}
+
+private fun LazyListScope.successContent(
+    settings: AppSettings,
+    widowSizeHeight: WindowHeightSizeClass,
+    expandedPickerId: String?,
+    togglePicker: (String) -> Unit,
+    dispatch: (MainUiEvent) -> Unit,
+    dispatchAndClosePicker: (MainUiEvent) -> Unit,
+    onFontPanelToggle: () -> Unit
+) {
+    if (widowSizeHeight != WindowHeightSizeClass.Compact) {
+        stickyHeader {
+            PreviewAndStart(
+                settings = settings,
+                onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) }
+            )
+        }
+    }
+
+    item {
+        TextInputConfig(
+            text = settings.lastText,
+            onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
+            onClearText = { dispatch(MainUiEvent.ClearText) }
+        )
+    }
+
+    item {
+        AppModeSettings(
+            currentMode = settings.mode,
+            onModeChange = { dispatch(MainUiEvent.UpdateMode(it)) }
+        )
+    }
+
+    item {
+        ModeSpecificSettings(
+            settings = settings,
+            expandedPickerId = expandedPickerId,
+            togglePicker = togglePicker,
+            dispatch = dispatch,
+            dispatchAndClosePicker = dispatchAndClosePicker,
+            onFontPanelToggle = onFontPanelToggle
+        )
+    }
+}
+
+@Composable
+private fun ModeSpecificSettings(
+    settings: AppSettings,
+    expandedPickerId: String?,
+    togglePicker: (String) -> Unit,
+    dispatch: (MainUiEvent) -> Unit,
+    dispatchAndClosePicker: (MainUiEvent) -> Unit,
+    onFontPanelToggle: () -> Unit
+) {
+    AnimatedContent(
+        targetState = settings.mode,
+        transitionSpec = {
+            if (targetState == AppMode.MORSE_CODE) {
+                slideInHorizontally { width -> width } + fadeIn() togetherWith
+                        slideOutHorizontally { width -> -width } + fadeOut()
+            } else {
+                slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                        slideOutHorizontally { width -> width } + fadeOut()
+            }
+        },
+        label = "ModeSettingsTransition"
+    ) { mode ->
+        when (mode) {
+            AppMode.RUNNING_TEXT -> {
+                RunningTextSettingsList(
+                    settings = settings,
+                    expandedPickerId = expandedPickerId,
+                    togglePicker = togglePicker,
+                    dispatch = dispatch,
+                    dispatchAndClosePicker = dispatchAndClosePicker,
+                    onFontPanelToggle = onFontPanelToggle
+                )
+            }
+            AppMode.MORSE_CODE -> {
+                MorseCodeSettingsList(
+                    settings = settings,
+                    expandedPickerId = expandedPickerId,
+                    togglePicker = togglePicker,
+                    dispatch = dispatch
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RunningTextSettingsList(
+    settings: AppSettings,
+    expandedPickerId: String?,
+    togglePicker: (String) -> Unit,
+    dispatch: (MainUiEvent) -> Unit,
+    dispatchAndClosePicker: (MainUiEvent) -> Unit,
+    onFontPanelToggle: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
+    ) {
+        TextPresetConfig(
+            expandedId = expandedPickerId,
+            onToggle = togglePicker,
+            onEvent = dispatch
+        )
+        TextSpeedConfig(
+            speed = settings.textConfig.speed,
+            onSpeedChange = { dispatch(MainUiEvent.UpdateSpeed(it)) }
+        )
+        ConfigCard {
+            SwitchRow(
+                title = stringResource(R.string.set_config_text_mirror),
+                subtitle = stringResource(R.string.set_config_text_mirror_desc),
+                checked = settings.textConfig.isMirrorMode,
+                onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
+            )
+        }
+        TextFontStyleConfig(
+            config = settings.textConfig.textStyle,
+            onClick = onFontPanelToggle
+        )
+        TextSpacingConfig(
+            config = settings.textConfig.textStyle,
+            expandedId = expandedPickerId,
+            onToggle = togglePicker,
+            onEvent = dispatch
+        )
+        ConfigCard {
+            ColorPickerField(
+                label = stringResource(R.string.set_config_color_background),
+                color = settings.textConfig.bgColorArgb.toComposeColor(),
+                isExpanded = expandedPickerId == "bg",
+                onToggleExpand = { togglePicker("bg") },
+                onColorChange = { dispatch(MainUiEvent.UpdateBgColor(it)) }
+            )
+        }
+        TextColorPickerConfig(
+            label = stringResource(R.string.set_config_text_color_text),
+            config = settings.textConfig.textStyle,
+            expandedPickerId = expandedPickerId,
+            onPickerToggle = togglePicker,
+            onEvent = dispatch
+        )
+        TextOutlineConfig(
+            config = settings.textConfig.stroke,
+            expandedPickerId = expandedPickerId,
+            onPickerToggle = togglePicker,
+            onEvent = dispatch
+        )
+        TextShadowConfig(
+            config = settings.textConfig.shadow,
+            expandedPickerId = expandedPickerId,
+            onPickerToggle = togglePicker,
+            onEvent = dispatch
+        )
+    }
+}
+
+@Composable
+private fun MorseCodeSettingsList(
+    settings: AppSettings,
+    expandedPickerId: String?,
+    togglePicker: (String) -> Unit,
+    dispatch: (MainUiEvent) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
+    ) {
+        MorseColorConfig(
+            currentColor = settings.morseConfig.bgColorMorse.toComposeColor(),
+            expandedId = expandedPickerId,
+            onToggle = togglePicker,
+            onEvent = dispatch
+        )
+        MorseSpeedConfig(
+            speed = settings.morseConfig.morseWpm,
+            event = dispatch
+        )
+        ConfigCard {
+            SwitchRow(
+                title = stringResource(R.string.set_config_morse_flash_screen),
+                subtitle = stringResource(R.string.set_config_morse_flash_screen_desc),
+                checked = settings.morseConfig.isFlashScreen,
+                onCheckedChange = { dispatch(MainUiEvent.UpdateFlashScreen(it)) },
+            )
+        }
+        MorseTorchConfig(
+            enable = settings.morseConfig.isTorchEnabled,
+            event = dispatch
+        )
+        ConfigCard {
+            SwitchRow(
+                title = stringResource(R.string.set_config_morse_sound),
+                subtitle = stringResource(R.string.set_config_morse_sound_desc),
+                checked = settings.morseConfig.isSoundEnabled,
+                onCheckedChange = { dispatch(MainUiEvent.UpdateSoundEnabled(it)) },
+            )
+        }
+        ConfigCard {
+            SwitchRow(
+                title = stringResource(R.string.set_config_morse_vibration),
+                subtitle = stringResource(R.string.set_config_morse_vibration_desc),
+                checked = settings.morseConfig.isVibrateEnabled,
+                onCheckedChange = { dispatch(MainUiEvent.UpdateVibrateEnabled(it)) },
+            )
+        }
+    }
+}

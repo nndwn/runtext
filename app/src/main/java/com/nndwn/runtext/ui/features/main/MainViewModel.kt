@@ -60,19 +60,52 @@ class MainViewModel @Inject constructor(
 
     fun onEvent(event: MainUiEvent) {
         when (event) {
+            // Morse Config
+            is MainUiEvent.UpdateMorseWpm,
+            is MainUiEvent.UpdateBgColorMorse,
+            is MainUiEvent.UpdateFlashScreen,
+            is MainUiEvent.UpdateTorchEnabled,
+            is MainUiEvent.UpdateSoundEnabled,
+            is MainUiEvent.UpdateVibrateEnabled -> handleMorseEvent(event)
+
+            // Text Style
+            is MainUiEvent.UpdateTextColor,
+            is MainUiEvent.UpdateTextColorType,
+            is MainUiEvent.UpdateGradientColors,
+            is MainUiEvent.UpdateGradientDistance,
+            is MainUiEvent.ToggleGradientHorizontal,
+            is MainUiEvent.UpdateFontType,
+            is MainUiEvent.UpdateGoogleFontName,
+            is MainUiEvent.UpdateLetterSpacing,
+            is MainUiEvent.ToggleStroke,
+            is MainUiEvent.UpdateStrokeWidth,
+            is MainUiEvent.UpdateStrokeColor,
+            is MainUiEvent.ToggleShadow,
+            is MainUiEvent.UpdateShadowColor,
+            is MainUiEvent.UpdateShadowRadius,
+            is MainUiEvent.ApplyPreset,
+            is MainUiEvent.UpdateSpeed,
+            is MainUiEvent.UpdateBgColor,
+            is MainUiEvent.UpdateMirrorMode,
+            is MainUiEvent.UpdateShadowRotation,
+            is MainUiEvent.UpdateWordSpacing -> handleRunningText(event)
+
             // Navigation & General
             is MainUiEvent.NavigateToDisplay -> handleNavigateToDisplay()
             is MainUiEvent.NavigateBack -> uiEffectController.sendEffect(UiEffect.NavigateBack)
             is MainUiEvent.Toast -> uiEffectController.sendEffect(UiEffect.ShowToast(event.message))
-            is MainUiEvent.ApplyPreset -> updateTextConfig { event.settings }
             is MainUiEvent.UpdateText -> updateText(event.text)
             is MainUiEvent.ClearText -> updateText("")
             is MainUiEvent.UpdateMode -> updateSettings { it.copy(mode = event.mode) }
-            is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
-            is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }
-            is MainUiEvent.UpdateMirrorMode -> updateTextConfig { copy(isMirrorMode = event.mirror) }
 
-            // Text Style
+
+
+        }
+    }
+
+    private fun handleRunningText(event: MainUiEvent) {
+        when (event) {
+            is MainUiEvent.ApplyPreset -> updateTextConfig { event.settings }
             is MainUiEvent.UpdateTextColor -> updateTextStyle { copy(colorArgb = event.colorArgb) }
             is MainUiEvent.UpdateTextColorType -> updateTextStyle { copy(colorType = event.type) }
             is MainUiEvent.UpdateGradientColors -> updateTextStyle { copy(gradientColorsArgb = event.colors) }
@@ -82,13 +115,12 @@ class MainViewModel @Inject constructor(
             is MainUiEvent.UpdateGoogleFontName -> updateTextStyle { copy(googleFontName = event.fontName) }
             is MainUiEvent.UpdateLetterSpacing -> updateTextStyle { copy(letterSpacingSp = event.spacingSp.coerceIn(-2f, 20f)) }
             is MainUiEvent.UpdateWordSpacing -> updateTextStyle { copy(wordSpacingSp = event.spacingSp.coerceIn(0f, 30f)) }
-
-            // Stroke
+            is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
+            is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }
+            is MainUiEvent.UpdateMirrorMode -> updateTextConfig { copy(isMirrorMode = event.mirror) }
             is MainUiEvent.ToggleStroke -> updateStroke { copy(isEnabled = event.isEnabled) }
             is MainUiEvent.UpdateStrokeWidth -> updateStroke { copy(width = event.width.coerceIn(1f, 10f)) }
             is MainUiEvent.UpdateStrokeColor -> updateStroke { copy(colorArgb = event.colorArgb) }
-
-            // Shadow
             is MainUiEvent.ToggleShadow -> updateShadow { copy(isEnabled = event.isEnabled) }
             is MainUiEvent.UpdateShadowColor -> updateShadow { copy(colorArgb = event.colorArgb) }
             is MainUiEvent.UpdateShadowRadius -> updateShadow { copy(radius = event.radius.coerceIn(0f, 25f)) }
@@ -96,14 +128,20 @@ class MainViewModel @Inject constructor(
                 val normalizedRotation = (event.rotation % 360f + 360f) % 360f
                 copy(rotation = normalizedRotation)
             }
+            else -> {}
+        }
+    }
 
-            // Morse Config
+
+    private fun handleMorseEvent(event: MainUiEvent) {
+        when (event) {
             is MainUiEvent.UpdateMorseWpm -> updateMorse { copy(morseWpm = event.wpm.coerceIn(5, 40)) }
             is MainUiEvent.UpdateBgColorMorse -> updateMorse { copy(bgColorMorse = event.colorArgb) }
             is MainUiEvent.UpdateFlashScreen -> handleMorseOutputToggle(isFlashScreen = event.isFlashScreen)
             is MainUiEvent.UpdateTorchEnabled -> handleMorseOutputToggle(isTorchEnabled = event.isTorchEnabled)
             is MainUiEvent.UpdateSoundEnabled -> updateMorse { copy(isSoundEnabled = event.isSoundEnabled) }
             is MainUiEvent.UpdateVibrateEnabled -> updateMorse { copy(isVibrateEnabled = event.isVibrateEnabled) }
+            else -> {}
         }
     }
 

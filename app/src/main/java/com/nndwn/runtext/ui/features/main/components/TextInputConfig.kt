@@ -20,18 +20,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
+import com.nndwn.runtext.ui.features.main.LocalLimitText
 import com.nndwn.runtext.ui.theme.dimens
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextInputConfig(
     modifier: Modifier = Modifier,
     text: String,
-    limitText : Int,
     onTextChange: (String) -> Unit,
     onClearText: () -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
+
+    val limitText = LocalLimitText.current
     BasicTextField(
         value = text,
         onValueChange = { newText ->

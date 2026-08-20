@@ -23,8 +23,10 @@ import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
+import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.utils.LocalSizeHeight
 import com.nndwn.runtext.ui.utils.LocalSizeWidth
+import com.nndwn.runtext.ui.utils.LocalToggleSidebar
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -53,7 +55,9 @@ private fun InteractivePreviewWrapper(
 
     CompositionLocalProvider(
         LocalSizeHeight provides widowSizeHeight,
-        LocalSizeWidth provides windowWidth
+        LocalSizeWidth provides windowWidth,
+        LocalToggleSidebar provides {},
+        LocalMenuOptionHandler provides {}
     ) {
         RuntextTheme {
             MainLayout(
@@ -71,9 +75,7 @@ private fun InteractivePreviewWrapper(
                         MainScreenContent(
                             uiState = MainUiState.Success(settings),
                             onEvent = {},
-                            sideBarEnd = { isSidebarOpen = true },
                             padding = innerPadding,
-                            menus = {}
                         )
                     }
                     composable(Routes.DISPLAY) {

@@ -20,6 +20,8 @@ val LocalToggleSidebar = staticCompositionLocalOf<() -> Unit> {
     error("No ToggleSidebar provided")
 }
 
+
+
 val LocalMenuOptionHandler = staticCompositionLocalOf<(MenuOptions) -> Unit> {
     error("No MenuOptionHandler provided")
 }
