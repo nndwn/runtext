@@ -29,9 +29,6 @@ import com.nndwn.runtext.ui.component.OverlayScreenState
 import com.nndwn.runtext.ui.navigation.AppNavigation
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalIsPremium
-import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
-import com.nndwn.runtext.ui.utils.LocalToggleSidebar
 import com.nndwn.runtext.ui.utils.gotoMail
 import com.nndwn.runtext.ui.utils.gotoPlayStore
 

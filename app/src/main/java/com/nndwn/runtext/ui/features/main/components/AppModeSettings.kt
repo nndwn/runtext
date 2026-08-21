@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.data.model.AppMode
-import com.nndwn.runtext.extentions.shrinkRadius
+import com.nndwn.runtext.ui.extentions.shrinkRadius
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 import kotlin.math.roundToInt

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextStyleConfig
-import com.nndwn.runtext.extentions.shrinkRadius
+import com.nndwn.runtext.ui.extentions.shrinkRadius
 import com.nndwn.runtext.ui.component.ColorPickerField
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.SliderTheme

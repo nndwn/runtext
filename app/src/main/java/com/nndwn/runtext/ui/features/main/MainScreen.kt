@@ -76,10 +76,10 @@ import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
-import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
-import com.nndwn.runtext.ui.utils.LocalSizeHeight
-import com.nndwn.runtext.ui.utils.LocalSizeWidth
-import com.nndwn.runtext.ui.utils.LocalToggleSidebar
+import com.nndwn.runtext.ui.LocalMenuOptionHandler
+import com.nndwn.runtext.ui.LocalSizeHeight
+import com.nndwn.runtext.ui.LocalSizeWidth
+import com.nndwn.runtext.ui.LocalToggleSidebar
 
 @Composable
 fun MainScreen(

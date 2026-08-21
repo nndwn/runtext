@@ -29,7 +29,7 @@ import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalIsPremium
+import com.nndwn.runtext.ui.LocalIsPremium
 
 enum class MenuOptions(
     @param:StringRes val label: Int,

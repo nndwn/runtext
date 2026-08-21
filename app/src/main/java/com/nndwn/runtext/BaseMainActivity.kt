@@ -2,7 +2,6 @@ package com.nndwn.runtext
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -14,9 +13,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.nndwn.runtext.ui.RunTextApp
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.utils.DeviceSpecsLogger
-import com.nndwn.runtext.ui.utils.LocalSizeHeight
-import com.nndwn.runtext.ui.utils.LocalSizeWidth
+import com.nndwn.runtext.utils.DeviceSpecsLogger
+import com.nndwn.runtext.ui.LocalSizeHeight
+import com.nndwn.runtext.ui.LocalSizeWidth
 
 abstract class BaseMainActivity : ComponentActivity() {
 

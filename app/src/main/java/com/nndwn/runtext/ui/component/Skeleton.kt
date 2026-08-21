@@ -7,7 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import com.nndwn.runtext.extentions.shimmer
+import com.nndwn.runtext.ui.extentions.shimmer
 
 @Composable
 fun Skeleton(

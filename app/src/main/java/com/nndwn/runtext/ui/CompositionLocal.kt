@@ -1,4 +1,4 @@
-package com.nndwn.runtext.ui.utils
+package com.nndwn.runtext.ui
 
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass

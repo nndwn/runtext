@@ -1,4 +1,4 @@
-package com.nndwn.runtext.extentions
+package com.nndwn.runtext.ui.extentions
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize

@@ -23,10 +23,10 @@ import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.utils.LocalMenuOptionHandler
-import com.nndwn.runtext.ui.utils.LocalSizeHeight
-import com.nndwn.runtext.ui.utils.LocalSizeWidth
-import com.nndwn.runtext.ui.utils.LocalToggleSidebar
+import com.nndwn.runtext.ui.LocalMenuOptionHandler
+import com.nndwn.runtext.ui.LocalSizeHeight
+import com.nndwn.runtext.ui.LocalSizeWidth
+import com.nndwn.runtext.ui.LocalToggleSidebar
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalSizeWidth
+import com.nndwn.runtext.ui.LocalSizeWidth
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 

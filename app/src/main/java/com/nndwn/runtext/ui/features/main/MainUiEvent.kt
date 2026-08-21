@@ -12,7 +12,7 @@ sealed interface MainUiEvent {
     data object NavigateToDisplay : MainUiEvent
     data object NavigateBack : MainUiEvent
 
-    data class Toast(@param:StringRes val message: Int) : MainUiEvent
+    data class Toast(@field:StringRes val message: Int) : MainUiEvent
 
     // ── General / Text Input ──
     data class ApplyPreset(val settings: TextConfig) : MainUiEvent

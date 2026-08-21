@@ -1,9 +1,10 @@
-package com.nndwn.runtext.ui.utils
+package com.nndwn.runtext.utils
 
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.view.WindowManager
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import java.io.File
 import java.io.RandomAccessFile
@@ -26,7 +27,7 @@ object DeviceSpecsLogger {
             context.display
         } else {
             @Suppress("DEPRECATION")
-            (context.getSystemService(Context.WINDOW_SERVICE) as? android.view.WindowManager)?.defaultDisplay
+            (context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.defaultDisplay
         }
 
         val refreshRate = display?.refreshRate ?: -1f

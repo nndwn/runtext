@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.utils.LocalSizeWidth
+import com.nndwn.runtext.ui.LocalSizeWidth
 
 @Composable
 fun DialogWatchAds(
