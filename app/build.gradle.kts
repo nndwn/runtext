@@ -54,8 +54,8 @@ android {
         applicationId = "com.nndwn.runtext"
         minSdk = 28
         targetSdk = 37
-        versionCode = 9
-        versionName = "1.0.8-beta"
+        versionCode = 10
+        versionName = "1.3.1-beta"
 
         val adsApiKey = "ADS_API_KEY"
         val adsApiAlt = "ADS_API_ALT"
@@ -118,7 +118,6 @@ androidComponents {
 
 dependencies {
 
-    "playstoreImplementation"(libs.play.services.ads)
     "playstoreImplementation"(libs.app.update.ktx)
     "playstoreImplementation"(libs.billing.ktx)
 

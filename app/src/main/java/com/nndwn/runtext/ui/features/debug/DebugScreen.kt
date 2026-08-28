@@ -23,52 +23,34 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DebugScreen(
-    viewModel: DebugViewModel = hiltViewModel(),
-    onBack: () -> Unit = {}
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Debug Panel") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(
-                onClick = { viewModel.setPremium() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Set Premium (Debug)")
-            }
-
-            Button(
-                onClick = { viewModel.forceShowAd() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Force Show Ad (Reset Timer)")
-            }
-
-            Button(
-                onClick = { viewModel.resetDataStore() },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Reset All DataStore")
-            }
-        }
+fun DebugScreen(viewModel: DebugViewModel = hiltViewModel(), onBack: () -> Unit = {}) {
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        title = { Text("Debug Panel") },
+        navigationIcon = {
+          IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+        },
+      )
     }
+  ) { padding ->
+    Column(
+      modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+      verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+      Button(onClick = { viewModel.setPremium() }, modifier = Modifier.fillMaxWidth()) { Text("Set Premium (Debug)") }
+
+      Button(onClick = { viewModel.forceShowAd() }, modifier = Modifier.fillMaxWidth()) {
+        Text("Force Show Support Dialog (Reset Timer)")
+      }
+
+      Button(
+        onClick = { viewModel.resetDataStore() },
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+      ) {
+        Text("Reset All DataStore")
+      }
+    }
+  }
 }
