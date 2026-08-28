@@ -1,20 +1,10 @@
-## Todo
+## Todo Next 
 
-- ~~pada color picker itu perlu outline jika nanti warnanya sama dengan background menjadi masalah~~
-- ~~perlu pengaturan spasi line text~~
-- ~~datastore perlu waktu untuk memulai meskipun hanya butuh beberapa detik, maka karena itu di butuhkan shimmer~~
-- ~~agar user tidak perlu mengatur-mengatur lagi perlu nama preset, biarkan ai agent membut desain presetsnya~~
-- ~~perlu pengaturan kecerahan pada hape~~
-- ~~issue pada gradient jadi buat batasan 50 jadikan 100~~
-- ~~perlu perubahan pengaturan defaul di sesuaikan dengan thema bawaan~~
-- ~~seperti perlu ganti warna tombol play tidak konsisten warnanya~~
-- ~~apa saja pengaturan yang perlu di morse ?~~
-- ~~buat color config background untuk morse~~
-- ~~untuk text selector buat lebih pintar lagi dapat mendeteksi jenis tulisan contoh jika arab pilihan selector arab semua~~
-- ~~issue untuk shadow dan outline membutuhkan warna alpha~~
-- ~~bagaimana seluruh pilihan false pada pengaturan false ? perlu berikan tanda peringatan kepada user~~
-- ~~buat dialog toast khusus untuk global~~
-- ~~pada flashLight berikan perintah permission camera pada saat true~~
-- ~~buat halaman display~~
-- ~~ganti logo tip pada MenuOptions~~
-- setelah publish playstore , publish versi foss ke f-Droid.org
+- fix issue ui select color with add color presets
+- fix issue rotation start in morse mode
+- fix issue ui SlideUpPanel
+- migration navigation2 to navigation3
+- add 1 presets text banner
+- add 3 google fonts
+- add feature read visual morse camera
+- Remove ads Admobs and change subscribe google billing
