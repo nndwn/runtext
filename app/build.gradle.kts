@@ -57,14 +57,10 @@ android {
         versionCode = 10
         versionName = "1.3.1-beta"
 
-        val adsApiKey = "ADS_API_KEY"
-        val adsApiAlt = "ADS_API_ALT"
         val tipMe = "PURCHASE_ID_1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", adsApiAlt, "\"${localProperties.getProperty(adsApiAlt) ?: ""}\"")
         buildConfigField("String", tipMe, "\"${localProperties.getProperty(tipMe) ?: ""}\"")
-        manifestPlaceholders[adsApiKey] = localProperties.getProperty(adsApiKey) ?: ""
     }
 
     

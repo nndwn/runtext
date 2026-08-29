@@ -1,8 +1,6 @@
 package com.nndwn.runtext.di
 
-import com.nndwn.runtext.helper.AdHelper
 import com.nndwn.runtext.helper.BillingHelper
-import com.nndwn.runtext.helper.StubAdHelper
 import com.nndwn.runtext.helper.StubBillingHelper
 import dagger.Module
 import dagger.Provides
@@ -12,12 +10,8 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AdModule {
-  @Provides
-  @Singleton
-  fun provideAdHelper(): AdHelper {
-    return StubAdHelper()
-  }
+object FossModule {
+
 
   @Provides
   @Singleton
