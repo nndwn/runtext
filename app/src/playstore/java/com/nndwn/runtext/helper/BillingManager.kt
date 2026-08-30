@@ -2,6 +2,7 @@ package com.nndwn.runtext.helper
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -32,7 +33,7 @@ import kotlinx.coroutines.flow.stateIn
 class BillingManager @Inject constructor(@param:ApplicationContext private val context: Context) :
   PurchasesUpdatedListener, BillingHelper {
   private companion object {
-    const val PREMIUM_PRODUCT_ID = BuildConfig.PURCHASE_ID_1
+    const val SUPPORT_PRODUCT_ID = BuildConfig.PURCHASE_ID_1
   }
 
   private val scope = CoroutineScope(Dispatchers.Main)
@@ -56,6 +57,12 @@ class BillingManager @Inject constructor(@param:ApplicationContext private val c
   private var onPurchasedListener: ((Boolean) -> Unit)? = null
 
   override fun launchBillingFlow(activity: Activity) {
+    if (SUPPORT_PRODUCT_ID.isBlank()) {
+      if (BuildConfig.DEBUG) {
+        Log.e("BillingManager", "Cannot launch billing flow: SUPPORT_PRODUCT_ID is empty.")
+      }
+      return
+    }
     val details = _productDetails.value ?: return
     val productDetailsParamsList =
       listOf(BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(details).build())
@@ -87,10 +94,16 @@ class BillingManager @Inject constructor(@param:ApplicationContext private val c
   }
 
   private fun queryProductDetails() {
+    if (SUPPORT_PRODUCT_ID.isBlank()) {
+      if (BuildConfig.DEBUG) {
+        Log.w("BillingManager", "SUPPORT_PRODUCT_ID is empty. Skipping product details query.")
+      }
+      return
+    }
     val productList =
       listOf(
         QueryProductDetailsParams.Product.newBuilder()
-          .setProductId(PREMIUM_PRODUCT_ID)
+          .setProductId(SUPPORT_PRODUCT_ID)
           .setProductType(BillingClient.ProductType.INAPP)
           .build()
       )
@@ -105,11 +118,15 @@ class BillingManager @Inject constructor(@param:ApplicationContext private val c
 
   fun queryPurchases(setPurchased: (Boolean) -> Unit) {
     if (!billingClient.isReady) return
+    if (SUPPORT_PRODUCT_ID.isBlank()) {
+      setPurchased(false)
+      return
+    }
     val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
     billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
       if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
         val isPurchased = purchases.any { item ->
-          item.products.contains(PREMIUM_PRODUCT_ID) && item.purchaseState == Purchase.PurchaseState.PURCHASED
+          item.products.contains(SUPPORT_PRODUCT_ID) && item.purchaseState == Purchase.PurchaseState.PURCHASED
         }
         setPurchased(isPurchased)
       }

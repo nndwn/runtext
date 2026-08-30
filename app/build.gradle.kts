@@ -69,6 +69,7 @@ android {
         create("release") {
             val keyFile = localProperties.getProperty("KEY_FILE")
             if (keyFile != null) {
+                if (keyFile.isEmpty()) return@create
                 storeFile = rootProject.file(keyFile)
                 storePassword = localProperties.getProperty("KEYSTORE_PASSWORD")
                 keyAlias = localProperties.getProperty("KEY_ALIAS")
@@ -107,7 +108,7 @@ androidComponents {
         variant.outputs.forEach { output ->
             val appName = getAppNameFromStrings().replace(" ", "-")
             val vName = output.versionName.get()
-            output.outputFileName.set("$appName-v$vName-foss-${variant.buildType}.apk")
+            output.outputFileName.set("$appName-v$vName-${variant.buildType}.apk")
         }
     }
 }
