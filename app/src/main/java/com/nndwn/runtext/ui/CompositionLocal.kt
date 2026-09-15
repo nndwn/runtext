@@ -6,22 +6,21 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.nndwn.runtext.ui.component.MenuOptions
 
-
 val LocalSizeHeight = compositionLocalOf {
-    WindowHeightSizeClass.Compact
+  WindowHeightSizeClass.Compact
 }
 
 val LocalSizeWidth = compositionLocalOf {
-    WindowWidthSizeClass.Compact
+  WindowWidthSizeClass.Compact
 }
 val LocalIsPremium = compositionLocalOf { false }
 
-val LocalToggleSidebar = staticCompositionLocalOf<() -> Unit> {
+val LocalToggleSidebar =
+  staticCompositionLocalOf<() -> Unit> {
     error("No ToggleSidebar provided")
-}
+  }
 
-
-
-val LocalMenuOptionHandler = staticCompositionLocalOf<(MenuOptions) -> Unit> {
+val LocalMenuOptionHandler =
+  staticCompositionLocalOf<(MenuOptions) -> Unit> {
     error("No MenuOptionHandler provided")
-}
+  }

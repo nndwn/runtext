@@ -4,12 +4,11 @@ import androidx.annotation.Keep
 
 @Keep
 enum class AppFlavor {
-    PLAYSTORE,
-    FOSS;
+  PLAYSTORE,
+  FOSS;
 
-    companion object {
-        val current: AppFlavor
-            get() = entries.find { it.name.equals(BuildConfig.FLAVOR, ignoreCase = true) }
-                ?: PLAYSTORE
-    }
+  companion object {
+    val current: AppFlavor
+      get() = entries.find { it.name.equals(BuildConfig.FLAVOR, ignoreCase = true) } ?: PLAYSTORE
+  }
 }

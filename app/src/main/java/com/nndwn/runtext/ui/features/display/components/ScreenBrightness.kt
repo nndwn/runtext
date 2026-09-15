@@ -7,26 +7,26 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ScreenBrightness(brightnessValue: Float) {
-    val context = LocalContext.current
+  val context = LocalContext.current
 
-    DisposableEffect(brightnessValue) {
-        val activity = context as? Activity
-        val window = activity?.window
+  DisposableEffect(brightnessValue) {
+    val activity = context as? Activity
+    val window = activity?.window
 
-        if (window != null) {
-            val layoutParams = window.attributes
-            val originalBrightness = layoutParams.screenBrightness
-            layoutParams.screenBrightness = brightnessValue
-            window.attributes = layoutParams
+    if (window != null) {
+      val layoutParams = window.attributes
+      val originalBrightness = layoutParams.screenBrightness
+      layoutParams.screenBrightness = brightnessValue
+      window.attributes = layoutParams
 
-            onDispose {
-                layoutParams.screenBrightness = originalBrightness
-                window.attributes = layoutParams
-            }
-        } else {
-            onDispose { }
-        }
+      onDispose {
+        layoutParams.screenBrightness = originalBrightness
+        window.attributes = layoutParams
+      }
+    } else {
+      onDispose {}
     }
+  }
 }
 
-//SetScreenBrightnessEffect(brightnessValue = 1.0f)
+// SetScreenBrightnessEffect(brightnessValue = 1.0f)

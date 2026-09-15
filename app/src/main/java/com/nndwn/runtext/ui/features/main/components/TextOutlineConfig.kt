@@ -19,39 +19,38 @@ import kotlin.math.roundToInt
 
 @Composable
 fun TextOutlineConfig(
-    config: StrokeConfig,
-    expandedPickerId: String?,
-    onPickerToggle: (String) -> Unit,
-    onEvent: (MainUiEvent) -> Unit
-){
-    ConfigCard(
-        modifier = Modifier.animateContentSize(),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium)
-    ) {
-        SwitchRow(
-            title = stringResource(R.string.set_config_text_outline),
-            subtitle = stringResource(R.string.set_config_text_outline_desc),
-            checked = config.isEnabled,
-            onCheckedChange = { onEvent(MainUiEvent.ToggleStroke(it)) }
-        )
+  config: StrokeConfig,
+  expandedPickerId: String?,
+  onPickerToggle: (String) -> Unit,
+  onEvent: (MainUiEvent) -> Unit,
+) {
+  ConfigCard(
+    modifier = Modifier.animateContentSize(),
+    verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium),
+  ) {
+    SwitchRow(
+      title = stringResource(R.string.set_config_text_outline),
+      subtitle = stringResource(R.string.set_config_text_outline_desc),
+      checked = config.isEnabled,
+      onCheckedChange = { onEvent(MainUiEvent.ToggleStroke(it)) },
+    )
 
-        if (config.isEnabled) {
-            ColorPickerField(
-                alpha = true,
-                color = config.colorArgb.toComposeColor(),
-                isExpanded = expandedPickerId == "text_color_outline",
-                onToggleExpand = { onPickerToggle("text_color_outline") },
-                onColorChange = { onEvent(MainUiEvent.UpdateStrokeColor(it)) }
-            )
+    if (config.isEnabled) {
+      ColorPickerField(
+        alpha = true,
+        color = config.colorArgb.toComposeColor(),
+        isExpanded = expandedPickerId == "text_color_outline",
+        onToggleExpand = { onPickerToggle("text_color_outline") },
+        onColorChange = { onEvent(MainUiEvent.UpdateStrokeColor(it)) },
+      )
 
-            LabeledSlider(
-                label = stringResource(R.string.set_config_text_outline_width),
-                value = config.width,
-                valueRange = 1f..10f,
-                displayValueText = "${config.width.roundToInt()}",
-                onValueChange = { onEvent(MainUiEvent.UpdateStrokeWidth(it)) }
-            )
-        }
+      LabeledSlider(
+        label = stringResource(R.string.set_config_text_outline_width),
+        value = config.width,
+        valueRange = 1f..10f,
+        displayValueText = "${config.width.roundToInt()}",
+        onValueChange = { onEvent(MainUiEvent.UpdateStrokeWidth(it)) },
+      )
     }
+  }
 }
-

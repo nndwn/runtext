@@ -15,19 +15,21 @@ import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun ConfigCard(
-    modifier: Modifier = Modifier,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        shape = MaterialTheme.shapes.medium,
-    ) {
-        Column(
-            verticalArrangement = verticalArrangement ,
-            horizontalAlignment = horizontalAlignment,
-            modifier = Modifier.padding(MaterialTheme.dimens.medium),
-            content = content)
-    }
+  modifier: Modifier = Modifier,
+  horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+  verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+  content: @Composable ColumnScope.() -> Unit,
+) {
+  Card(
+    modifier = modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    shape = MaterialTheme.shapes.medium,
+  ) {
+    Column(
+      verticalArrangement = verticalArrangement,
+      horizontalAlignment = horizontalAlignment,
+      modifier = Modifier.padding(MaterialTheme.dimens.medium),
+      content = content,
+    )
+  }
 }

@@ -14,26 +14,25 @@ import com.nndwn.runtext.ui.component.SliderTheme
 
 @Composable
 fun TextSpeedConfig(
-    speed: Float,
-    onSpeedChange: (Float) -> Unit
+  speed: Float,
+  onSpeedChange: (Float) -> Unit,
 ) {
-    ConfigCard {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(stringResource(R.string.speed), style = MaterialTheme.typography.titleSmall)
-            Text(
-                "${speed.toInt()} px/s",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        SliderTheme(
-            value = speed,
-            onValueChange = onSpeedChange,
-            valueRange = 50f..500f
-        )
+  ConfigCard {
+    Row(
+      Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+      Text(stringResource(R.string.speed), style = MaterialTheme.typography.titleSmall)
+      Text(
+        "${speed.toInt()} px/s",
+        style = MaterialTheme.typography.bodySmall,
+      )
     }
-}
 
+    SliderTheme(
+      value = speed,
+      onValueChange = onSpeedChange,
+      valueRange = 50f..500f,
+    )
+  }
+}

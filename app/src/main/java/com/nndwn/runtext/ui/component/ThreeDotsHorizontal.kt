@@ -21,43 +21,40 @@ import androidx.compose.ui.unit.Dp
 import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
-fun ThreeDotsHorizontal(
-    onClick : () -> Unit
-){
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(MaterialTheme.dimens.iconExtraLarge)
-            .clip(CircleShape)
-            .semantics { contentDescription = "Menu" }
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(),
-                onClick = onClick
-            )
-
-        ,
+fun ThreeDotsHorizontal(onClick: () -> Unit) {
+  Box(
+    contentAlignment = Alignment.Center,
+    modifier =
+      Modifier.size(MaterialTheme.dimens.iconExtraLarge)
+        .clip(CircleShape)
+        .semantics { contentDescription = "Menu" }
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = ripple(),
+          onClick = onClick,
+        ),
+  ) {
+    val sizeDot = MaterialTheme.dimens.extraSmall
+    val spaceBetween = MaterialTheme.dimens.extraSmall
+    Column(
+      verticalArrangement = Arrangement.spacedBy(spaceBetween, Alignment.CenterVertically),
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val sizeDot = MaterialTheme.dimens.extraSmall
-        val spaceBetween = MaterialTheme.dimens.extraSmall
-        Column(
-            verticalArrangement = Arrangement.spacedBy(spaceBetween, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Dots(sizeDot)
-            Dots(sizeDot)
-            Dots(sizeDot)
-        }
+      Dots(sizeDot)
+      Dots(sizeDot)
+      Dots(sizeDot)
     }
+  }
 }
 
 @Composable
-private fun Dots(size: Dp){
-    Box(
-        modifier = Modifier
-            .size(size)
-            .background(
-                color = MaterialTheme.colorScheme.onSurface,
-                shape = CircleShape)
-    )
+private fun Dots(size: Dp) {
+  Box(
+    modifier =
+      Modifier.size(size)
+        .background(
+          color = MaterialTheme.colorScheme.onSurface,
+          shape = CircleShape,
+        )
+  )
 }

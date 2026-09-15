@@ -12,7 +12,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object FossModule {
 
-
   @Provides
   @Singleton
   fun provideBillingHelper(): BillingHelper {

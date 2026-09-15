@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.dp
 
-
-private val RunTxtDarkColorScheme = darkColorScheme(
+private val RunTxtDarkColorScheme =
+  darkColorScheme(
     primary = Palette.Yellow,
     onPrimary = Palette.PitchBlack,
     primaryContainer = Palette.Yellow.copy(alpha = 0.15f),
@@ -33,27 +33,25 @@ private val RunTxtDarkColorScheme = darkColorScheme(
     surfaceContainerLow = Palette.DarkBlueGray,
     surfaceContainer = Palette.DarkBlueGray,
     surfaceContainerHigh = Palette.CoolGrey,
-)
+  )
 
-val AppShapes = Shapes(
+val AppShapes =
+  Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(16.dp),
     large = RoundedCornerShape(24.dp),
-    extraLarge = RoundedCornerShape(32.dp)
-)
+    extraLarge = RoundedCornerShape(32.dp),
+  )
+
 @Composable
-fun RuntextTheme(
-    content: @Composable () -> Unit
-) {
-    CompositionLocalProvider(
-    LocalDimens provides Dimens()
-    ){
-        MaterialTheme(
-            colorScheme = RunTxtDarkColorScheme,
-            typography = AppTypography,
-            shapes = AppShapes,
-            content = content,
-        )
-    }
+fun RuntextTheme(content: @Composable () -> Unit) {
+  CompositionLocalProvider(LocalDimens provides Dimens()) {
+    MaterialTheme(
+      colorScheme = RunTxtDarkColorScheme,
+      typography = AppTypography,
+      shapes = AppShapes,
+      content = content,
+    )
+  }
 }

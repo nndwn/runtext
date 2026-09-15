@@ -18,25 +18,30 @@ import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun SwitchRow(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+  title: String,
+  subtitle: String,
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
 ) {
-    Row (Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.height(MaterialTheme.dimens.small))
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(Modifier.width(MaterialTheme.dimens.medium))
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-            ),
-        )
+  Row(
+    Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Column(Modifier.weight(1f)) {
+      Text(title, style = MaterialTheme.typography.titleSmall)
+      Spacer(Modifier.height(MaterialTheme.dimens.small))
+      Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
+    Spacer(Modifier.width(MaterialTheme.dimens.medium))
+    Switch(
+      checked = checked,
+      onCheckedChange = onCheckedChange,
+      colors =
+        SwitchDefaults.colors(
+          checkedThumbColor = MaterialTheme.colorScheme.primary,
+          checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+        ),
+    )
+  }
 }

@@ -38,99 +38,93 @@ import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun PreviewAndStart(
-    modifier: Modifier = Modifier,
-    settings: AppSettings,
-    onNavigateToDisplay: () -> Unit
+  modifier: Modifier = Modifier,
+  settings: AppSettings,
+  onNavigateToDisplay: () -> Unit,
 ) {
-    val shape = MaterialTheme.shapes.medium
+  val shape = MaterialTheme.shapes.medium
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
+  Box(
+    modifier = modifier,
+    contentAlignment = Alignment.Center,
+  ) {
+    Column(
+      modifier =
+        Modifier.fillMaxWidth()
+          .clip(shape)
+          .border(
+            width = MaterialTheme.dimens.borderMedium,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
+            shape = shape,
+          )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(shape)
-                .border(
-                    width = MaterialTheme.dimens.borderMedium,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
-                    shape = shape
-                )
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
-                    .pointerInput(Unit) {},
-                contentAlignment = Alignment.Center
-            ) {
-                if (settings.mode == AppMode.RUNNING_TEXT) {
-                    RunningTextCoreOptimized(
-                        text = settings.lastText,
-                        settings = settings.textConfig,
-                        editor = true
-                    )
-
-                } else {
-                    MorseFlashPreview(
-                        text = settings.lastText,
-                        settings = settings.morseConfig
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                    .clickable(
-                        indication = ripple(),
-                        interactionSource = remember { MutableInteractionSource() },
-                    ) { onNavigateToDisplay() }
-                    .padding(
-                        horizontal = MaterialTheme.dimens.medium,
-                        vertical = MaterialTheme.dimens.small
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(MaterialTheme.dimens.small)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_play),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-                    )
-                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
-                    Text(
-                        text = stringResource(R.string.btn_start),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
-                    )
-                }
-            }
+      Box(
+        modifier = Modifier.fillMaxWidth().height(140.dp).pointerInput(Unit) {},
+        contentAlignment = Alignment.Center,
+      ) {
+        if (settings.mode == AppMode.RUNNING_TEXT) {
+          RunningTextCoreOptimized(
+            text = settings.lastText,
+            settings = settings.textConfig,
+            editor = true,
+          )
+        } else {
+          MorseFlashPreview(
+            text = settings.lastText,
+            settings = settings.morseConfig,
+          )
         }
-    }
+      }
 
+      Box(
+        modifier =
+          Modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(
+              indication = ripple(),
+              interactionSource = remember { MutableInteractionSource() },
+            ) {
+              onNavigateToDisplay()
+            }
+            .padding(
+              horizontal = MaterialTheme.dimens.medium,
+              vertical = MaterialTheme.dimens.small,
+            ),
+        contentAlignment = Alignment.Center,
+      ) {
+        Row(
+          horizontalArrangement = Arrangement.Center,
+          verticalAlignment = Alignment.CenterVertically,
+          modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.small),
+        ) {
+          Icon(
+            painter = painterResource(R.drawable.ic_play),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(MaterialTheme.dimens.iconMedium),
+          )
+          Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
+          Text(
+            text = stringResource(R.string.btn_start),
+            style =
+              MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurface,
+              ),
+          )
+        }
+      }
+    }
+  }
 }
 
 @Preview
 @Composable
 private fun Preview() {
-    RuntextTheme {
-        PreviewAndStart(
-            settings = AppSettings().copy(
-                mode = AppMode.MORSE_CODE
-            ),
-            onNavigateToDisplay = {}
-        )
-    }
+  RuntextTheme {
+    PreviewAndStart(
+      settings = AppSettings().copy(mode = AppMode.MORSE_CODE),
+      onNavigateToDisplay = {},
+    )
+  }
 }

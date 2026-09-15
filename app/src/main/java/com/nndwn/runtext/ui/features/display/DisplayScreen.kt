@@ -47,123 +47,116 @@ import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
 import com.nndwn.runtext.ui.features.display.components.MorseCodeCore
 import com.nndwn.runtext.ui.features.display.components.ScreenBrightness
 import com.nndwn.runtext.ui.theme.dimens
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 
 @Composable
-fun DisplayScreen(
-    viewModel: DisplayViewModel = hiltViewModel(),
-) {
-    val context = LocalContext.current
-    val view = LocalView.current
+fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
+  val context = LocalContext.current
+  val view = LocalView.current
 
-    val settingsState by viewModel.settings.collectAsStateWithLifecycle()
+  val settingsState by viewModel.settings.collectAsStateWithLifecycle()
 
-    val currentSettings = settingsState ?: remember { AppSettings() }
+  val currentSettings = settingsState ?: remember { AppSettings() }
 
-    var isOverlayVisible by remember { mutableStateOf(false) }
+  var isOverlayVisible by remember { mutableStateOf(false) }
 
-    ScreenBrightness(brightnessValue = 1.0f)
+  ScreenBrightness(brightnessValue = 1.0f)
 
+  DisposableEffect(view) {
+    val activity = context as? Activity
+    val window = activity?.window
+    window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
-    DisposableEffect(view) {
-        val activity = context as? Activity
-        val window = activity?.window
-        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        val originalOrientation =
-            activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    onDispose {
+      activity?.requestedOrientation = originalOrientation
+      window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      if (window != null) {
+        val insetsController = WindowCompat.getInsetsController(window, view)
+        insetsController.show(WindowInsetsCompat.Type.systemBars())
+      }
+    }
+  }
 
-        onDispose {
-            activity?.requestedOrientation = originalOrientation
-            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (window != null) {
-                val insetsController = WindowCompat.getInsetsController(window, view)
-                insetsController.show(WindowInsetsCompat.Type.systemBars())
-            }
+  LaunchedEffect(isOverlayVisible) {
+    val activity = context as? Activity
+    val window = activity?.window
+    if (window != null) {
+      val insetsController = WindowCompat.getInsetsController(window, view)
+
+      insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+      if (isOverlayVisible) {
+        insetsController.show(WindowInsetsCompat.Type.systemBars())
+
+        delay(3500.milliseconds)
+        isOverlayVisible = false
+      } else {
+        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+      }
+    }
+  }
+  Box(
+    modifier =
+      Modifier.fillMaxSize().pointerInput(Unit) {
+        detectTapGestures {
+          isOverlayVisible = !isOverlayVisible
         }
+      },
+    contentAlignment = Alignment.Center,
+  ) {
+    when (currentSettings.mode) {
+      AppMode.RUNNING_TEXT -> {
+        RunningTextCoreOptimized(
+          text = currentSettings.lastText,
+          settings = currentSettings.textConfig,
+        )
+      }
+
+      AppMode.MORSE_CODE -> {
+        MorseCodeCore(
+          text = currentSettings.lastText,
+          settings = currentSettings.morseConfig,
+        )
+      }
     }
 
-    LaunchedEffect(isOverlayVisible) {
-        val activity = context as? Activity
-        val window = activity?.window
-        if (window != null) {
-            val insetsController = WindowCompat.getInsetsController(window, view)
-
-            insetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-            if (isOverlayVisible) {
-                insetsController.show(WindowInsetsCompat.Type.systemBars())
-
-                delay(3500.milliseconds)
-                isOverlayVisible = false
-            } else {
-                insetsController.hide(WindowInsetsCompat.Type.systemBars())
-            }
-        }
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    isOverlayVisible = !isOverlayVisible
-                }
-            },
-        contentAlignment = Alignment.Center
+    AnimatedVisibility(
+      visible = isOverlayVisible,
+      enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+      exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+      modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp),
     ) {
-        when (currentSettings.mode) {
-            AppMode.RUNNING_TEXT -> {
-                RunningTextCoreOptimized(
-                    text = currentSettings.lastText,
-                    settings = currentSettings.textConfig,
-                )
-            }
-
-            AppMode.MORSE_CODE -> {
-                MorseCodeCore(
-                    text = currentSettings.lastText,
-                    settings = currentSettings.morseConfig,
-                )
-            }
-        }
-
-        AnimatedVisibility(
-            visible = isOverlayVisible,
-            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp)
+      Surface(
+        onClick = {
+          viewModel.navigateBack()
+        },
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        border =
+          BorderStroke(
+            width = MaterialTheme.dimens.borderMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+          ),
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.Center,
+          modifier = Modifier.padding(MaterialTheme.dimens.medium),
         ) {
-            Surface(
-                onClick = {
-                    viewModel.navigateBack()
-                },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                border = BorderStroke(
-                    width = MaterialTheme.dimens.borderMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(MaterialTheme.dimens.medium)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_clear),
-                        contentDescription = stringResource(R.string.stop),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
-                    )
-                }
-            }
+          Icon(
+            painter = painterResource(R.drawable.ic_clear),
+            contentDescription = stringResource(R.string.stop),
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(MaterialTheme.dimens.iconLarge),
+          )
         }
+      }
     }
+  }
 }

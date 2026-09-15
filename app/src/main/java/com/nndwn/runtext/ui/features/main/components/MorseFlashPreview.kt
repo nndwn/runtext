@@ -37,132 +37,128 @@ import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.domain.morse.MorseEngine
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun MorseFlashPreview(
-    modifier: Modifier = Modifier,
-    text: String = "SOS",
-    settings: MorseConfig
+  modifier: Modifier = Modifier,
+  text: String = "SOS",
+  settings: MorseConfig,
 ) {
 
-    val rawText = remember(text) {
-        text.ifEmpty { "PREVIEW" }
+  val rawText =
+    remember(text) {
+      text.ifEmpty { "PREVIEW" }
     }
-    val morseElement = remember(rawText) {
-        if (rawText.equals("SOS", ignoreCase = true)) {
-            MorseEngine.SOS_PATTERN
-        } else {
-            MorseEngine.textToMorseElements(rawText)
-        }
+  val morseElement =
+    remember(rawText) {
+      if (rawText.equals("SOS", ignoreCase = true)) {
+        MorseEngine.SOS_PATTERN
+      } else {
+        MorseEngine.textToMorseElements(rawText)
+      }
     }
 
-    val unitMs = remember(settings.morseWpm) {
-        MorseEngine.getUnitDurationMs(settings.morseWpm)
+  val unitMs =
+    remember(settings.morseWpm) {
+      MorseEngine.getUnitDurationMs(settings.morseWpm)
     }
-    var isSignalActive by remember { mutableStateOf(false) }
-    val colorOff = MaterialTheme.colorScheme.background
-    val activeMorseColor = settings.bgColorMorse.toComposeColor()
+  var isSignalActive by remember { mutableStateOf(false) }
+  val colorOff = MaterialTheme.colorScheme.background
+  val activeMorseColor = settings.bgColorMorse.toComposeColor()
 
-    LaunchedEffect(morseElement, unitMs) {
-        while (isActive) {
-            for (element in morseElement) {
-                if (!isActive) break
-                val isSignal = MorseEngine.isSignalElement(element)
-                val duration = element.durationMultiplier * unitMs
-                isSignalActive = isSignal
-                delay(duration.milliseconds)
-            }
-            isSignalActive = false
-            delay((unitMs * 7).milliseconds)
-        }
+  LaunchedEffect(morseElement, unitMs) {
+    while (isActive) {
+      for (element in morseElement) {
+        if (!isActive) break
+        val isSignal = MorseEngine.isSignalElement(element)
+        val duration = element.durationMultiplier * unitMs
+        isSignalActive = isSignal
+        delay(duration.milliseconds)
+      }
+      isSignalActive = false
+      delay((unitMs * 7).milliseconds)
     }
-    val animatedBgColor by animateColorAsState(
-        targetValue = if (isSignalActive) activeMorseColor else colorOff,
-        animationSpec = tween(durationMillis = 40),
-        label = "MorseFlashAnimation"
+  }
+  val animatedBgColor by
+    animateColorAsState(
+      targetValue = if (isSignalActive) activeMorseColor else colorOff,
+      animationSpec = tween(durationMillis = 40),
+      label = "MorseFlashAnimation",
     )
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(animatedBgColor)
-            .padding(MaterialTheme.dimens.medium)
+  Box(modifier = modifier.fillMaxSize().background(animatedBgColor).padding(MaterialTheme.dimens.medium)) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.End,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconRound(
-                show = settings.isTorchEnabled,
-                color = activeMorseColor,
-                icon = R.drawable.ic_flash,
-                animateSlide = false,
-            )
-            IconRound(
-                show = settings.isSoundEnabled,
-                color = activeMorseColor,
-                icon = R.drawable.ic_music,
-                animateSlide = true,
-            )
-            IconRound(
-                show = settings.isVibrateEnabled,
-                color = activeMorseColor,
-                icon = R.drawable.ic_wave,
-                animateSlide = true,
-            )
-        }
+      IconRound(
+        show = settings.isTorchEnabled,
+        color = activeMorseColor,
+        icon = R.drawable.ic_flash,
+        animateSlide = false,
+      )
+      IconRound(
+        show = settings.isSoundEnabled,
+        color = activeMorseColor,
+        icon = R.drawable.ic_music,
+        animateSlide = true,
+      )
+      IconRound(
+        show = settings.isVibrateEnabled,
+        color = activeMorseColor,
+        icon = R.drawable.ic_wave,
+        animateSlide = true,
+      )
     }
+  }
 }
 
 @Composable
 private fun IconRound(
-    show: Boolean,
-    color: Color,
-    @DrawableRes icon: Int,
-    animateSlide: Boolean = true,
-
-    ) {
-    AnimatedVisibility(
-        visible = show,
-        enter = if (animateSlide) {
-            fadeIn() + expandHorizontally(expandFrom = Alignment.End)
-        } else {
-            fadeIn(animationSpec = tween(150))
-        },
-        exit = if (animateSlide) {
-            fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.End)
-        } else {
-            fadeOut(animationSpec = tween(150))
-        },
-        modifier = Modifier
-    ) {
-
-        Box(
-            modifier = Modifier.padding(start = if (animateSlide) MaterialTheme.dimens.small else 0.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.iconLarge)
-                    .clip(CircleShape)
-                    .background(color)
-                    .border(
-                        width = MaterialTheme.dimens.borderMedium,
-                        color = MaterialTheme.colorScheme.background,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconSmall)
-                )
-            }
-        }
+  show: Boolean,
+  color: Color,
+  @DrawableRes icon: Int,
+  animateSlide: Boolean = true,
+) {
+  AnimatedVisibility(
+    visible = show,
+    enter =
+      if (animateSlide) {
+        fadeIn() + expandHorizontally(expandFrom = Alignment.End)
+      } else {
+        fadeIn(animationSpec = tween(150))
+      },
+    exit =
+      if (animateSlide) {
+        fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.End)
+      } else {
+        fadeOut(animationSpec = tween(150))
+      },
+    modifier = Modifier,
+  ) {
+    Box(modifier = Modifier.padding(start = if (animateSlide) MaterialTheme.dimens.small else 0.dp)) {
+      Box(
+        modifier =
+          Modifier.size(MaterialTheme.dimens.iconLarge)
+            .clip(CircleShape)
+            .background(color)
+            .border(
+              width = MaterialTheme.dimens.borderMedium,
+              color = MaterialTheme.colorScheme.background,
+              shape = CircleShape,
+            ),
+        contentAlignment = Alignment.Center,
+      ) {
+        Icon(
+          painter = painterResource(icon),
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.background,
+          modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
+        )
+      }
     }
+  }
 }

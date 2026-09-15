@@ -8,217 +8,189 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.nndwn.runtext.R
 
+val ShareTechMonoFamily = FontFamily(Font(R.font.sharetechmono_regular))
 
-val ShareTechMonoFamily = FontFamily(
-    Font(R.font.sharetechmono_regular),
-)
+val DotGothic16Family = FontFamily(Font(R.font.dotgothic16_regular))
 
-val DotGothic16Family = FontFamily(
-    Font(R.font.dotgothic16_regular),
-)
+val AntonFamily = FontFamily(Font(R.font.anton_regular))
 
-val AntonFamily = FontFamily(
-    Font(R.font.anton_regular),
-)
+val LatoFamity = FontFamily(Font(R.font.lato_bold))
 
-val LatoFamity = FontFamily(
-    Font(R.font.lato_bold)
-)
+val OswaldFamily = FontFamily(Font(R.font.oswald_regular))
 
-val OswaldFamily = FontFamily(
-    Font(R.font.oswald_regular)
-)
+val ralewayFamily = FontFamily(Font(R.font.raleway_medium))
 
-val ralewayFamily = FontFamily(
-    Font(R.font.raleway_medium)
-)
+val abrilFatFaceFamily = FontFamily(Font(R.font.abrilfatface_regular))
 
-val abrilFatFaceFamily = FontFamily(
-    Font(R.font.abrilfatface_regular)
-)
+val bebasNeueFamily = FontFamily(Font(R.font.bebasneue_regular))
 
-val bebasNeueFamily = FontFamily(
-    Font(R.font.bebasneue_regular)
-)
+val archivoBlackFamily = FontFamily(Font(R.font.archivoblack_regular))
 
-val archivoBlackFamily = FontFamily(
-    Font(R.font.archivoblack_regular)
-)
+val lobsterFamily = FontFamily(Font(R.font.lobster_regular))
 
-val lobsterFamily = FontFamily(
-    Font(R.font.lobster_regular)
-)
+val pacificoFamily = FontFamily(Font(R.font.pacifico_regular))
 
-val pacificoFamily = FontFamily(
-    Font(R.font.pacifico_regular)
-)
+val permanentMarkerFamily = FontFamily(Font(R.font.permanentmarker_regular))
 
-val permanentMarkerFamily = FontFamily(
-    Font(R.font.permanentmarker_regular)
-)
+val creepsterFamily = FontFamily(Font(R.font.creepster_regular))
 
-val creepsterFamily = FontFamily(
-    Font(R.font.creepster_regular)
-)
+val silkScreenFamily = FontFamily(Font(R.font.silkscreen_regular))
 
-val silkScreenFamily = FontFamily(
-    Font(R.font.silkscreen_regular)
-)
+val courierPrimeFamily = FontFamily(Font(R.font.courierprime_regular))
 
-val courierPrimeFamily = FontFamily(
-    Font(R.font.courierprime_regular)
-)
+val bangersFamily = FontFamily(Font(R.font.bangers_regular))
 
-val bangersFamily = FontFamily(
-    Font(R.font.bangers_regular)
-)
+val orbitronFamily = FontFamily(Font(R.font.orbitron_medium))
+val fredokaFamily = FontFamily(Font(R.font.fredoka))
 
-val orbitronFamily = FontFamily(
-    Font(R.font.orbitron_medium)
-)
-val fredokaFamily = FontFamily(
-    Font(R.font.fredoka)
-)
+val patrickHandFamily = FontFamily(Font(R.font.patrickhand_regular))
 
-val patrickHandFamily = FontFamily(
-    Font(R.font.patrickhand_regular)
-)
+val courgetteFamily = FontFamily(Font(R.font.courgette_regular))
 
-val courgetteFamily = FontFamily(
-    Font(R.font.courgette_regular)
-)
+val greatVibesFamily = FontFamily(Font(R.font.greatvibes_regular))
 
-val greatVibesFamily = FontFamily(
-    Font(R.font.greatvibes_regular)
-)
+val sacremntoFamily = FontFamily(Font(R.font.sacramento_regular))
 
-val sacremntoFamily = FontFamily(
-    Font(R.font.sacramento_regular)
-)
-
-val JakartaPlusFamily = FontFamily(
+val JakartaPlusFamily =
+  FontFamily(
     Font(R.font.plus_jakarta_sans_light, FontWeight.Light),
     Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),
     Font(R.font.plus_jakarta_sans_medium, FontWeight.Medium),
     Font(R.font.plus_jakarta_sans_semibold, FontWeight.SemiBold),
     Font(R.font.plus_jakarta_sans_bold, FontWeight.Bold),
     Font(R.font.plus_jakarta_sans_extrabold, FontWeight.Black),
-)
+  )
 
 // ── App-wide Material 3 typography ──
-val AppTypography = Typography(
+val AppTypography =
+  Typography(
     // Display
-    displayLarge = TextStyle(
+    displayLarge =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 57.sp,
         lineHeight = 64.sp,
-        letterSpacing = (-0.25).sp
-    ),
-    displayMedium = TextStyle(
+        letterSpacing = (-0.25).sp,
+      ),
+    displayMedium =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 45.sp,
         lineHeight = 52.sp,
-        letterSpacing = 0.sp
-    ),
-    displaySmall = TextStyle(
+        letterSpacing = 0.sp,
+      ),
+    displaySmall =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
         lineHeight = 44.sp,
-        letterSpacing = 0.sp
-    ),
+        letterSpacing = 0.sp,
+      ),
 
     // Headline
-    headlineLarge = TextStyle(
+    headlineLarge =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 32.sp,
         lineHeight = 40.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineMedium = TextStyle(
+        letterSpacing = 0.sp,
+      ),
+    headlineMedium =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 28.sp,
         lineHeight = 36.sp,
-        letterSpacing = 0.sp
-    ),
-    headlineSmall = TextStyle(
+        letterSpacing = 0.sp,
+      ),
+    headlineSmall =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
         lineHeight = 32.sp,
-        letterSpacing = 0.sp
-    ),
+        letterSpacing = 0.sp,
+      ),
 
     // Title
-    titleLarge = TextStyle(
+    titleLarge =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 22.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    titleMedium = TextStyle(
+        letterSpacing = 0.sp,
+      ),
+    titleMedium =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
-    ),
-    titleSmall = TextStyle(
+        letterSpacing = 0.15.sp,
+      ),
+    titleSmall =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
+        letterSpacing = 0.1.sp,
+      ),
 
     // Body
-    bodyLarge = TextStyle(
+    bodyLarge =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
-    bodyMedium = TextStyle(
+        letterSpacing = 0.5.sp,
+      ),
+    bodyMedium =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
-    ),
-    bodySmall = TextStyle(
+        letterSpacing = 0.25.sp,
+      ),
+    bodySmall =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.4.sp
-    ),
+        letterSpacing = 0.4.sp,
+      ),
 
     // Label
-    labelLarge = TextStyle(
+    labelLarge =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
-    labelMedium = TextStyle(
+        letterSpacing = 0.1.sp,
+      ),
+    labelMedium =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    ),
-    labelSmall = TextStyle(
+        letterSpacing = 0.5.sp,
+      ),
+    labelSmall =
+      TextStyle(
         fontFamily = JakartaPlusFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-)
+        letterSpacing = 0.5.sp,
+      ),
+  )

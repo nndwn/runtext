@@ -23,86 +23,80 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-data class MainLayoutState (
-    val isOpen : Boolean = false,
-    val sidebarWidth : Dp = 240.dp,
-    val backgroundColor : Color = Color.Unspecified,
-    val sidebarBackgroundColor : Color = Color.Unspecified
+data class MainLayoutState(
+  val isOpen: Boolean = false,
+  val sidebarWidth: Dp = 240.dp,
+  val backgroundColor: Color = Color.Unspecified,
+  val sidebarBackgroundColor: Color = Color.Unspecified,
 )
+
 @Composable
 fun MainLayout(
-    state : MainLayoutState = MainLayoutState(),
-    onCloseSidebar : () -> Unit = {},
-    topBarContent : @Composable  () -> Unit = {},
-    sideBarEnd : @Composable () -> Unit = {},
-    bottomBarContent : @Composable BoxScope.()-> Unit = {},
-    overlayContent : @Composable BoxScope.() -> Unit = {},
-    content : @Composable BoxScope.(padding : PaddingValues) -> Unit
-){
-    val backgroundColor = if (state.backgroundColor != Color.Unspecified) {
-        state.backgroundColor
+  state: MainLayoutState = MainLayoutState(),
+  onCloseSidebar: () -> Unit = {},
+  topBarContent: @Composable () -> Unit = {},
+  sideBarEnd: @Composable () -> Unit = {},
+  bottomBarContent: @Composable BoxScope.() -> Unit = {},
+  overlayContent: @Composable BoxScope.() -> Unit = {},
+  content: @Composable BoxScope.(padding: PaddingValues) -> Unit,
+) {
+  val backgroundColor =
+    if (state.backgroundColor != Color.Unspecified) {
+      state.backgroundColor
     } else {
-        MaterialTheme.colorScheme.background
+      MaterialTheme.colorScheme.background
     }
 
-    val sideBackgroundColor = if (state.sidebarBackgroundColor != Color.Unspecified) {
-        state.sidebarBackgroundColor
+  val sideBackgroundColor =
+    if (state.sidebarBackgroundColor != Color.Unspecified) {
+      state.sidebarBackgroundColor
     } else {
-        MaterialTheme.colorScheme.surface
+      MaterialTheme.colorScheme.surface
     }
 
-    val contentTranslationX by animateDpAsState(
-        targetValue = if (state.isOpen) -state.sidebarWidth else 0.dp,
-        animationSpec = tween(durationMillis = 300),
-        label = "ContentSlide"
+  val contentTranslationX by
+    animateDpAsState(
+      targetValue = if (state.isOpen) -state.sidebarWidth else 0.dp,
+      animationSpec = tween(durationMillis = 300),
+      label = "ContentSlide",
     )
-    val sidebarTranslationX by animateDpAsState(
-        targetValue = if (state.isOpen) 0.dp else state.sidebarWidth,
-        animationSpec = tween(durationMillis = 300),
-        label = "SidebarSlide"
+  val sidebarTranslationX by
+    animateDpAsState(
+      targetValue = if (state.isOpen) 0.dp else state.sidebarWidth,
+      animationSpec = tween(durationMillis = 300),
+      label = "SidebarSlide",
     )
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(backgroundColor)
-    ){
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer { translationX = contentTranslationX.toPx() }
-        ){
-            Scaffold(
-                containerColor = Color.Transparent,
-                topBar = {
-                    topBarContent()
-                },
-                bottomBar = {
-                    bottomBarContent()
-                },
-            ) { innerPadding ->
-                content(innerPadding)
-            }
-            Scrim(
-                active = state.isOpen,
-                onDismiss = onCloseSidebar
-            )
-        }
-        Surface(
-            color = sideBackgroundColor,
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(state.sidebarWidth)
-                .align(Alignment.TopEnd)
-                .graphicsLayer{ translationX = sidebarTranslationX.toPx() }
-                .statusBarsPadding()
-        ) {
-            sideBarEnd()
-        }
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            overlayContent()
-        }
+  Box(modifier = Modifier.fillMaxWidth().background(backgroundColor)) {
+    Box(modifier = Modifier.fillMaxSize().graphicsLayer { translationX = contentTranslationX.toPx() }) {
+      Scaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+          topBarContent()
+        },
+        bottomBar = {
+          bottomBarContent()
+        },
+      ) { innerPadding ->
+        content(innerPadding)
+      }
+      Scrim(
+        active = state.isOpen,
+        onDismiss = onCloseSidebar,
+      )
     }
+    Surface(
+      color = sideBackgroundColor,
+      modifier =
+        Modifier.fillMaxHeight()
+          .width(state.sidebarWidth)
+          .align(Alignment.TopEnd)
+          .graphicsLayer { translationX = sidebarTranslationX.toPx() }
+          .statusBarsPadding(),
+    ) {
+      sideBarEnd()
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+      overlayContent()
+    }
+  }
 }
-

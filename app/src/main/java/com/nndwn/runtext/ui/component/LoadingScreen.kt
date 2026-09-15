@@ -14,36 +14,33 @@ import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.theme.RuntextTheme
 
 @Composable
-fun LoadingScreen(
-    show : Boolean
-) {
-    Scrim(
-        active = show, onDismiss = {}
-    )
-    AnimatedVisibility(
-        visible = show,
-        enter = fadeIn(),
-        exit = fadeOut()
+fun LoadingScreen(show: Boolean) {
+  Scrim(
+    active = show,
+    onDismiss = {},
+  )
+  AnimatedVisibility(
+    visible = show,
+    enter = fadeIn(),
+    exit = fadeOut(),
+  ) {
+    Box(
+      modifier = Modifier.fillMaxSize(),
+      contentAlignment = Alignment.Center,
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            LogoAnimation(
-                modifier = Modifier,
-                tint = MaterialTheme.colorScheme.onBackground,
-                sizeLogo = 150.dp
-            )
-        }
+      LogoAnimation(
+        modifier = Modifier,
+        tint = MaterialTheme.colorScheme.onBackground,
+        sizeLogo = 150.dp,
+      )
     }
+  }
 }
 
 @Preview
 @Composable
 private fun Preview() {
-    RuntextTheme {
-        LoadingScreen(
-            show = true
-        )
-    }
+  RuntextTheme {
+    LoadingScreen(show = true)
+  }
 }

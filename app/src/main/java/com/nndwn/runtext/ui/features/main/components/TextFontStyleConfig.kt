@@ -34,115 +34,108 @@ import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.detectPrimaryScript
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 
-
 @Composable
 fun TextFontStyleConfig(
-    config: TextStyleConfig,
-    onClick : () -> Unit,
-){
-    ConfigCard (
-        modifier = Modifier
-            .fillMaxSize()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(
-                indication = ripple(),
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                onClick()
-            }
-    ){
-        Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
-        Text(
-            text = config.fontType.displayName,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontFamily = fontFamilyFor(config.fontType)
-            )
-        )
-    }
+  config: TextStyleConfig,
+  onClick: () -> Unit,
+) {
+  ConfigCard(
+    modifier =
+      Modifier.fillMaxSize().clip(MaterialTheme.shapes.medium).clickable(
+        indication = ripple(),
+        interactionSource = remember { MutableInteractionSource() },
+      ) {
+        onClick()
+      }
+  ) {
+    Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
+    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
+    Text(
+      text = config.fontType.displayName,
+      style = MaterialTheme.typography.titleLarge.copy(fontFamily = fontFamilyFor(config.fontType)),
+    )
+  }
 }
 
 @Composable
 fun SelectorFonts(
-    settings: AppSettings,
-    onUpdateFontType: (FontType) -> Unit,
-    showPanelFonts: Boolean,
-    dismissPanel: () -> Unit
+  settings: AppSettings,
+  onUpdateFontType: (FontType) -> Unit,
+  showPanelFonts: Boolean,
+  dismissPanel: () -> Unit,
 ) {
 
-    val activeScript = remember(settings.lastText) {
-        settings.lastText.detectPrimaryScript()
+  val activeScript =
+    remember(settings.lastText) {
+      settings.lastText.detectPrimaryScript()
     }
 
-    val sortedFonts = remember(activeScript) {
-        if (activeScript == ScriptCategory.LATIN) {
-            FontType.entries
-        } else {
-            val (matchingFonts, otherFonts) = FontType.entries.partition {
-                it.scriptCategory == activeScript
-            }
-            matchingFonts + otherFonts
-        }
+  val sortedFonts =
+    remember(activeScript) {
+      if (activeScript == ScriptCategory.LATIN) {
+        FontType.entries
+      } else {
+        val (matchingFonts, otherFonts) =
+          FontType.entries.partition {
+            it.scriptCategory == activeScript
+          }
+        matchingFonts + otherFonts
+      }
     }
 
-    SlideUpPanel(
-        state = SlideUpPanelState(
-            visible = showPanelFonts,
-            enabledDragToDismiss = true,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        onDismiss = dismissPanel
-    ) {
-        Text(
-            style = MaterialTheme.typography.titleLarge,
-            text = stringResource(R.string.set_config_text_style),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(MaterialTheme.dimens.medium)
-        )
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = MaterialTheme.dimens.borderSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f)
-        )
+  SlideUpPanel(
+    state =
+      SlideUpPanelState(
+        visible = showPanelFonts,
+        enabledDragToDismiss = true,
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+      ),
+    onDismiss = dismissPanel,
+  ) {
+    Text(
+      style = MaterialTheme.typography.titleLarge,
+      text = stringResource(R.string.set_config_text_style),
+      modifier = Modifier.align(Alignment.CenterHorizontally).padding(MaterialTheme.dimens.medium),
+    )
+    HorizontalDivider(
+      modifier = Modifier.fillMaxWidth(),
+      thickness = MaterialTheme.dimens.borderSmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f),
+    )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+      items(
+        count = sortedFonts.size,
+        key = { index -> sortedFonts[index].name },
+      ) { index ->
+        val item = sortedFonts[index]
+        Box(
+          modifier =
+            Modifier.fillMaxWidth()
+              .clickable(
+                indication = ripple(),
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = {
+                  onUpdateFontType(item)
+                  dismissPanel()
+                },
+              )
+              .padding(MaterialTheme.dimens.medium),
+          contentAlignment = Alignment.CenterStart,
         ) {
-            items(
-                count = sortedFonts.size,
-                key = { index -> sortedFonts[index].name }
-            ) { index ->
-                val item = sortedFonts[index]
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            indication = ripple(),
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = {
-                                onUpdateFontType(item)
-                                dismissPanel()
-                            }
-                        )
-                        .padding(MaterialTheme.dimens.medium),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = item.displayName,
-                            fontWeight = FontWeight.Normal,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontFamily = fontFamilyFor(item)
-                            )
-                        )
-                    }
-                }
-            }
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+          ) {
+            Text(
+              text = item.displayName,
+              fontWeight = FontWeight.Normal,
+              style = MaterialTheme.typography.bodyLarge.copy(fontFamily = fontFamilyFor(item)),
+            )
+          }
         }
+      }
     }
+  }
 }

@@ -11,19 +11,20 @@ import com.nndwn.runtext.ui.extentions.shimmer
 
 @Composable
 fun Skeleton(
-    shimmerProgress: Float?,
-    height: Dp,
-    modifier: Modifier = Modifier
+  shimmerProgress: Float?,
+  height: Dp,
+  modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-            .shimmer(
-                progress = shimmerProgress,
-                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                shimmerColor = MaterialTheme.colorScheme.onSurface,
-                shape = MaterialTheme.shapes.medium
-            )
-    )
+  Box(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .height(height)
+        .shimmer(
+          progress = shimmerProgress,
+          backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+          shimmerColor = MaterialTheme.colorScheme.onSurface,
+          shape = MaterialTheme.shapes.medium,
+        )
+  )
 }

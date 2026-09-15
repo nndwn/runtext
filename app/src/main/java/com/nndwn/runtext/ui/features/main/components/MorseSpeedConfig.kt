@@ -15,28 +15,28 @@ import com.nndwn.runtext.ui.features.main.MainUiEvent
 
 @Composable
 fun MorseSpeedConfig(
-    speed: Int,
-    event: (MainUiEvent) -> Unit,
-){
-    ConfigCard{
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(R.string.speed),
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text(
-                text = "$speed WPM",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-        SliderTheme(
-            value = speed.toFloat(),
-            onValueChange = {event(MainUiEvent.UpdateMorseWpm(it.toInt()))},
-            valueRange = 5f..40f,
-            steps = 34
-        )
+  speed: Int,
+  event: (MainUiEvent) -> Unit,
+) {
+  ConfigCard {
+    Row(
+      Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+      Text(
+        text = stringResource(R.string.speed),
+        style = MaterialTheme.typography.titleSmall,
+      )
+      Text(
+        text = "$speed WPM",
+        style = MaterialTheme.typography.bodySmall,
+      )
     }
+    SliderTheme(
+      value = speed.toFloat(),
+      onValueChange = { event(MainUiEvent.UpdateMorseWpm(it.toInt())) },
+      valueRange = 5f..40f,
+      steps = 34,
+    )
+  }
 }

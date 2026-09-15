@@ -43,123 +43,124 @@ import kotlin.math.roundToInt
 
 @Composable
 fun AppModeSettings(
-    currentMode: AppMode,
-    onModeChange: (AppMode) -> Unit,
-    modifier: Modifier = Modifier
+  currentMode: AppMode,
+  onModeChange: (AppMode) -> Unit,
+  modifier: Modifier = Modifier,
 ) {
-    val modes = AppMode.entries
-    val selectedIndex = modes.indexOf(currentMode)
+  val modes = AppMode.entries
+  val selectedIndex = modes.indexOf(currentMode)
 
-    val paddingValue = MaterialTheme.dimens.extraSmall
-    val outerShape = MaterialTheme.shapes.medium
+  val paddingValue = MaterialTheme.dimens.extraSmall
+  val outerShape = MaterialTheme.shapes.medium
 
-    val innerShape = outerShape.shrinkRadius(paddingValue)
+  val innerShape = outerShape.shrinkRadius(paddingValue)
 
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .border(
-                width = MaterialTheme.dimens.borderMedium,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                shape = outerShape
+  BoxWithConstraints(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .height(56.dp)
+        .border(
+          width = MaterialTheme.dimens.borderMedium,
+          color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+          shape = outerShape,
+        )
+        .clip(MaterialTheme.shapes.medium)
+        .padding(paddingValue)
+  ) {
+    val maxWidth = maxWidth
+    val itemWidth = maxWidth / modes.size
+
+    val offsetAnim by
+      animateFloatAsState(
+        targetValue = selectedIndex.toFloat(),
+        animationSpec = spring(stiffness = 700f, dampingRatio = 0.8f),
+        label = "indicatorOffset",
+      )
+
+    Box(
+      modifier =
+        Modifier.offset {
+            IntOffset(
+              x = (itemWidth.toPx() * offsetAnim).roundToInt(),
+              y = 0,
             )
-            .clip(MaterialTheme.shapes.medium)
-            .padding(paddingValue)
+          }
+          .width(itemWidth)
+          .fillMaxHeight()
+          .clip(innerShape)
+          .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+    )
+
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
     ) {
-        val maxWidth = maxWidth
-        val itemWidth = maxWidth / modes.size
-
-        val offsetAnim by animateFloatAsState(
-            targetValue = selectedIndex.toFloat(),
-            animationSpec = spring(stiffness = 700f, dampingRatio = 0.8f),
-            label = "indicatorOffset"
+      modes.forEach { mode ->
+        AppModeItem(
+          mode = mode,
+          isSelected = currentMode == mode,
+          onClick = { onModeChange(mode) },
+          modifier = Modifier.weight(1f),
         )
-
-        Box(
-            modifier = Modifier
-                .offset {
-                    IntOffset(
-                        x = (itemWidth.toPx() * offsetAnim).roundToInt(),
-                        y = 0
-                    )
-                }
-                .width(itemWidth)
-                .fillMaxHeight()
-                .clip(innerShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            modes.forEach { mode ->
-                AppModeItem(
-                    mode = mode,
-                    isSelected = currentMode == mode,
-                    onClick = { onModeChange(mode) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
+      }
     }
+  }
 }
 
 @Composable
 private fun AppModeItem(
-    mode: AppMode,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+  mode: AppMode,
+  isSelected: Boolean,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
 ) {
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface
-                      else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 200),
-        label = "contentColor"
+  val contentColor by
+    animateColorAsState(
+      targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+      animationSpec = tween(durationMillis = 200),
+      label = "contentColor",
     )
 
-    Box(
-        modifier = modifier
-            .fillMaxHeight()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            ),
-        contentAlignment = Alignment.Center
+  Box(
+    modifier =
+      modifier
+        .fillMaxHeight()
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null,
+          onClick = onClick,
+        ),
+    contentAlignment = Alignment.Center,
+  ) {
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(id = mode.icon),
-                contentDescription = null,
-                tint = contentColor,
-                modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-            )
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
-            Text(
-                text = stringResource(id = mode.displayName),
-                color = contentColor,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                )
-            )
-        }
+      Icon(
+        painter = painterResource(id = mode.icon),
+        contentDescription = null,
+        tint = contentColor,
+        modifier = Modifier.size(MaterialTheme.dimens.iconMedium),
+      )
+      Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
+      Text(
+        text = stringResource(id = mode.displayName),
+        color = contentColor,
+        style =
+          MaterialTheme.typography.titleSmall.copy(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium),
+      )
     }
+  }
 }
 
 @Preview
 @Composable
-private fun Preview(){
-    RuntextTheme {
-        AppModeSettings(
-            currentMode = AppMode.RUNNING_TEXT,
-            onModeChange = {}
-        )
-    }
+private fun Preview() {
+  RuntextTheme {
+    AppModeSettings(
+      currentMode = AppMode.RUNNING_TEXT,
+      onModeChange = {},
+    )
+  }
 }
-

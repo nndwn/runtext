@@ -19,28 +19,26 @@ import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun LogoText(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
-){
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(MaterialTheme.dimens.iconExtraLarge)
-        )
-        Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
-        Text(
-            text = stringResource(R.string.app_name),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Black
-            ),
-            modifier = Modifier.weight(1f)
-        )
-        content()
-    }
+  modifier: Modifier = Modifier,
+  content: @Composable () -> Unit = {},
+) {
+  Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+      painter = painterResource(id = R.drawable.logo),
+      contentDescription = null,
+      tint = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier.size(MaterialTheme.dimens.iconExtraLarge),
+    )
+    Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
+    Text(
+      text = stringResource(R.string.app_name),
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
+      modifier = Modifier.weight(1f),
+    )
+    content()
+  }
 }

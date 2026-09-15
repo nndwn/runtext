@@ -20,55 +20,50 @@ import kotlin.math.roundToInt
 
 @Composable
 fun TextSpacingConfig(
-    config : TextStyleConfig,
-    expandedId: String?,
-    onToggle : (String) -> Unit,
-    onEvent : (MainUiEvent) -> Unit,
-){
-    CardExpanded(
-        title = stringResource(R.string.set_config_text_spacing),
-        idString = "text_spacing",
-        expandedId = expandedId,
-        onToggle = onToggle
-    ) {
-        Column(
-            Modifier.padding(vertical = MaterialTheme.dimens.medium)
-        ){
-            LabeledSlider(
-                label = stringResource(R.string.set_config_text_spacing_text),
-                value = config.letterSpacingSp,
-                valueRange = -2f..20f,
-                displayValueText = "${config.letterSpacingSp.roundToInt()}",
-                onValueChange = { onEvent(MainUiEvent.UpdateLetterSpacing(it)) }
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
-            LabeledSlider(
-                label = stringResource(R.string.set_config_text_spacing_word),
-                value = config.wordSpacingSp,
-                valueRange = 0f..30f,
-                displayValueText = "${config.wordSpacingSp.roundToInt()}",
-                onValueChange = { onEvent(MainUiEvent.UpdateWordSpacing(it)) }
-            )
-        }
-
+  config: TextStyleConfig,
+  expandedId: String?,
+  onToggle: (String) -> Unit,
+  onEvent: (MainUiEvent) -> Unit,
+) {
+  CardExpanded(
+    title = stringResource(R.string.set_config_text_spacing),
+    idString = "text_spacing",
+    expandedId = expandedId,
+    onToggle = onToggle,
+  ) {
+    Column(Modifier.padding(vertical = MaterialTheme.dimens.medium)) {
+      LabeledSlider(
+        label = stringResource(R.string.set_config_text_spacing_text),
+        value = config.letterSpacingSp,
+        valueRange = -2f..20f,
+        displayValueText = "${config.letterSpacingSp.roundToInt()}",
+        onValueChange = { onEvent(MainUiEvent.UpdateLetterSpacing(it)) },
+      )
+      Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
+      LabeledSlider(
+        label = stringResource(R.string.set_config_text_spacing_word),
+        value = config.wordSpacingSp,
+        valueRange = 0f..30f,
+        displayValueText = "${config.wordSpacingSp.roundToInt()}",
+        onValueChange = { onEvent(MainUiEvent.UpdateWordSpacing(it)) },
+      )
     }
-
+  }
 }
 
 @Composable
 @Preview
-private fun Preview(){
-    RuntextTheme {
-        TextSpacingConfig(
-            config = TextStyleConfig(
-                letterSpacingSp = 1f,
-                wordSpacingSp = 1f
-            ),
-            expandedId = null,
-            onToggle = {},
-            onEvent = {}
-        )
-    }
-
+private fun Preview() {
+  RuntextTheme {
+    TextSpacingConfig(
+      config =
+        TextStyleConfig(
+          letterSpacingSp = 1f,
+          wordSpacingSp = 1f,
+        ),
+      expandedId = null,
+      onToggle = {},
+      onEvent = {},
+    )
+  }
 }
-

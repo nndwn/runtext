@@ -42,206 +42,198 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.nndwn.runtext.ui.LocalSizeWidth
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
-import com.nndwn.runtext.ui.LocalSizeWidth
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-
 
 data class SlideUpPanelState(
-    val visible: Boolean,
-    val enabledDragToDismiss : Boolean = false,
-    val containerColor: Color = Color.Unspecified
+  val visible: Boolean,
+  val enabledDragToDismiss: Boolean = false,
+  val containerColor: Color = Color.Unspecified,
 )
-
 
 @Composable
 fun SlideUpPanel(
-    modifier: Modifier = Modifier,
-    state: SlideUpPanelState,
-    onDismiss: () -> Unit = {},
-    content: @Composable (ColumnScope.() -> Unit)
+  modifier: Modifier = Modifier,
+  state: SlideUpPanelState,
+  onDismiss: () -> Unit = {},
+  content: @Composable (ColumnScope.() -> Unit),
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val offsetY = remember { Animatable(0f) }
-    val density = LocalDensity.current
+  val coroutineScope = rememberCoroutineScope()
+  val offsetY = remember { Animatable(0f) }
+  val density = LocalDensity.current
 
-    val isExpand = LocalSizeWidth.current != WindowWidthSizeClass.Compact
-    val dismissThreshold = with(density) { 150.dp.toPx() }
+  val isExpand = LocalSizeWidth.current != WindowWidthSizeClass.Compact
+  val dismissThreshold = with(density) { 150.dp.toPx() }
 
-    val containerColor = if (state.containerColor != Color.Unspecified) {
-        state.containerColor
-    } else MaterialTheme.colorScheme.surface
+  val containerColor = state.containerColor.takeOrElse { MaterialTheme.colorScheme.surface }
 
-    BackHandler(state.visible) {
-        onDismiss()
+  BackHandler(state.visible) {
+    onDismiss()
+  }
+
+  LaunchedEffect(state.visible) {
+    if (state.visible) {
+      offsetY.snapTo(0f)
+    }
+  }
+
+  Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+    Scrim(state.visible) {
+      onDismiss()
     }
 
-    LaunchedEffect(state.visible) {
-        if (state.visible) {
-            offsetY.snapTo(0f)
-        }
-    }
-
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
+    AnimatedVisibility(
+      visible = state.visible,
+      enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+      exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
     ) {
-        Scrim(state.visible) {
-            onDismiss()
-        }
-
-        AnimatedVisibility(
-            visible = state.visible,
-            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-        ) {
-            Surface(
-                color = containerColor,
-                modifier = Modifier
-                    .widthIn(max = 560.dp)
-                    .heightIn(max = 560.dp)
-                    .fillMaxWidth()
-                    .offset { IntOffset(0, offsetY.value.roundToInt()) }
-                    .panelAppearance(isExpand)
-                    .dragToDismiss(
-                        enabled = state.enabledDragToDismiss,
-                        offsetY = offsetY,
-                        dismissThreshold = dismissThreshold,
-                        coroutineScope = coroutineScope,
-                        onDismiss = onDismiss
-                    )
-            ) {
-                SlideUpPanelContent(
-                    drag = state.enabledDragToDismiss,
-                    containerColor = containerColor,
-                    content = content,
-                    modifier = if (isExpand) Modifier else Modifier.navigationBarsPadding()
-                )
-            }
-        }
+      Surface(
+        color = containerColor,
+        modifier =
+          Modifier.widthIn(max = 560.dp)
+            .heightIn(max = 560.dp)
+            .fillMaxWidth()
+            .offset { IntOffset(0, offsetY.value.roundToInt()) }
+            .panelAppearance(isExpand)
+            .dragToDismiss(
+              enabled = state.enabledDragToDismiss,
+              offsetY = offsetY,
+              dismissThreshold = dismissThreshold,
+              coroutineScope = coroutineScope,
+              onDismiss = onDismiss,
+            ),
+      ) {
+        SlideUpPanelContent(
+          drag = state.enabledDragToDismiss,
+          containerColor = containerColor,
+          content = content,
+          modifier = if (isExpand) Modifier else Modifier.navigationBarsPadding(),
+        )
+      }
     }
+  }
 }
 
 @Composable
 private fun Modifier.panelAppearance(isExpand: Boolean): Modifier {
-    val dimens = MaterialTheme.dimens
-    val shapes = MaterialTheme.shapes
-    return if (isExpand) {
-        this.padding(
-            bottom = dimens.large,
-            start = dimens.large,
-            end = dimens.large
-        )
-            .clip(shapes.large)
-            .navigationBarsPadding()
-    } else {
-        this.clip(
-            shapes.large.copy(
-                bottomEnd = CornerSize(0.dp),
-                bottomStart = CornerSize(0.dp)
-            )
-        )
-    }
+  val dimens = MaterialTheme.dimens
+  val shapes = MaterialTheme.shapes
+  return if (isExpand) {
+    this.padding(
+        bottom = dimens.large,
+        start = dimens.large,
+        end = dimens.large,
+      )
+      .clip(shapes.large)
+      .navigationBarsPadding()
+  } else {
+    this.clip(
+      shapes.large.copy(
+        bottomEnd = CornerSize(0.dp),
+        bottomStart = CornerSize(0.dp),
+      )
+    )
+  }
 }
 
 private fun Modifier.dragToDismiss(
-    enabled: Boolean,
-    offsetY: Animatable<Float, *>,
-    dismissThreshold: Float,
-    coroutineScope: CoroutineScope,
-    onDismiss: () -> Unit
-): Modifier = if (enabled) {
+  enabled: Boolean,
+  offsetY: Animatable<Float, *>,
+  dismissThreshold: Float,
+  coroutineScope: CoroutineScope,
+  onDismiss: () -> Unit,
+): Modifier =
+  if (enabled) {
     this.pointerInput(Unit) {
-        detectVerticalDragGestures(
-            onDragEnd = {
-                if (offsetY.value > dismissThreshold) {
-                    onDismiss()
-                } else {
-                    coroutineScope.launch {
-                        offsetY.animateTo(0f, animationSpec = spring())
-                    }
-                }
-            },
-            onDragCancel = {
-                coroutineScope.launch {
-                    offsetY.animateTo(0f, animationSpec = spring())
-                }
-            },
-            onVerticalDrag = { change, dragAmount ->
-                change.consume()
-                coroutineScope.launch {
-                    offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
-                }
+      detectVerticalDragGestures(
+        onDragEnd = {
+          if (offsetY.value > dismissThreshold) {
+            onDismiss()
+          } else {
+            coroutineScope.launch {
+              offsetY.animateTo(0f, animationSpec = spring())
             }
-        )
+          }
+        },
+        onDragCancel = {
+          coroutineScope.launch {
+            offsetY.animateTo(0f, animationSpec = spring())
+          }
+        },
+        onVerticalDrag = { change, dragAmount ->
+          change.consume()
+          coroutineScope.launch {
+            offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
+          }
+        },
+      )
     }
-} else this
+  } else this
 
 @Composable
 private fun SlideUpPanelContent(
-    modifier: Modifier = Modifier,
-    drag : Boolean,
-    containerColor : Color,
-    content: @Composable (ColumnScope.() -> Unit)
-){
-    val colorDragIcon =  if (containerColor.luminance() > 0.5f ) {
-        Color.Black.copy(alpha = 0.3f)
+  modifier: Modifier = Modifier,
+  drag: Boolean,
+  containerColor: Color,
+  content: @Composable (ColumnScope.() -> Unit),
+) {
+  val colorDragIcon =
+    if (containerColor.luminance() > 0.5f) {
+      Color.Black.copy(alpha = 0.3f)
     } else {
-        Color.White.copy(alpha = 0.3f)
+      Color.White.copy(alpha = 0.3f)
     }
-    Column(
-        modifier = modifier.fillMaxWidth()) {
-        if (drag) {
-            Box(
-                modifier = Modifier
-                    .padding(
-                        top = MaterialTheme.dimens.small,
-                        bottom = MaterialTheme.dimens.medium
-                    )
-                    .width(MaterialTheme.dimens.extraLarge)
-                    .height(MaterialTheme.dimens.extraSmall)
-                    .clip(CircleShape)
-                    .background(colorDragIcon)
-                    .align(Alignment.CenterHorizontally)
+  Column(modifier = modifier.fillMaxWidth()) {
+    if (drag) {
+      Box(
+        modifier =
+          Modifier.padding(
+              top = MaterialTheme.dimens.small,
+              bottom = MaterialTheme.dimens.medium,
             )
-        }
-
-        content()
+            .width(MaterialTheme.dimens.extraLarge)
+            .height(MaterialTheme.dimens.extraSmall)
+            .clip(CircleShape)
+            .background(colorDragIcon)
+            .align(Alignment.CenterHorizontally)
+      )
     }
-}
 
+    content()
+  }
+}
 
 @Preview(showSystemUi = true)
 @Composable
 private fun Preview() {
-    var show by remember { mutableStateOf(false) }
+  var show by remember { mutableStateOf(false) }
 
-    CompositionLocalProvider(
-        LocalSizeWidth provides WindowWidthSizeClass.Compact
-    ) {
-        RuntextTheme {
-            Button(
-                onClick = { show = !show },
-                modifier = Modifier.padding(MaterialTheme.dimens.medium)
-            ) { }
-            SlideUpPanel(
-              state = SlideUpPanelState(
-                  visible = true,
-                  enabledDragToDismiss = true,
-                  containerColor = MaterialTheme.colorScheme.secondaryContainer
-              )
-            ) {
-                Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraLarge))
-            }
-        }
+  CompositionLocalProvider(LocalSizeWidth provides WindowWidthSizeClass.Compact) {
+    RuntextTheme {
+      Button(
+        onClick = { show = !show },
+        modifier = Modifier.padding(MaterialTheme.dimens.medium),
+      ) {}
+      SlideUpPanel(
+        state =
+          SlideUpPanelState(
+            visible = true,
+            enabledDragToDismiss = true,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+          )
+      ) {
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraLarge))
+      }
     }
-
+  }
 }

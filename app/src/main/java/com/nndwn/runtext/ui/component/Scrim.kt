@@ -14,25 +14,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
 @Composable
-fun Scrim (
-    active : Boolean,
-    onDismiss : () -> Unit
+fun Scrim(
+  active: Boolean,
+  onDismiss: () -> Unit,
 ) {
-    AnimatedVisibility(
-        visible = active,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource()},
-                    indication = null
-                ){
-                    onDismiss()
-                }
-        )
-    }
+  AnimatedVisibility(
+    visible = active,
+    enter = fadeIn(),
+    exit = fadeOut(),
+  ) {
+    Box(
+      modifier =
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)).clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null,
+        ) {
+          onDismiss()
+        }
+    )
+  }
 }

@@ -17,85 +17,82 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.ui.LocalMenuOptionHandler
+import com.nndwn.runtext.ui.LocalSizeHeight
+import com.nndwn.runtext.ui.LocalSizeWidth
+import com.nndwn.runtext.ui.LocalToggleSidebar
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MainLayoutState
 import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiState
 import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.RuntextTheme
-import com.nndwn.runtext.ui.LocalMenuOptionHandler
-import com.nndwn.runtext.ui.LocalSizeHeight
-import com.nndwn.runtext.ui.LocalSizeWidth
-import com.nndwn.runtext.ui.LocalToggleSidebar
-
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun InteractivePreviewWrapper(
-    widowSizeHeight : WindowHeightSizeClass = WindowHeightSizeClass.Compact,
-    windowWidth : WindowWidthSizeClass = WindowWidthSizeClass.Compact
+  widowSizeHeight: WindowHeightSizeClass = WindowHeightSizeClass.Compact,
+  windowWidth: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
-    val navController = rememberNavController()
+  val navController = rememberNavController()
 
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route
+  val currentBackStackEntry by navController.currentBackStackEntryAsState()
+  val currentRoute = currentBackStackEntry?.destination?.route
 
-    var isSidebarOpen by remember { mutableStateOf(false) }
-    val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
+  var isSidebarOpen by remember { mutableStateOf(false) }
+  val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
 
-    var settings by remember {
-        mutableStateOf(
-            AppSettings(
-                lastText = "test preview"
+  var settings by remember {
+    mutableStateOf(AppSettings(lastText = "test preview"))
+  }
+
+  var noticeMessage by remember { mutableStateOf<Int?>(null) }
+
+  CompositionLocalProvider(
+    LocalSizeHeight provides widowSizeHeight,
+    LocalSizeWidth provides windowWidth,
+    LocalToggleSidebar provides {},
+    LocalMenuOptionHandler provides {},
+  ) {
+    RuntextTheme {
+      MainLayout(
+        state =
+          MainLayoutState()
+            .copy(
+              isOpen = sidebarAllowed,
+              sidebarBackgroundColor = MaterialTheme.colorScheme.secondary,
+            ),
+        onCloseSidebar = { isSidebarOpen = false },
+        sideBarEnd = {},
+      ) { innerPadding ->
+        NavHost(
+          navController = navController,
+          startDestination = Routes.INPUT,
+        ) {
+          composable(Routes.INPUT) {
+            MainScreenContent(
+              uiState = MainUiState.Success(settings),
+              onEvent = {},
+              padding = innerPadding,
             )
-        )
-    }
-
-    var noticeMessage by remember { mutableStateOf<Int?>(null) }
-
-    CompositionLocalProvider(
-        LocalSizeHeight provides widowSizeHeight,
-        LocalSizeWidth provides windowWidth,
-        LocalToggleSidebar provides {},
-        LocalMenuOptionHandler provides {}
-    ) {
-        RuntextTheme {
-            MainLayout(
-                state = MainLayoutState().copy(
-                    isOpen = sidebarAllowed,
-                    sidebarBackgroundColor = MaterialTheme.colorScheme.secondary
-                ),
-                onCloseSidebar = { isSidebarOpen = false },
-                sideBarEnd = { }) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = Routes.INPUT
-                ) {
-                    composable(Routes.INPUT) {
-                        MainScreenContent(
-                            uiState = MainUiState.Success(settings),
-                            onEvent = {},
-                            padding = innerPadding,
-                        )
-                    }
-                    composable(Routes.DISPLAY) {
-                        // Display Screen
-                    }
-                }
-            }
+          }
+          composable(Routes.DISPLAY) {
+            // Display Screen
+          }
         }
-
+      }
     }
+  }
 }
 
 @Preview(
-    device = "spec:width=673dp,height=841dp",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+  device = "spec:width=673dp,height=841dp",
+  uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 private fun PreviewTabletDark() {
-    InteractivePreviewWrapper(
-        widowSizeHeight = WindowHeightSizeClass.Medium,
-        windowWidth = WindowWidthSizeClass.Medium
-    )
+  InteractivePreviewWrapper(
+    widowSizeHeight = WindowHeightSizeClass.Medium,
+    windowWidth = WindowWidthSizeClass.Medium,
+  )
 }

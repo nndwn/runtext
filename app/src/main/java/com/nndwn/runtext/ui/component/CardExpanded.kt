@@ -35,70 +35,68 @@ import com.nndwn.runtext.ui.theme.dimens
 
 @Composable
 fun CardExpanded(
-    title : String,
-    idString : String,
-    expandedId : String?,
-    onToggle : (String) -> Unit,
-    modifier: Modifier = Modifier,
-    content : @Composable () -> Unit
-){
-    val isExpanded = expandedId == idString
-    ConfigCard(modifier = modifier.animateContentSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = {onToggle(idString)}
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = if (isExpanded)painterResource(R.drawable.ic_up)  else  painterResource(R.drawable.ic_down),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
-            )
-        }
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
-        ) {
-            content()
-        }
+  title: String,
+  idString: String,
+  expandedId: String?,
+  onToggle: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  content: @Composable () -> Unit,
+) {
+  val isExpanded = expandedId == idString
+  ConfigCard(modifier = modifier.animateContentSize()) {
+    Row(
+      modifier =
+        Modifier.fillMaxWidth()
+          .clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = { onToggle(idString) },
+          ),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.weight(1f),
+      )
+      Icon(
+        painter = if (isExpanded) painterResource(R.drawable.ic_up) else painterResource(R.drawable.ic_down),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(MaterialTheme.dimens.iconLarge),
+      )
     }
+    AnimatedVisibility(
+      visible = isExpanded,
+      enter = expandVertically() + fadeIn(),
+      exit = shrinkVertically() + fadeOut(),
+    ) {
+      content()
+    }
+  }
 }
 
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 private fun Preview() {
-    var show by remember { mutableStateOf(false) }
-    RuntextTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = {show = !show}
-            ) {
-                Text("Show")
-            }
-            CardExpanded(
-                title = "Test",
-                idString = "test",
-                expandedId = if (show) "test" else null,
-                onToggle = {show = !show}
-            ) {
-                Spacer(modifier = Modifier.size(100.dp))
-            }
-        }
+  var show by remember { mutableStateOf(false) }
+  RuntextTheme {
+    Column(
+      modifier = Modifier.fillMaxSize(),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Button(onClick = { show = !show }) {
+        Text("Show")
+      }
+      CardExpanded(
+        title = "Test",
+        idString = "test",
+        expandedId = if (show) "test" else null,
+        onToggle = { show = !show },
+      ) {
+        Spacer(modifier = Modifier.size(100.dp))
+      }
     }
+  }
 }

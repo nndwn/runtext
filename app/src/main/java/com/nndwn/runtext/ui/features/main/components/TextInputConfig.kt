@@ -23,88 +23,84 @@ import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.features.main.LocalLimitText
 import com.nndwn.runtext.ui.theme.dimens
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextInputConfig(
-    modifier: Modifier = Modifier,
-    text: String,
-    onTextChange: (String) -> Unit,
-    onClearText: () -> Unit,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+  modifier: Modifier = Modifier,
+  text: String,
+  onTextChange: (String) -> Unit,
+  onClearText: () -> Unit,
+  interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
 
-    val limitText = LocalLimitText.current
-    BasicTextField(
+  val limitText = LocalLimitText.current
+  BasicTextField(
+    value = text,
+    onValueChange = { newText ->
+      if (newText.length <= limitText) {
+        onTextChange(newText)
+      } else {
+        onTextChange(newText.take(limitText))
+      }
+    },
+    modifier = modifier.fillMaxWidth().heightIn(min = 120.dp),
+    interactionSource = interactionSource,
+    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    decorationBox = { innerTextField ->
+      OutlinedTextFieldDefaults.DecorationBox(
         value = text,
-        onValueChange = { newText ->
-            if (newText.length <= limitText) {
-                onTextChange(newText)
-            } else {
-                onTextChange(newText.take(limitText))
-            }
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 120.dp),
+        innerTextField = innerTextField,
+        enabled = true,
+        singleLine = false,
+        visualTransformation = VisualTransformation.None,
         interactionSource = interactionSource,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-        decorationBox = { innerTextField ->
-            OutlinedTextFieldDefaults.DecorationBox(
-                value = text,
-                innerTextField = innerTextField,
-                enabled = true,
-                singleLine = false,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource,
-                placeholder = {
-                    Text(
-                        stringResource(R.string.placeholder_input_text),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                trailingIcon = {
-                    if (text.isNotEmpty()) {
-                        IconButton(onClick = onClearText) {
-                            Icon(
-                                painterResource(R.drawable.ic_clear),
-                                contentDescription = stringResource(R.string.clear),
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-                            )
-                        }
-                    }
-                },
-                supportingText = {
-                    Text(
-                        text = "${text.length}/${limitText}",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                container = {
-                    OutlinedTextFieldDefaults.Container(
-                        enabled = true,
-                        isError = false,
-                        interactionSource = interactionSource,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        focusedBorderThickness = MaterialTheme.dimens.borderMedium,
-                        unfocusedBorderThickness = MaterialTheme.dimens.borderSmall
-                    )
-                }
-            )
-        }
-    )
+        placeholder = {
+          Text(
+            stringResource(R.string.placeholder_input_text),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        },
+        trailingIcon = {
+          if (text.isNotEmpty()) {
+            IconButton(onClick = onClearText) {
+              Icon(
+                painterResource(R.drawable.ic_clear),
+                contentDescription = stringResource(R.string.clear),
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(MaterialTheme.dimens.iconMedium),
+              )
+            }
+          }
+        },
+        supportingText = {
+          Text(
+            text = "${text.length}/${limitText}",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall,
+          )
+        },
+        colors =
+          OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+          ),
+        container = {
+          OutlinedTextFieldDefaults.Container(
+            enabled = true,
+            isError = false,
+            interactionSource = interactionSource,
+            colors =
+              OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+              ),
+            shape = MaterialTheme.shapes.medium,
+            focusedBorderThickness = MaterialTheme.dimens.borderMedium,
+            unfocusedBorderThickness = MaterialTheme.dimens.borderSmall,
+          )
+        },
+      )
+    },
+  )
 }
-
