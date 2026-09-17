@@ -6,18 +6,22 @@ import androidx.compose.ui.graphics.Color
 import com.nndwn.runtext.R
 import com.nndwn.runtext.ui.theme.Palette
 import com.nndwn.runtext.ui.theme.toArgbLong
+import kotlinx.serialization.Serializable
 
 /** Enum for app display mode selection. */
+@Serializable
 enum class AppMode(@param:StringRes val displayName: Int, @param:DrawableRes val icon: Int) {
   RUNNING_TEXT(R.string.btn_text_running_text, R.drawable.ic_runtext),
   MORSE_CODE(R.string.btn_text_morse_code, R.drawable.ic_flash),
 }
 
+@Serializable
 enum class TextColorType(@param:StringRes val displayName: Int, @param:DrawableRes val icon: Int) {
   SOLID(R.string.set_config_text_color_type_solid, R.drawable.ic_color_solid),
   GRADIENT(R.string.set_config_text_color_type_gradient, R.drawable.ic_color_gradient),
 }
 
+@Serializable
 data class AppSettings(
   val lastText: String = "",
   val mode: AppMode = AppMode.RUNNING_TEXT,
@@ -25,6 +29,7 @@ data class AppSettings(
   val morseConfig: MorseConfig = MorseConfig(),
 )
 
+@Serializable
 data class TextConfig(
   val speed: Float = 150f,
   val bgColorArgb: Long = Palette.White.toArgbLong(),
@@ -34,6 +39,7 @@ data class TextConfig(
   val shadow: ShadowConfig = ShadowConfig(),
 )
 
+@Serializable
 data class TextStyleConfig(
   val colorArgb: Long = Palette.PitchBlack.toArgbLong(),
   val colorType: TextColorType = TextColorType.SOLID,
@@ -48,12 +54,14 @@ data class TextStyleConfig(
   val googleFontName: String = "",
 )
 
+@Serializable
 data class StrokeConfig(
   val isEnabled: Boolean = false,
   val width: Float = 1f,
   val colorArgb: Long = Color.Black.toArgbLong(),
 )
 
+@Serializable
 data class ShadowConfig(
   val isEnabled: Boolean = false,
   val colorArgb: Long = Color.Black.copy(alpha = 0.75f).toArgbLong(),
@@ -61,6 +69,7 @@ data class ShadowConfig(
   val rotation: Float = 45f,
 )
 
+@Serializable
 data class MorseConfig(
   val morseWpm: Int = 15,
   val bgColorMorse: Long = Palette.White.toArgbLong(),

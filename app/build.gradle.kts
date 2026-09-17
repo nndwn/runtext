@@ -5,8 +5,10 @@ import kotlin.apply
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
+
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 val localProperties = Properties().apply {
@@ -139,9 +141,9 @@ dependencies {
     //Navigation
     implementation(libs.androidx.navigation.compose)
 
-    //Datastore
+    //Datastore and Serization
     implementation(libs.androidx.datastore.preferences)
-
+    implementation(libs.kotlinx.serialization.json)
     //DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -151,6 +153,8 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     debugImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.kotlinx.coroutines.test)
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

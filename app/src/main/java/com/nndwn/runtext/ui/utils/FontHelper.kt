@@ -1,5 +1,6 @@
 package com.nndwn.runtext.ui.utils
 
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
@@ -7,10 +8,10 @@ import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.ScriptCategory
-import com.nndwn.runtext.ui.theme.*
 import java.util.concurrent.ConcurrentHashMap
 
 private val googleFontCache = ConcurrentHashMap<String, FontFamily>()
+private val localFontCache = ConcurrentHashMap<Int, FontFamily>()
 
 val GoogleFontProvider =
   GoogleFont.Provider(
@@ -36,33 +37,19 @@ fun googleFontFamily(fontName: String): FontFamily {
 }
 
 fun fontFamilyFor(fontType: FontType): FontFamily {
-  return when (fontType) {
-    FontType.LATO -> LatoFamity
-    FontType.OSWALD -> OswaldFamily
-    FontType.RALEWAY -> ralewayFamily
-    FontType.ABRIL_FATFACE -> abrilFatFaceFamily
-    FontType.ANTON -> AntonFamily
-    FontType.BEBAS_NEUE -> bebasNeueFamily
-    FontType.ARCHIVO_BLACK -> archivoBlackFamily
-    FontType.LOBSTER -> lobsterFamily
-    FontType.PACIFICO -> pacificoFamily
-    FontType.PERMANENT_MARKER -> permanentMarkerFamily
-    FontType.SHARE_TECH_MONO -> ShareTechMonoFamily
-    FontType.CREEPSTER -> creepsterFamily
-    FontType.SILKSCREEN -> silkScreenFamily
-    FontType.DOT_GOTHIC -> DotGothic16Family
-    FontType.COURIER_PRIME -> courierPrimeFamily
-    FontType.BANGERS -> bangersFamily
-    FontType.ORBITRON -> orbitronFamily
-    FontType.FREDOKA -> fredokaFamily
-    FontType.PATRICK_HAND -> patrickHandFamily
-    FontType.COURGETTE -> courgetteFamily
-    FontType.GREAT_VIBES -> greatVibesFamily
-    FontType.SACRAMENTO -> sacremntoFamily
-
-    // Fallback to Google Fonts for others (International support, etc.)
-    else -> googleFontFamily(fontType.googleFontName)
+  val localId = fontType.localResId
+  if (localId != null) {
+    return localFontCache.getOrPut(localId) {
+      FontFamily(Font(localId))
+    }
   }
+
+  val googleName = fontType.googleFontName
+  if (googleName != null) {
+    return googleFontFamily(googleName)
+  }
+
+  return FontFamily.Default
 }
 
 fun String.detectPrimaryScript(): ScriptCategory {

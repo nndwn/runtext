@@ -63,10 +63,7 @@ fun RunningTextCoreOptimized(
     }
 
   val isRtl =
-    remember(rawText) {
-      if (rawText.isEmpty()) false
-      else java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
-    }
+    remember(rawText) { java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft }
   val fontResolver = LocalFontFamilyResolver.current
 
   val fontFamily = fontFamilyFor(settings.textStyle.fontType)
@@ -103,7 +100,7 @@ fun RunningTextCoreOptimized(
       }
 
     val textLayoutResult =
-      remember(baseTextStyle, baseTextStyle, fontLoadState) {
+      remember(baseTextStyle, baseTextStyle, fontLoadState, rawText) {
         textMeasurer.measure(
           text = rawText,
           style = baseTextStyle,
