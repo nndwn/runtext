@@ -17,7 +17,7 @@ enum class FontType(
   val scriptCategory: ScriptCategory = ScriptCategory.LATIN,
   val googleFontName: String = displayName.substringBefore(" ("),
 ) {
-  // ── Modern & Clean ──
+
   ROBOTO("Roboto"),
   OPEN_SANS("Open Sans"),
   LATO("Lato"),
@@ -29,8 +29,6 @@ enum class FontType(
   QUICKSAND("Quicksand"),
   NUNITO("Nunito"),
   ABRIL_FATFACE("Abril Fatface"),
-
-  // ── Display & Bold ──
   ANTON("Anton"),
   BEBAS_NEUE("Bebas Neue"),
   ARCHIVO_BLACK("Archivo Black"),
@@ -41,14 +39,10 @@ enum class FontType(
   PLAYFAIR_DISPLAY("Playfair Display"),
   SHARE_TECH_MONO("Share Tech Mono"),
   CREEPSTER("Creepster"),
-
-  // ── Retro & Pixel ──
   PRESS_START_2P("Press Start 2P"),
   SILKSCREEN("Silkscreen"),
   VT323("VT323"),
   COURIER_PRIME("Courier Prime"),
-
-  // ── Decorative & Fun ──
   BANGERS("Bangers"),
   ORBITRON("Orbitron"),
   COMFORTAA("Comfortaa"),
@@ -60,8 +54,6 @@ enum class FontType(
   DANCING_SCRIPT("Dancing Script"),
   GREAT_VIBES("Great Vibes"),
   SACRAMENTO("Sacramento"),
-
-  // ── International Support ──
   DELA_GOTHIC_ONE("Dela Gothic One (日本語)", ScriptCategory.JAPANESE),
   KOSUGI_MARU("Kosugi Maru (小杉丸ゴシック)", ScriptCategory.JAPANESE),
   CHERRY_BOMB_ONE("Cherry Bomb One", ScriptCategory.JAPANESE),

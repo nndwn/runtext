@@ -30,10 +30,7 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -97,24 +94,18 @@ fun RunningTextCoreOptimized(
       }
 
     val baseTextStyle =
-      remember(fontFamily, settings.textStyle.letterSpacingSp) {
+      remember(fontFamily) {
         TextStyle(
           fontFamily = fontFamily,
           fontWeight = FontWeight.Normal,
           fontSize = dynamicFontSizeSp,
-          letterSpacing = settings.textStyle.letterSpacingSp.sp,
         )
       }
 
-    val annotatedText =
-      remember(rawText, settings.textStyle.wordSpacingSp) {
-        rawText.toWordSpacedAnnotatedString(settings.textStyle.wordSpacingSp)
-      }
-
     val textLayoutResult =
-      remember(annotatedText, baseTextStyle, fontLoadState) {
+      remember(baseTextStyle, baseTextStyle, fontLoadState) {
         textMeasurer.measure(
-          text = annotatedText,
+          text = rawText,
           style = baseTextStyle,
           maxLines = 1,
           softWrap = false,
@@ -307,27 +298,6 @@ fun RunningTextCoreOptimized(
         }
       } else {
         drawContent()
-      }
-    }
-  }
-}
-
-private fun String.toWordSpacedAnnotatedString(wordSpacingSp: Float): AnnotatedString {
-  if (wordSpacingSp <= 0f || !this.contains(' ')) {
-    return AnnotatedString(this)
-  }
-
-  val spaceSpanStyle = SpanStyle(letterSpacing = wordSpacingSp.sp)
-
-  return buildAnnotatedString {
-    for (i in indices) {
-      val char = this@toWordSpacedAnnotatedString[i]
-      if (char == ' ') {
-        val start = length
-        append(char)
-        addStyle(style = spaceSpanStyle, start = start, end = length)
-      } else {
-        append(char)
       }
     }
   }

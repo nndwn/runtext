@@ -45,10 +45,6 @@ sealed interface MainUiEvent {
 
   data class UpdateGoogleFontName(val fontName: String) : MainUiEvent
 
-  data class UpdateLetterSpacing(val spacingSp: Float) : MainUiEvent
-
-  data class UpdateWordSpacing(val spacingSp: Float) : MainUiEvent
-
   // ── Stroke Events ──
   data class ToggleStroke(val isEnabled: Boolean) : MainUiEvent
 

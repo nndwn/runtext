@@ -42,8 +42,6 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
     val GRADIENT_POSITION = booleanPreferencesKey("gradient_position")
     val FONT_TYPE = stringPreferencesKey("font_type")
     val GOOGLE_FONT_NAME = stringPreferencesKey("google_font_name")
-    val LETTER_SPACING = floatPreferencesKey("letter_spacing")
-    val WORD_SPACING = floatPreferencesKey("word_spacing")
 
     // Stroke
     val IS_STROKE_ENABLED = booleanPreferencesKey("is_stroke_enabled")
@@ -152,8 +150,6 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
                       runCatching { FontType.valueOf(name) }.getOrDefault(default.textConfig.textStyle.fontType)
                     } ?: default.textConfig.textStyle.fontType,
                   googleFontName = prefs[GOOGLE_FONT_NAME] ?: default.textConfig.textStyle.googleFontName,
-                  letterSpacingSp = prefs[LETTER_SPACING] ?: default.textConfig.textStyle.letterSpacingSp,
-                  wordSpacingSp = prefs[WORD_SPACING] ?: default.textConfig.textStyle.wordSpacingSp,
                 ),
               stroke =
                 StrokeConfig(
@@ -199,8 +195,6 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
       prefs[GRADIENT_POSITION] = settings.textConfig.textStyle.isGradientHorizontal
       prefs[FONT_TYPE] = settings.textConfig.textStyle.fontType.name
       prefs[GOOGLE_FONT_NAME] = settings.textConfig.textStyle.googleFontName
-      prefs[LETTER_SPACING] = settings.textConfig.textStyle.letterSpacingSp
-      prefs[WORD_SPACING] = settings.textConfig.textStyle.wordSpacingSp
 
       // Stroke
       prefs[IS_STROKE_ENABLED] = settings.textConfig.stroke.isEnabled

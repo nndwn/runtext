@@ -46,8 +46,6 @@ data class TextStyleConfig(
   val isGradientHorizontal: Boolean = false,
   val fontType: FontType = FontType.ANTON,
   val googleFontName: String = "",
-  val letterSpacingSp: Float = 0f,
-  val wordSpacingSp: Float = 0f,
 )
 
 data class StrokeConfig(

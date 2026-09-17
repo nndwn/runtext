@@ -75,7 +75,6 @@ constructor(private val repository: SettingsRepository, private val uiEffectCont
       is MainUiEvent.ToggleGradientHorizontal,
       is MainUiEvent.UpdateFontType,
       is MainUiEvent.UpdateGoogleFontName,
-      is MainUiEvent.UpdateLetterSpacing,
       is MainUiEvent.ToggleStroke,
       is MainUiEvent.UpdateStrokeWidth,
       is MainUiEvent.UpdateStrokeColor,
@@ -86,8 +85,7 @@ constructor(private val repository: SettingsRepository, private val uiEffectCont
       is MainUiEvent.UpdateSpeed,
       is MainUiEvent.UpdateBgColor,
       is MainUiEvent.UpdateMirrorMode,
-      is MainUiEvent.UpdateShadowRotation,
-      is MainUiEvent.UpdateWordSpacing -> handleRunningText(event)
+      is MainUiEvent.UpdateShadowRotation -> handleRunningText(event)
 
       // Navigation & General
       is MainUiEvent.NavigateToDisplay -> handleNavigateToDisplay()
@@ -109,9 +107,6 @@ constructor(private val repository: SettingsRepository, private val uiEffectCont
       is MainUiEvent.ToggleGradientHorizontal -> updateTextStyle { copy(isGradientHorizontal = event.isHorizontal) }
       is MainUiEvent.UpdateFontType -> updateTextStyle { copy(fontType = event.fontType) }
       is MainUiEvent.UpdateGoogleFontName -> updateTextStyle { copy(googleFontName = event.fontName) }
-      is MainUiEvent.UpdateLetterSpacing ->
-        updateTextStyle { copy(letterSpacingSp = event.spacingSp.coerceIn(-2f, 20f)) }
-      is MainUiEvent.UpdateWordSpacing -> updateTextStyle { copy(wordSpacingSp = event.spacingSp.coerceIn(0f, 30f)) }
       is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
       is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }
       is MainUiEvent.UpdateMirrorMode -> updateTextConfig { copy(isMirrorMode = event.mirror) }

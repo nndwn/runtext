@@ -15,6 +15,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -76,7 +79,6 @@ import com.nndwn.runtext.ui.features.main.components.TextInputConfig
 import com.nndwn.runtext.ui.features.main.components.TextOutlineConfig
 import com.nndwn.runtext.ui.features.main.components.TextPresetConfig
 import com.nndwn.runtext.ui.features.main.components.TextShadowConfig
-import com.nndwn.runtext.ui.features.main.components.TextSpacingConfig
 import com.nndwn.runtext.ui.features.main.components.TextSpeedConfig
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toComposeColor
@@ -214,20 +216,13 @@ private fun RowScope.MainConfigList(
   onFontPanelToggle: () -> Unit,
 ) {
 
-  val paddingFromRoot = LocalPadding.current
   val widowSizeHeight = LocalSizeHeight.current
   val widowSizeWidth = LocalSizeWidth.current
 
   LazyColumn(
     state = listState,
     modifier = Modifier.fillMaxSize().weight(1f),
-    contentPadding =
-      PaddingValues(
-        bottom = paddingFromRoot.calculateBottomPadding(),
-        start = MaterialTheme.dimens.medium,
-        end = MaterialTheme.dimens.medium,
-      ),
-    verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium),
+    contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.medium),
   ) {
     item {
       MainTopBar(
@@ -364,6 +359,15 @@ private fun LazyListScope.successContent(
   if (widowSizeHeight != WindowHeightSizeClass.Compact) {
     stickyHeader {
       PreviewAndStart(
+        modifier =
+          Modifier.clip(
+              MaterialTheme.shapes.medium.copy(
+                topStart = CornerSize(0),
+                topEnd = CornerSize(0),
+              )
+            )
+            .background(color = MaterialTheme.colorScheme.background)
+            .padding(top = MaterialTheme.dimens.medium),
         settings = settings,
         onNavigateToDisplay = { dispatch(MainUiEvent.NavigateToDisplay) },
       )
@@ -371,6 +375,7 @@ private fun LazyListScope.successContent(
   }
 
   item {
+    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
     TextInputConfig(
       text = settings.lastText,
       onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
@@ -379,6 +384,7 @@ private fun LazyListScope.successContent(
   }
 
   item {
+    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
     AppModeSettings(
       currentMode = settings.mode,
       onModeChange = { dispatch(MainUiEvent.UpdateMode(it)) },
@@ -386,6 +392,7 @@ private fun LazyListScope.successContent(
   }
 
   item {
+    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
     ModeSpecificSettings(
       settings = settings,
       expandedPickerId = expandedPickerId,
@@ -476,12 +483,7 @@ private fun RunningTextSettingsList(
       config = settings.textConfig.textStyle,
       onClick = onFontPanelToggle,
     )
-    TextSpacingConfig(
-      config = settings.textConfig.textStyle,
-      expandedId = expandedPickerId,
-      onToggle = togglePicker,
-      onEvent = dispatch,
-    )
+
     ConfigCard {
       ColorPickerField(
         label = stringResource(R.string.set_config_color_background),

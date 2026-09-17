@@ -13,7 +13,6 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,15 +24,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -45,11 +41,9 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.ui.LocalSizeWidth
-import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -129,20 +123,9 @@ private fun Modifier.panelAppearance(isExpand: Boolean): Modifier {
   val dimens = MaterialTheme.dimens
   val shapes = MaterialTheme.shapes
   return if (isExpand) {
-    this.padding(
-        bottom = dimens.large,
-        start = dimens.large,
-        end = dimens.large,
-      )
-      .clip(shapes.large)
-      .navigationBarsPadding()
+    this.padding(dimens.large).navigationBarsPadding().clip(shapes.large)
   } else {
-    this.clip(
-      shapes.large.copy(
-        bottomEnd = CornerSize(0.dp),
-        bottomStart = CornerSize(0.dp),
-      )
-    )
+    this.clip(shapes.large.copy(bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
   }
 }
 
@@ -160,21 +143,13 @@ private fun Modifier.dragToDismiss(
           if (offsetY.value > dismissThreshold) {
             onDismiss()
           } else {
-            coroutineScope.launch {
-              offsetY.animateTo(0f, animationSpec = spring())
-            }
+            coroutineScope.launch { offsetY.animateTo(0f, animationSpec = spring()) }
           }
         },
-        onDragCancel = {
-          coroutineScope.launch {
-            offsetY.animateTo(0f, animationSpec = spring())
-          }
-        },
+        onDragCancel = { coroutineScope.launch { offsetY.animateTo(0f, animationSpec = spring()) } },
         onVerticalDrag = { change, dragAmount ->
           change.consume()
-          coroutineScope.launch {
-            offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
-          }
+          coroutineScope.launch { offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f)) }
         },
       )
     }
@@ -197,10 +172,7 @@ private fun SlideUpPanelContent(
     if (drag) {
       Box(
         modifier =
-          Modifier.padding(
-              top = MaterialTheme.dimens.small,
-              bottom = MaterialTheme.dimens.medium,
-            )
+          Modifier.padding(top = MaterialTheme.dimens.small, bottom = MaterialTheme.dimens.medium)
             .width(MaterialTheme.dimens.extraLarge)
             .height(MaterialTheme.dimens.extraSmall)
             .clip(CircleShape)
@@ -210,30 +182,5 @@ private fun SlideUpPanelContent(
     }
 
     content()
-  }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun Preview() {
-  var show by remember { mutableStateOf(false) }
-
-  CompositionLocalProvider(LocalSizeWidth provides WindowWidthSizeClass.Compact) {
-    RuntextTheme {
-      Button(
-        onClick = { show = !show },
-        modifier = Modifier.padding(MaterialTheme.dimens.medium),
-      ) {}
-      SlideUpPanel(
-        state =
-          SlideUpPanelState(
-            visible = true,
-            enabledDragToDismiss = true,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-          )
-      ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraLarge))
-      }
-    }
   }
 }

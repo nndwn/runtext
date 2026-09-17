@@ -8,7 +8,7 @@ KEY FEATURES
 
 LED SCROLLER BOARD
 - Smooth Scrolling: High performance text animation without lag.
-- Text Customization: Change font style, text size, letter spacing, and word spacing.
+- Text Customization: Change font style and text size.
 - Outline and Shadow Effects: Add strokes, glow radius, shadow angles, and custom outline thickness.
 - Colors and Gradients: Supports solid colors and horizontal or vertical linear gradients.
 - Mirror Mode: Flip text horizontally for reflective displays or rear view mirrors.

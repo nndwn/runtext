@@ -2,6 +2,7 @@ package com.nndwn.runtext
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -10,7 +11,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.nndwn.runtext.ui.LocalSizeHeight
 import com.nndwn.runtext.ui.LocalSizeWidth
 import com.nndwn.runtext.ui.RunTextApp
@@ -26,7 +26,10 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     onInitialize()
 
-    enableEdgeToEdge()
+    enableEdgeToEdge(
+      statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+      navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+    )
 
     setContent {
       val windowSizeClass = calculateWindowSizeClass(this)
@@ -49,7 +52,6 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
       }
     }
-    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
   }
 
   open fun onInitialize() {

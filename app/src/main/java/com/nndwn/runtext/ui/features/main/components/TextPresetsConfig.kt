@@ -138,7 +138,6 @@ val Presets =
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF111111).toArgbLong(),
               fontType = FontType.ARCHIVO_BLACK,
-              letterSpacingSp = 2f,
             ),
           stroke =
             StrokeConfig(
@@ -165,7 +164,6 @@ val Presets =
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFFFFEA00).toArgbLong(), // Yellow
               fontType = FontType.BANGERS,
-              letterSpacingSp = 2f,
             ),
           stroke =
             StrokeConfig(
@@ -196,7 +194,6 @@ val Presets =
                   Color(0xFFE1BEE7).toArgbLong(), // Soft Purple
                 ),
               fontType = FontType.PACIFICO,
-              letterSpacingSp = 1f,
             ),
           shadow =
             ShadowConfig(
@@ -217,7 +214,6 @@ val Presets =
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF8E2DE2).toArgbLong(),
               fontType = FontType.ANTON,
-              letterSpacingSp = 2f,
             ),
           shadow =
             ShadowConfig(
@@ -242,7 +238,6 @@ val Presets =
                   Color(0xFF00F0FF).toArgbLong(), // Neon Cyan
                 ),
               fontType = FontType.ORBITRON,
-              letterSpacingSp = 2f,
             ),
           shadow =
             ShadowConfig(
@@ -266,7 +261,6 @@ val Presets =
                   Color(0xFFDD2476).toArgbLong(), // Sunset Pink
                 ),
               fontType = FontType.BEBAS_NEUE,
-              letterSpacingSp = 1.5f,
               isGradientHorizontal = true,
             ),
           shadow =
@@ -292,7 +286,6 @@ val Presets =
                   Color(0xFFC5A059).toArgbLong(), // Deep Gold
                 ),
               fontType = FontType.ABRIL_FATFACE,
-              letterSpacingSp = 3f,
             ),
           shadow =
             ShadowConfig(
@@ -316,7 +309,6 @@ val Presets =
                   Color(0xFF80DEEA).toArgbLong(), // Cyan Ice
                 ),
               fontType = FontType.RIGHTEOUS,
-              letterSpacingSp = 1f,
             ),
           stroke =
             StrokeConfig(
@@ -342,7 +334,6 @@ val Presets =
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFFFFFFFF).toArgbLong(),
               fontType = FontType.INTER,
-              letterSpacingSp = 1f,
             ),
         ),
     ),
@@ -356,7 +347,6 @@ val Presets =
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF121212).toArgbLong(),
               fontType = FontType.MONTSERRAT,
-              letterSpacingSp = 1f,
             ),
         ),
     ),
