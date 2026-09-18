@@ -20,16 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.ScriptCategory
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.ConfigCard
 import com.nndwn.runtext.ui.component.SlideUpPanel
 import com.nndwn.runtext.ui.component.SlideUpPanelState
+import com.nndwn.runtext.ui.features.main.LocalFonts
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.detectPrimaryScript
 import com.nndwn.runtext.ui.utils.fontFamilyFor
@@ -39,6 +41,13 @@ fun TextFontStyleConfig(
   config: TextStyleConfig,
   onClick: () -> Unit,
 ) {
+  val context = LocalContext.current
+  val fonts = LocalFonts.current
+  val currentFont =
+    remember(config.fontId, fonts) {
+      fonts.find { it.idFont == config.fontId }
+    }
+
   ConfigCard(
     modifier =
       Modifier.fillMaxSize().clip(MaterialTheme.shapes.medium).clickable(
@@ -51,8 +60,11 @@ fun TextFontStyleConfig(
     Text(stringResource(R.string.set_config_text_style), style = MaterialTheme.typography.titleSmall)
     Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
     Text(
-      text = config.fontType.displayName,
-      style = MaterialTheme.typography.titleLarge.copy(fontFamily = fontFamilyFor(config.fontType)),
+      text = currentFont?.displayName ?: config.fontId,
+      style =
+        MaterialTheme.typography.titleLarge.copy(
+          fontFamily = currentFont?.let { fontFamilyFor(context, it) } ?: MaterialTheme.typography.titleLarge.fontFamily
+        ),
     )
   }
 }
@@ -60,10 +72,12 @@ fun TextFontStyleConfig(
 @Composable
 fun SelectorFonts(
   settings: AppSettings,
-  onUpdateFontType: (FontType) -> Unit,
+  fonts: List<FontData>,
+  onUpdateFontType: (String) -> Unit,
   showPanelFonts: Boolean,
   dismissPanel: () -> Unit,
 ) {
+  val context = LocalContext.current
 
   val activeScript =
     remember(settings.lastText) {
@@ -71,12 +85,12 @@ fun SelectorFonts(
     }
 
   val sortedFonts =
-    remember(activeScript) {
+    remember(activeScript, fonts) {
       if (activeScript == ScriptCategory.LATIN) {
-        FontType.entries
+        fonts
       } else {
         val (matchingFonts, otherFonts) =
-          FontType.entries.partition {
+          fonts.partition {
             it.scriptCategory == activeScript
           }
         matchingFonts + otherFonts
@@ -106,7 +120,7 @@ fun SelectorFonts(
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
       items(
         count = sortedFonts.size,
-        key = { index -> sortedFonts[index].name },
+        key = { index -> sortedFonts[index].idFont },
       ) { index ->
         val item = sortedFonts[index]
         Box(
@@ -116,7 +130,7 @@ fun SelectorFonts(
                 indication = ripple(),
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = {
-                  onUpdateFontType(item)
+                  onUpdateFontType(item.idFont)
                   dismissPanel()
                 },
               )
@@ -131,7 +145,7 @@ fun SelectorFonts(
             Text(
               text = item.displayName,
               fontWeight = FontWeight.Normal,
-              style = MaterialTheme.typography.bodyLarge.copy(fontFamily = fontFamilyFor(item)),
+              style = MaterialTheme.typography.bodyLarge.copy(fontFamily = fontFamilyFor(context, item)),
             )
           }
         }

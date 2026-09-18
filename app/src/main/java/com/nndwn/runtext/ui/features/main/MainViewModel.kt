@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.MorseConfig
 import com.nndwn.runtext.data.model.ShadowConfig
 import com.nndwn.runtext.data.model.StrokeConfig
 import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.data.model.TextStyleConfig
+import com.nndwn.runtext.data.repository.FontRepository
 import com.nndwn.runtext.data.repository.SettingsRepository
 import com.nndwn.runtext.ui.UiEffect
 import com.nndwn.runtext.ui.UiEffectController
@@ -29,12 +31,17 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainViewModel
 @Inject
-constructor(private val repository: SettingsRepository, private val uiEffectController: UiEffectController) :
-  ViewModel() {
+constructor(
+  private val repository: SettingsRepository,
+  private val fontRepository: FontRepository,
+  private val uiEffectController: UiEffectController,
+) : ViewModel() {
 
   val limitText = 100
 
   private val _settings = MutableStateFlow<AppSettings?>(null)
+
+  val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
   val uiState: StateFlow<MainUiState> =
     _settings
@@ -105,7 +112,7 @@ constructor(private val repository: SettingsRepository, private val uiEffectCont
       is MainUiEvent.UpdateGradientColors -> updateTextStyle { copy(gradientColorsArgb = event.colors) }
       is MainUiEvent.UpdateGradientDistance -> updateTextStyle { copy(gradientDistance = event.distance) }
       is MainUiEvent.ToggleGradientHorizontal -> updateTextStyle { copy(isGradientHorizontal = event.isHorizontal) }
-      is MainUiEvent.UpdateFontType -> updateTextStyle { copy(fontType = event.fontType) }
+      is MainUiEvent.UpdateFontType -> updateTextStyle { copy(fontId = event.fontId) }
       is MainUiEvent.UpdateGoogleFontName -> updateTextStyle { copy(googleFontName = event.fontName) }
       is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
       is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }

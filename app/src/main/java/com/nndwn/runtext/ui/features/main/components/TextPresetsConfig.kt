@@ -22,18 +22,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
-import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.ShadowConfig
 import com.nndwn.runtext.data.model.StrokeConfig
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.ui.component.CardExpanded
+import com.nndwn.runtext.ui.features.main.LocalFonts
 import com.nndwn.runtext.ui.features.main.MainUiEvent
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.theme.toArgbLong
@@ -79,6 +80,13 @@ private fun PresetItem(
   preset: TextPreset,
   onClick: () -> Unit,
 ) {
+  val fonts = LocalFonts.current
+  val context = LocalContext.current
+  val fontData =
+    remember(preset.settings.textStyle.fontId, fonts) {
+      fonts.find { it.idFont == preset.settings.textStyle.fontId }
+    }
+
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier =
@@ -103,7 +111,7 @@ private fun PresetItem(
     ) {
       Text(
         text = "Aa",
-        fontFamily = fontFamilyFor(preset.settings.textStyle.fontType),
+        fontFamily = fontData?.let { fontFamilyFor(context, it) } ?: MaterialTheme.typography.titleLarge.fontFamily,
         color =
           if (preset.settings.textStyle.colorType == TextColorType.SOLID) {
             preset.settings.textStyle.colorArgb.toComposeColor()
@@ -137,7 +145,7 @@ val Presets =
             TextStyleConfig(
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF111111).toArgbLong(),
-              fontType = FontType.ARCHIVO_BLACK,
+              fontId = "ARCHIVO_BLACK",
             ),
           stroke =
             StrokeConfig(
@@ -163,7 +171,7 @@ val Presets =
             TextStyleConfig(
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFFFFEA00).toArgbLong(), // Yellow
-              fontType = FontType.BANGERS,
+              fontId = "BANGERS",
             ),
           stroke =
             StrokeConfig(
@@ -193,7 +201,7 @@ val Presets =
                   Color(0xFFF8BBD0).toArgbLong(), // Soft Pink
                   Color(0xFFE1BEE7).toArgbLong(), // Soft Purple
                 ),
-              fontType = FontType.PACIFICO,
+              fontId = "PACIFICO",
             ),
           shadow =
             ShadowConfig(
@@ -213,7 +221,7 @@ val Presets =
             TextStyleConfig(
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF8E2DE2).toArgbLong(),
-              fontType = FontType.ANTON,
+              fontId = "ANTON",
             ),
           shadow =
             ShadowConfig(
@@ -237,7 +245,7 @@ val Presets =
                   Color(0xFFFF007F).toArgbLong(), // Neon Pink
                   Color(0xFF00F0FF).toArgbLong(), // Neon Cyan
                 ),
-              fontType = FontType.ORBITRON,
+              fontId = "ORBITRON",
             ),
           shadow =
             ShadowConfig(
@@ -260,7 +268,7 @@ val Presets =
                   Color(0xFFFF512F).toArgbLong(), // Orange
                   Color(0xFFDD2476).toArgbLong(), // Sunset Pink
                 ),
-              fontType = FontType.BEBAS_NEUE,
+              fontId = "BEBAS_NEUE",
               isGradientHorizontal = true,
             ),
           shadow =
@@ -285,7 +293,7 @@ val Presets =
                   Color(0xFFFFE082).toArgbLong(), // Light Gold
                   Color(0xFFC5A059).toArgbLong(), // Deep Gold
                 ),
-              fontType = FontType.ABRIL_FATFACE,
+              fontId = "ABRIL_FATFACE",
             ),
           shadow =
             ShadowConfig(
@@ -308,7 +316,7 @@ val Presets =
                   Color(0xFFE0F7FA).toArgbLong(), // Ice Blue Light
                   Color(0xFF80DEEA).toArgbLong(), // Cyan Ice
                 ),
-              fontType = FontType.RIGHTEOUS,
+              fontId = "RIGHTEOUS",
             ),
           stroke =
             StrokeConfig(
@@ -333,7 +341,7 @@ val Presets =
             TextStyleConfig(
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFFFFFFFF).toArgbLong(),
-              fontType = FontType.INTER,
+              fontId = "INTER",
             ),
         ),
     ),
@@ -346,7 +354,7 @@ val Presets =
             TextStyleConfig(
               colorType = TextColorType.SOLID,
               colorArgb = Color(0xFF121212).toArgbLong(),
-              fontType = FontType.MONTSERRAT,
+              fontId = "MONTSERRAT",
             ),
         ),
     ),

@@ -2,7 +2,6 @@ package com.nndwn.runtext.ui.features.main
 
 import androidx.annotation.StringRes
 import com.nndwn.runtext.data.model.AppMode
-import com.nndwn.runtext.data.model.FontType
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
 
@@ -41,7 +40,7 @@ sealed interface MainUiEvent {
 
   data class ToggleGradientHorizontal(val isHorizontal: Boolean) : MainUiEvent
 
-  data class UpdateFontType(val fontType: FontType) : MainUiEvent
+  data class UpdateFontType(val fontId: String) : MainUiEvent
 
   data class UpdateGoogleFontName(val fontName: String) : MainUiEvent
 

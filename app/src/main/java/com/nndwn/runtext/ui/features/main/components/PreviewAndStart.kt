@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
+import com.nndwn.runtext.ui.component.RunningTextRenderer
+import com.nndwn.runtext.ui.features.main.LocalFonts
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 
@@ -43,7 +44,7 @@ fun PreviewAndStart(
   onNavigateToDisplay: () -> Unit,
 ) {
   val shape = MaterialTheme.shapes.medium
-
+  val listFont = LocalFonts.current
   Box(
     modifier = modifier,
     contentAlignment = Alignment.Center,
@@ -63,9 +64,10 @@ fun PreviewAndStart(
         contentAlignment = Alignment.Center,
       ) {
         if (settings.mode == AppMode.RUNNING_TEXT) {
-          RunningTextCoreOptimized(
+          RunningTextRenderer(
             text = settings.lastText,
             settings = settings.textConfig,
+            fonts = listFont,
             editor = true,
           )
         } else {

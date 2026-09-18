@@ -28,17 +28,22 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
+import com.nndwn.runtext.ui.LocalSizeHeight
+import com.nndwn.runtext.ui.LocalSizeWidth
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlin.math.abs
@@ -47,15 +52,19 @@ import kotlin.math.sin
 import kotlinx.coroutines.isActive
 
 @Composable
-fun RunningTextCoreOptimized(
+fun RunningTextRenderer(
   modifier: Modifier = Modifier,
   text: String = "PREVIEW",
   settings: TextConfig,
+  fonts: List<FontData>,
   editor: Boolean = false,
 ) {
   val textMeasurer = rememberTextMeasurer()
   val density = LocalDensity.current
   val distanceShadow = 4f
+  val context = LocalContext.current
+  val localSizeWidth = LocalSizeWidth.current
+  val localSizeHeight = LocalSizeHeight.current
 
   val rawText =
     remember(text) {
@@ -66,7 +75,12 @@ fun RunningTextCoreOptimized(
     remember(rawText) { java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft }
   val fontResolver = LocalFontFamilyResolver.current
 
-  val fontFamily = fontFamilyFor(settings.textStyle.fontType)
+  val currentFont =
+    remember(settings.textStyle.fontId, fonts) {
+      fonts.find { it.idFont == settings.textStyle.fontId }
+    }
+
+  val fontFamily = currentFont?.let { fontFamilyFor(context, it) } ?: FontFamily.Default
 
   val fontLoadState by
     produceState(

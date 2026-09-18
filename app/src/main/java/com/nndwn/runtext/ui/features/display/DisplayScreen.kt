@@ -1,7 +1,6 @@
 package com.nndwn.runtext.ui.features.display
 
 import android.app.Activity
-import android.content.pm.ActivityInfo
 import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -43,7 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.ui.component.RunningTextCoreOptimized
+import com.nndwn.runtext.ui.component.RunningTextRenderer
 import com.nndwn.runtext.ui.features.display.components.MorseCodeCore
 import com.nndwn.runtext.ui.features.display.components.ScreenBrightness
 import com.nndwn.runtext.ui.theme.dimens
@@ -56,6 +55,7 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
   val view = LocalView.current
 
   val settingsState by viewModel.settings.collectAsStateWithLifecycle()
+  val fonts by viewModel.fonts.collectAsStateWithLifecycle()
 
   val currentSettings = settingsState ?: remember { AppSettings() }
 
@@ -67,14 +67,10 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
     val activity = context as? Activity
     val window = activity?.window
     window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
-    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
     window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
     onDispose {
-      activity?.requestedOrientation = originalOrientation
       window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
       if (window != null) {
         val insetsController = WindowCompat.getInsetsController(window, view)
@@ -112,9 +108,10 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
   ) {
     when (currentSettings.mode) {
       AppMode.RUNNING_TEXT -> {
-        RunningTextCoreOptimized(
+        RunningTextRenderer(
           text = currentSettings.lastText,
           settings = currentSettings.textConfig,
+          fonts = fonts,
         )
       }
 

@@ -1,12 +1,13 @@
 package com.nndwn.runtext.ui.utils
 
+import android.content.Context
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.nndwn.runtext.R
-import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.ScriptCategory
 import java.util.concurrent.ConcurrentHashMap
 
@@ -36,16 +37,19 @@ fun googleFontFamily(fontName: String): FontFamily {
   }
 }
 
-fun fontFamilyFor(fontType: FontType): FontFamily {
-  val localId = fontType.localResId
-  if (localId != null) {
-    return localFontCache.getOrPut(localId) {
-      FontFamily(Font(localId))
+fun fontFamilyFor(context: Context, fontData: FontData): FontFamily {
+  val localResName = fontData.localResName
+  if (!localResName.isNullOrEmpty()) {
+    val resId = context.resources.getIdentifier(localResName, "font", context.packageName)
+    if (resId != 0) {
+      return localFontCache.getOrPut(resId) {
+        FontFamily(Font(resId))
+      }
     }
   }
 
-  val googleName = fontType.googleFontName
-  if (googleName != null) {
+  val googleName = fontData.googleFontName
+  if (!googleName.isNullOrEmpty()) {
     return googleFontFamily(googleName)
   }
 

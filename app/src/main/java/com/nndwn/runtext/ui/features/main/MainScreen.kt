@@ -55,7 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
-import com.nndwn.runtext.data.model.FontType
+import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.ui.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.LocalSizeHeight
 import com.nndwn.runtext.ui.LocalSizeWidth
@@ -89,9 +89,11 @@ fun MainScreen(
   padding: PaddingValues,
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  val fonts by viewModel.fonts.collectAsStateWithLifecycle()
 
   MainScreenContent(
     uiState = uiState,
+    fonts = fonts,
     onEvent = viewModel::onEvent,
     padding = padding,
     limitText = viewModel.limitText,
@@ -102,6 +104,7 @@ fun MainScreen(
 fun MainScreenContent(
   padding: PaddingValues,
   uiState: MainUiState,
+  fonts: List<FontData>,
   onEvent: (MainUiEvent) -> Unit,
   limitText: Int = 100,
 ) {
@@ -124,6 +127,7 @@ fun MainScreenContent(
   CompositionLocalProvider(
     LocalPadding provides padding,
     LocalLimitText provides limitText,
+    LocalFonts provides fonts,
   ) {
     MainScreenLayout(
       uiState = uiState,
@@ -139,12 +143,13 @@ fun MainScreenContent(
 
     MainFontSelector(
       uiState = uiState,
+      fonts = fonts,
       showPanelFonts = showPanelFonts,
       onDismiss = { showPanelFonts = false },
-      onUpdateFont = {
+      onUpdateFont = { fontId ->
         focusManager.clearFocus()
         expandedPickerId = null
-        dispatch(MainUiEvent.UpdateFontType(it))
+        dispatch(MainUiEvent.UpdateFontType(fontId))
       },
     )
   }
@@ -253,13 +258,15 @@ private fun RowScope.MainConfigList(
 @Composable
 private fun MainFontSelector(
   uiState: MainUiState,
+  fonts: List<FontData>,
   showPanelFonts: Boolean,
   onDismiss: () -> Unit,
-  onUpdateFont: (FontType) -> Unit,
+  onUpdateFont: (String) -> Unit,
 ) {
   (uiState as? MainUiState.Success)?.let { success ->
     SelectorFonts(
       settings = success.settings,
+      fonts = fonts,
       onUpdateFontType = onUpdateFont,
       showPanelFonts = showPanelFonts,
       dismissPanel = onDismiss,

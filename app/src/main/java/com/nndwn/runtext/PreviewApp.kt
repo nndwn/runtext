@@ -72,6 +72,7 @@ private fun InteractivePreviewWrapper(
           composable(Routes.INPUT) {
             MainScreenContent(
               uiState = MainUiState.Success(settings),
+              fonts = emptyList(),
               onEvent = {},
               padding = innerPadding,
             )
