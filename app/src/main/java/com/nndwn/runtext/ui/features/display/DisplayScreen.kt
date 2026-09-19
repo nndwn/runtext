@@ -1,6 +1,7 @@
 package com.nndwn.runtext.ui.features.display
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -66,11 +67,20 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
   DisposableEffect(view) {
     val activity = context as? Activity
     val window = activity?.window
-    window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
+    
+    // Simpan orientasi asal untuk dikembalikan nanti saat keluar
+    val originalOrientation = activity?.requestedOrientation
+    
+    // Kunci ke mode orientasi perangkat yang sedang aktif SAAT INI (Keep saat ini)
+    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+    
     window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
     onDispose {
+      // Kembalikan ke orientasi asal bawaan sistem saat user keluar
+      if (originalOrientation != null) {
+        activity.requestedOrientation = originalOrientation
+      }
       window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
       if (window != null) {
         val insetsController = WindowCompat.getInsetsController(window, view)

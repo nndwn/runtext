@@ -47,7 +47,6 @@ fun MorseFlashPreview(
   text: String = "SOS",
   settings: MorseConfig,
 ) {
-
   val rawText =
     remember(text) {
       text.ifEmpty { "PREVIEW" }
@@ -66,7 +65,6 @@ fun MorseFlashPreview(
       MorseEngine.getUnitDurationMs(settings.morseWpm)
     }
   var isSignalActive by remember { mutableStateOf(false) }
-  val colorOff = MaterialTheme.colorScheme.background
   val activeMorseColor = settings.bgColorMorse.toComposeColor()
 
   LaunchedEffect(morseElement, unitMs) {
@@ -84,7 +82,7 @@ fun MorseFlashPreview(
   }
   val animatedBgColor by
     animateColorAsState(
-      targetValue = if (isSignalActive) activeMorseColor else colorOff,
+      targetValue = if (isSignalActive) activeMorseColor else Color.Transparent,
       animationSpec = tween(durationMillis = 40),
       label = "MorseFlashAnimation",
     )

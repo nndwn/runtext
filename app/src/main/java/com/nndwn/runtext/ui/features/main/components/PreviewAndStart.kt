@@ -1,5 +1,7 @@
 package com.nndwn.runtext.ui.features.main.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,10 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +40,7 @@ import com.nndwn.runtext.ui.component.RunningTextRenderer
 import com.nndwn.runtext.ui.features.main.LocalFonts
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
+import com.nndwn.runtext.ui.theme.toComposeColor
 
 @Composable
 fun PreviewAndStart(
@@ -45,6 +50,11 @@ fun PreviewAndStart(
 ) {
   val shape = MaterialTheme.shapes.medium
   val listFont = LocalFonts.current
+  val colorTransition by animateColorAsState(
+    targetValue = if (settings.mode == AppMode.RUNNING_TEXT) settings.textConfig.bgColorArgb.toComposeColor() else Color.Black,
+    animationSpec = tween(500),
+    label = "Transition Color")
+
   Box(
     modifier = modifier,
     contentAlignment = Alignment.Center,
@@ -60,7 +70,9 @@ fun PreviewAndStart(
           )
     ) {
       Box(
-        modifier = Modifier.fillMaxWidth().height(140.dp).pointerInput(Unit) {},
+        modifier = Modifier.fillMaxWidth().height(140.dp)
+          .background(colorTransition)
+          .pointerInput(Unit) {},
         contentAlignment = Alignment.Center,
       ) {
         if (settings.mode == AppMode.RUNNING_TEXT) {

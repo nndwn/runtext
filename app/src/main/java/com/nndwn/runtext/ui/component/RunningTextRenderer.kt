@@ -11,6 +11,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,11 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -91,7 +95,7 @@ fun RunningTextRenderer(
     }
 
   BoxWithConstraints(
-    modifier = modifier.fillMaxSize().background(settings.bgColorArgb.toComposeColor()),
+    modifier = modifier.fillMaxSize().background(if (editor) Color.Transparent else settings.bgColorArgb.toComposeColor()),
     contentAlignment = Alignment.CenterStart,
   ) {
     val containerHeightPx = constraints.maxHeight.toFloat()
@@ -161,28 +165,39 @@ fun RunningTextRenderer(
         } else null
       }
 
+    val isVertical = ( localSizeHeight == WindowHeightSizeClass.Compact || localSizeHeight == WindowHeightSizeClass.Medium )
+            && !editor
     val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
+    val displayContainerDim = if (isVertical) containerHeightPx else containerWidthPx
+
     val (startX, endX) =
       remember(
-        containerWidthPx,
+        displayContainerDim,
         totalTextWidth,
         isRtl,
         settings.isMirrorMode,
+        isVertical
       ) {
+        val halfText = totalTextWidth / 2f
         val moveRightToLeft = !isRtl
         val effectiveMoveRightToLeft = if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
+        
+        val startPos = displayContainerDim + halfText
+        val endPos = -halfText
+        
         if (effectiveMoveRightToLeft) {
-          containerWidthPx to -totalTextWidth
+          startPos to endPos
         } else {
-          -totalTextWidth to containerWidthPx
+          endPos to startPos
         }
       }
 
     val durationMillis =
-      remember(settings.speed, totalTextWidth, containerWidthPx, settings.isMirrorMode) {
+      remember(settings.speed, totalTextWidth, displayContainerDim) {
         val dist = abs(endX - startX)
         val speedFactor = settings.speed.coerceAtLeast(1f)
-        val baseDurationSeconds = (dist / containerWidthPx) * (1000f / speedFactor)
+        // Menggunakan formula kecepatan stabil berbasis dimensi layar yang dilalui
+        val baseDurationSeconds = (dist / displayContainerDim) * (1000f / speedFactor) 
         (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
       }
 
@@ -230,7 +245,18 @@ fun RunningTextRenderer(
     Canvas(
       modifier =
         Modifier.fillMaxSize().graphicsLayer {
-          translationX = animatedOffsetX
+          val textWidth = textLayoutResult.size.width.toFloat()
+          val textHeight = textLayoutResult.size.height.toFloat()
+          
+          val currentCenterX = extraPaddingPx + (textWidth / 2f)
+          val currentCenterY = (size.height - textHeight) / 2f + (textHeight / 2f)
+
+          if (isVertical) {
+            translationY = animatedOffsetX - currentCenterY
+            translationX = (containerWidthPx / 2f) - currentCenterX
+          } else {
+            translationX = animatedOffsetX - currentCenterX
+          }
           clip = false
         }
     ) {
@@ -299,16 +325,26 @@ fun RunningTextRenderer(
         }
       }
 
-      if (settings.isMirrorMode) {
-        val textCenterX = baseTopLeft.x + (textLayoutResult.size.width / 2f)
-        val textCenterY = baseTopLeft.y + (textLayoutResult.size.height / 2f)
-        val pivot = Offset(textCenterX, textCenterY)
+      val textCenterX = baseTopLeft.x + (textLayoutResult.size.width / 2f)
+      val textCenterY = baseTopLeft.y + (textLayoutResult.size.height / 2f)
+      val pivot = Offset(textCenterX, textCenterY)
 
-        scale(scaleX = -1f, scaleY = 1f, pivot = pivot) {
+      val drawMirroredContent: DrawScope.() -> Unit = {
+        if (settings.isMirrorMode) {
+          scale(scaleX = -1f, scaleY = 1f, pivot = pivot) {
+            drawContent()
+          }
+        } else {
           drawContent()
         }
+      }
+
+      if (isVertical) {
+        rotate(degrees = 90F, pivot = pivot) {
+          drawMirroredContent()
+        }
       } else {
-        drawContent()
+        drawMirroredContent()
       }
     }
   }
