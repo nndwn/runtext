@@ -488,6 +488,18 @@ private fun RunningTextSettingsList(
         onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateMirrorMode(it)) },
       )
     }
+
+    ConfigCard {
+      SwitchRow(
+        title = stringResource(R.string.set_config_text_blink),
+        subtitle = stringResource(R.string.set_config_text_blink_desc),
+        checked = settings.textConfig.isBlink,
+        onCheckedChange = { dispatchAndClosePicker(MainUiEvent.UpdateBlinkMode(it))},
+      )
+    }
+
+
+
     TextFontStyleConfig(
       config = settings.textConfig.textStyle,
       onClick = onFontPanelToggle,

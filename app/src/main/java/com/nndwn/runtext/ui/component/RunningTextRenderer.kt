@@ -16,6 +16,8 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -196,7 +198,6 @@ fun RunningTextRenderer(
       remember(settings.speed, totalTextWidth, displayContainerDim) {
         val dist = abs(endX - startX)
         val speedFactor = settings.speed.coerceAtLeast(1f)
-        // Menggunakan formula kecepatan stabil berbasis dimensi layar yang dilalui
         val baseDurationSeconds = (dist / displayContainerDim) * (1000f / speedFactor) 
         (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
       }
@@ -242,9 +243,28 @@ fun RunningTextRenderer(
         offset
       }
 
+    val blinkAlpha by
+    if (settings.isBlink) {
+      val transition = rememberInfiniteTransition(label = "blink")
+      transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec =
+          infiniteRepeatable(
+            animation = tween(durationMillis = 400, easing = { if (it < 0.5f) 0f else 1f }),
+            repeatMode = RepeatMode.Restart,
+          ),
+        label = "blinkAlpha",
+      )
+    } else {
+      remember { mutableFloatStateOf(1f) }
+    }
+
+
     Canvas(
       modifier =
         Modifier.fillMaxSize().graphicsLayer {
+          alpha = blinkAlpha
           val textWidth = textLayoutResult.size.width.toFloat()
           val textHeight = textLayoutResult.size.height.toFloat()
           

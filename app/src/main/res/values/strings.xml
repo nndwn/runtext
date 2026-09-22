@@ -48,4 +48,6 @@
     <string name="btn_text_remove_ad">Treat me to a coffee</string>
     <string name="btn_maybe_later">Maybe later</string>
     <string name="msg_premium_activated">Thank you for your support.</string>
+    <string name="set_config_text_blink">Blink</string>
+    <string name="set_config_text_blink_desc">Blink text effect</string>
 </resources>

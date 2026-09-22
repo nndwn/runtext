@@ -17,17 +17,16 @@ import com.nndwn.runtext.ui.UiEffect
 import com.nndwn.runtext.ui.UiEffectController
 import com.nndwn.runtext.ui.navigation.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MainViewModel
@@ -97,6 +96,7 @@ constructor(
       is MainUiEvent.UpdateSpeed,
       is MainUiEvent.UpdateBgColor,
       is MainUiEvent.UpdateMirrorMode,
+      is MainUiEvent.UpdateBlinkMode,
       is MainUiEvent.UpdateShadowRotation -> handleRunningText(event)
 
       // Navigation & General
@@ -122,6 +122,7 @@ constructor(
       is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
       is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }
       is MainUiEvent.UpdateMirrorMode -> updateTextConfig { copy(isMirrorMode = event.mirror) }
+      is MainUiEvent.UpdateBlinkMode -> updateTextConfig { copy(isBlink = event.blink) }
       is MainUiEvent.ToggleStroke -> updateStroke { copy(isEnabled = event.isEnabled) }
       is MainUiEvent.UpdateStrokeWidth -> updateStroke { copy(width = event.width.coerceIn(1f, 10f)) }
       is MainUiEvent.UpdateStrokeColor -> updateStroke { copy(colorArgb = event.colorArgb) }

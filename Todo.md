@@ -19,7 +19,7 @@
 - [ ] 🔼 integration CI triple T before upload F-droid for get metadata from Google Play Store and automation release #development #v1.4.1-beta 🆔 MJYdaS
 - [ ] 🔼 integration f-droid #v1.4.1-beta #development 🆔 wBCI3F
 - [/] 🔺 change record show dialog support for duration start #v1.4.1-beta #development #feature 🛫 2026-09-22 19:57 🆔 U2Daoc
-- [/] 🔼 mungkin perlu penambahan effect blink ? #feature #v1.4.1-beta #development 🛫 2026-09-19 04:58 ➕ 2026-09-15 22:39 🆔 c9OpU4
+- [x] 🔼 mungkin perlu penambahan effect blink ? #feature #v1.4.1-beta #development 🛫 2026-09-19 04:58 ✅ 2026-09-23 02:12 ➕ 2026-09-15 22:39 🆔 c9OpU4
 - [ ] 🔽 apa perlu animasi running dapat di matikan ? ➕ 2026-09-15 22:44 🆔 JAze93
 - [x] 🔼 #remove untuk spacing seperti tidak diperlukan #v1.4.1-beta #production 🛫 2026-09-17 17:49 ✅ 2026-09-17 18:32 ➕ 2026-09-15 22:45 📝 2026-09-17 03:45 🆔 FEp2vY
 - [x] 🔺 ada issue di layout edge to edge frame nya #issue pada saat mobile rotate #issue #production #v1.4.1-beta 🛫 2026-09-15 23:49 ✅ 2026-09-17 04:30 ➕ 2026-09-15 23:45 🆔 yWBZjm
@@ -27,7 +27,8 @@
 <!-- - [ ] test ➕ 2026-09-16 01:28 🆔 8UJBhf -->
 - [x] 🔼 #issue pengaturan background layar terdapat space aku rasa itu substring untuk menampilkan sub judul #v1.4.1-beta #production 🛫 2026-09-18 01:43 ✅ 2026-09-22 19:54 ➕ 2026-09-17 18:33 📝 2026-09-17 18:34 🆔 ygtQQd
 - [x] ⏫ untuk manage font sangat membingungkan #issue #v1.4.1-beta #development 🛫 2026-09-17 19:37 ✅ 2026-09-18 02:15 ➕ 2026-09-17 19:18 📝 2026-09-17 19:19 🆔 LYstTL
-- [/] ⏫ untuk preview akan bermasalah jika user melakukan typing fast, seperti nya perlu ciptakan delay sekaligus dapat menigkat perfomance #issue #production #v1.4.1-beta 🛫 2026-09-22 20:01 ➕ 2026-09-19 06:50 📝 2026-09-19 07:36 🆔 25pLIF
+- [x] ⏫ untuk preview akan bermasalah jika user melakukan typing fast, seperti nya perlu ciptakan delay sekaligus dapat menigkat perfomance #issue #production #v1.4.1-beta 🛫 2026-09-22 20:01 ✅ 2026-09-23 02:13 ➕ 2026-09-19 06:50 📝 2026-09-19 07:36 🆔 25pLIF
 - [x] 🔽 #issue seluruh #readme perlu di perbaikan ulang jelasin apa saja di app anggap sebaga note 🛫 2026-09-19 07:38 ✅ 2026-09-22 20:01 ➕ 2026-09-19 07:38 🆔 htUokB
 <!-- - [ ] asdasd ➕ 2026-09-19 21:42 🆔 cpcXri -->
 - [x] 🔺 🆔 2MrblY #issue disana hanya fokus potrait punya phone compat sementera untuk potrait table tidak di antisipasi #development #v1.4.1-beta 🛫 2026-09-20 15:52 ✅ 2026-09-22 19:11 ➕ 2026-09-20 05:02 📝 2026-09-20 05:02 🆔 mMGU8j
+- [ ] ⏫ yang perlu di test unit di runtext ini adalah morse yang lebih ideal ➕ 2026-09-22 23:00 🆔 7uFc05

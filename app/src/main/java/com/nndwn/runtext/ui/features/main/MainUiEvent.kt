@@ -29,6 +29,7 @@ sealed interface MainUiEvent {
 
   data class UpdateMirrorMode(val mirror: Boolean) : MainUiEvent
 
+  data class UpdateBlinkMode(val blink: Boolean) : MainUiEvent
 
 
   // ── Text Style Events ──
