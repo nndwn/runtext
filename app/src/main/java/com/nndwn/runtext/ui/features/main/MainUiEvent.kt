@@ -29,6 +29,8 @@ sealed interface MainUiEvent {
 
   data class UpdateMirrorMode(val mirror: Boolean) : MainUiEvent
 
+
+
   // ── Text Style Events ──
   data class UpdateTextColor(val colorArgb: Long) : MainUiEvent
 

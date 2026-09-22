@@ -24,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,25 +41,29 @@ constructor(
   val limitText = 100
 
   private val _settings = MutableStateFlow<AppSettings?>(null)
+  private val _enteredText = MutableStateFlow("")
 
   val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
   val uiState: StateFlow<MainUiState> =
-    _settings
-      .map { settings -> if (settings == null) MainUiState.Loading else MainUiState.Success(settings) }
-      .stateIn(
+    combine(_settings, _enteredText) { settings, enteredText ->
+      if (settings == null) MainUiState.Loading
+      else MainUiState.Success(settings, enteredText)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = MainUiState.Loading,
       )
 
   private var saveJob: Job? = null
+  private var textDebounceJob: Job? = null
 
   init {
     viewModelScope.launch {
       repository.settingsFlow.collect { savedSettings ->
         if (_settings.value == null) {
           _settings.value = savedSettings
+          _enteredText.value = savedSettings.lastText
         }
       }
     }
@@ -178,7 +183,13 @@ constructor(
 
   private fun updateText(text: String) {
     if (text.length <= limitText) {
-      updateSettings { it.copy(lastText = text) }
+      _enteredText.value = text
+      
+      textDebounceJob?.cancel()
+      textDebounceJob = viewModelScope.launch {
+        delay(300.milliseconds)
+        updateSettings { it.copy(lastText = text) }
+      }
     }
   }
 

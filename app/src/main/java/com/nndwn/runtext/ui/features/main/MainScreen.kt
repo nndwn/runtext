@@ -241,6 +241,7 @@ private fun RowScope.MainConfigList(
       is MainUiState.Success ->
         successContent(
           settings = uiState.settings,
+          enteredText = uiState.enteredText,
           widowSizeHeight = widowSizeHeight,
           expandedPickerId = expandedPickerId,
           togglePicker = togglePicker,
@@ -356,6 +357,7 @@ private fun LazyListScope.loadingContent(widowSizeHeight: WindowHeightSizeClass)
 
 private fun LazyListScope.successContent(
   settings: AppSettings,
+  enteredText: String,
   widowSizeHeight: WindowHeightSizeClass,
   expandedPickerId: String?,
   togglePicker: (String) -> Unit,
@@ -384,7 +386,7 @@ private fun LazyListScope.successContent(
   item {
     Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
     TextInputConfig(
-      text = settings.lastText,
+      text = enteredText,
       onTextChange = { dispatch(MainUiEvent.UpdateText(it)) },
       onClearText = { dispatch(MainUiEvent.ClearText) },
     )
