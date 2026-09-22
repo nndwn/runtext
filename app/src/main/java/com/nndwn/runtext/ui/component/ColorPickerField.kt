@@ -12,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -49,7 +48,6 @@ fun ColorPickerField(
   ) {
     if (label != null) {
       Text(label, style = MaterialTheme.typography.titleSmall)
-      Spacer(modifier = Modifier.height(MaterialTheme.dimens.small))
     }
 
     ColorBox(
