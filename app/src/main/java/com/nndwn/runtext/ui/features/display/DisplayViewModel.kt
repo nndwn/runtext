@@ -10,8 +10,6 @@ import com.nndwn.runtext.ui.UiEffect
 import com.nndwn.runtext.ui.UiEffectController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -35,20 +33,14 @@ constructor(
 
   val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
-  private val startTime = System.currentTimeMillis()
-
   fun navigateBack() {
     uiEffectController.sendEffect(UiEffect.NavigateBack)
   }
 
-  @OptIn(DelicateCoroutinesApi::class)
-  override fun onCleared() {
-    val duration = System.currentTimeMillis() - startTime
-    if (duration > 0) {
-      // Menggunakan GlobalScope agar proses IO ke DataStore tetap diselesaikan 
-      // dan tidak ikut ter-cancel ketika viewModelScope dihancurkan (destroyed)
-      GlobalScope.launch {
-        repository.incrementUsageTime(duration)
+  fun recordUsageDuration(durationMs: Long) {
+    if (durationMs > 0) {
+      viewModelScope.launch {
+        repository.incrementUsageTime(durationMs)
       }
     }
   }

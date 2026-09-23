@@ -8,7 +8,7 @@
 - [x] 🔼 fix issue transition preview color background #v1.4.1-beta #production 🛫 2026-09-18 01:43 ✅ 2026-09-19 06:47 📝 2026-09-17 04:32 🆔 zp6KDg
 - [x] 🔺 fix #issue rotation start #v1.0.8 #v1.4.1-beta #production 🛫 2026-09-18 02:15 ✅ 2026-09-19 04:56 📝 2026-09-19 07:43 🆔 2MrblY
 - [x] 🔺 fix issue ui SlideUpPanel #issue #v1.4.1-beta #production 🛫 2026-09-15 23:08 ✅ 2026-09-15 23:44 🆔 IhzxQB
-- [/] 🔼 migration navigation2 to navigation3 #development #feature #v1.4.1-beta 🛫 2026-09-22 20:56 🆔 b20gGB // test
+- [x] 🔼 migration navigation2 to navigation3 #development #feature #v1.4.1-beta 🛫 2026-09-22 20:56 ✅ 2026-09-23 16:42 🆔 b20gGB // test
 - [ ] ⏫ feature read visual morse camera #issue #development 🆔 XqXqlN
 
 - [ ] add 1 presets text banner #feature 🆔 JXoKyS
@@ -20,7 +20,7 @@
 - [ ] 🔼 integration f-droid #v1.4.1-beta #development 🆔 wBCI3F
 - [x] 🔺 change record show dialog support for duration start #v1.4.1-beta #development #feature 🛫 2026-09-22 19:57 ✅ 2026-09-23 07:36 🆔 U2Daoc
 - [x] 🔼 mungkin perlu penambahan effect blink ? #feature #v1.4.1-beta #development 🛫 2026-09-19 04:58 ✅ 2026-09-23 02:12 ➕ 2026-09-15 22:39 🆔 c9OpU4
-- [ ] 🔽 apa perlu animasi running dapat di matikan ? #feature ➕ 2026-09-15 22:44 🆔 JAze93
+- [ ] 🔽 apa perlu animasi running dapat di matikan ? #feature #v1.4.1-beta ➕ 2026-09-15 22:44 🆔 JAze93
 - [x] 🔼 #remove untuk spacing seperti tidak diperlukan #v1.4.1-beta #production 🛫 2026-09-17 17:49 ✅ 2026-09-17 18:32 ➕ 2026-09-15 22:45 📝 2026-09-17 03:45 🆔 FEp2vY
 - [x] 🔺 ada issue di layout edge to edge frame nya #issue pada saat mobile rotate #issue #production #v1.4.1-beta 🛫 2026-09-15 23:49 ✅ 2026-09-17 04:30 ➕ 2026-09-15 23:45 🆔 yWBZjm
 - [x] ⏫ di preview jika scrool keatas terlalu mepet dengan status bar berikan jarak dengan status padding #issue #production #v1.4.1-beta 🛫 2026-09-17 15:29 ✅ 2026-09-17 18:07 ➕ 2026-09-16 00:26 🆔 G3UcQp
@@ -32,3 +32,4 @@
 <!-- - [ ] asdasd ➕ 2026-09-19 21:42 🆔 cpcXri -->
 - [x] 🔺 🆔 2MrblY #issue disana hanya fokus potrait punya phone compat sementera untuk potrait table tidak di antisipasi #development #v1.4.1-beta 🛫 2026-09-20 15:52 ✅ 2026-09-22 19:11 ➕ 2026-09-20 05:02 📝 2026-09-20 05:02 🆔 mMGU8j
 - [ ] ⏫ yang perlu di test unit di runtext ini adalah morse yang lebih ideal ➕ 2026-09-22 23:00 🆔 7uFc05
+- [ ] ⏫ mengubah template sidebarEnd dengan konsep navigation3 SupportingPaneScene #development #feature ➕ 2026-09-23 16:44 🆔 f9iD5G

@@ -7,22 +7,20 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -49,13 +47,13 @@ import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.ui.LocalSizeHeight
-import com.nndwn.runtext.ui.LocalSizeWidth
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.isActive
+import java.text.Bidi
 
 @Composable
 fun RunningTextRenderer(
@@ -69,7 +67,6 @@ fun RunningTextRenderer(
   val density = LocalDensity.current
   val distanceShadow = 4f
   val context = LocalContext.current
-  val localSizeWidth = LocalSizeWidth.current
   val localSizeHeight = LocalSizeHeight.current
 
   val rawText =
@@ -78,7 +75,7 @@ fun RunningTextRenderer(
     }
 
   val isRtl =
-    remember(rawText) { java.text.Bidi(rawText, java.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft }
+    remember(rawText) { Bidi(rawText, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft }
   val fontResolver = LocalFontFamilyResolver.current
 
   val currentFont =
@@ -111,7 +108,7 @@ fun RunningTextRenderer(
       }
 
     val baseTextStyle =
-      remember(fontFamily) {
+      remember(fontFamily, dynamicFontSizeSp) {
         TextStyle(
           fontFamily = fontFamily,
           fontWeight = FontWeight.Normal,
@@ -120,7 +117,7 @@ fun RunningTextRenderer(
       }
 
     val textLayoutResult =
-      remember(baseTextStyle, baseTextStyle, fontLoadState, rawText) {
+      remember(baseTextStyle, fontLoadState, rawText) {
         textMeasurer.measure(
           text = rawText,
           style = baseTextStyle,
@@ -167,8 +164,7 @@ fun RunningTextRenderer(
         } else null
       }
 
-    val isVertical = ( localSizeHeight == WindowHeightSizeClass.Compact || localSizeHeight == WindowHeightSizeClass.Medium )
-            && !editor
+    val isVertical = (localSizeHeight == WindowHeightSizeClass.Compact || localSizeHeight == WindowHeightSizeClass.Medium) && !editor
     val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
     val displayContainerDim = if (isVertical) containerHeightPx else containerWidthPx
 
@@ -178,15 +174,15 @@ fun RunningTextRenderer(
         totalTextWidth,
         isRtl,
         settings.isMirrorMode,
-        isVertical
+        isVertical,
       ) {
         val halfText = totalTextWidth / 2f
         val moveRightToLeft = !isRtl
         val effectiveMoveRightToLeft = if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
-        
+
         val startPos = displayContainerDim + halfText
         val endPos = -halfText
-        
+
         if (effectiveMoveRightToLeft) {
           startPos to endPos
         } else {
@@ -198,55 +194,58 @@ fun RunningTextRenderer(
       remember(settings.speed, totalTextWidth, displayContainerDim) {
         val dist = abs(endX - startX)
         val speedFactor = settings.speed.coerceAtLeast(1f)
-        val baseDurationSeconds = (dist / displayContainerDim) * (1000f / speedFactor) 
+        val baseDurationSeconds = (dist / displayContainerDim) * (1000f / speedFactor)
         (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
       }
 
-    val animatedOffsetX: Float =
-      if (editor) {
-        val progress = remember { Animatable(0f) }
+    val editorProgress = remember { Animatable(0f) }
 
-        LaunchedEffect(durationMillis) {
-          while (isActive) {
-            val remainingRatio = (1f - progress.value).coerceIn(0f, 1f)
-            val adjustedDuration = (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
+    if (editor) {
+      LaunchedEffect(durationMillis) {
+        while (isActive) {
+          val remainingRatio = (1f - editorProgress.value).coerceIn(0f, 1f)
+          val adjustedDuration = (durationMillis * remainingRatio).toInt().coerceAtLeast(1)
 
-            progress.animateTo(
-              targetValue = 1f,
-              animationSpec =
-                tween(
-                  durationMillis = adjustedDuration,
-                  easing = LinearEasing,
-                ),
-            )
+          editorProgress.animateTo(
+            targetValue = 1f,
+            animationSpec =
+              tween(
+                durationMillis = adjustedDuration,
+                easing = LinearEasing,
+              ),
+          )
 
-            if (progress.value >= 1f) {
-              progress.snapTo(0f)
-            }
+          if (editorProgress.value >= 1f) {
+            editorProgress.snapTo(0f)
           }
         }
-
-        lerp(startX, endX, progress.value)
-      } else {
-        val transition = rememberInfiniteTransition(label = "marquee")
-        val offset by
-          transition.animateFloat(
-            initialValue = startX,
-            targetValue = endX,
-            animationSpec =
-              infiniteRepeatable(
-                animation = tween(durationMillis = durationMillis, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart,
-              ),
-            label = "offsetX",
-          )
-        offset
       }
+    }
 
-    val blinkAlpha by
-    if (settings.isBlink) {
-      val transition = rememberInfiniteTransition(label = "blink")
-      transition.animateFloat(
+    val marqueeTransition = rememberInfiniteTransition(label = "marquee")
+    val marqueeOffsetState =
+      marqueeTransition.animateFloat(
+        initialValue = startX,
+        targetValue = endX,
+        animationSpec =
+          infiniteRepeatable(
+            animation = tween(durationMillis = durationMillis, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+          ),
+        label = "offsetX",
+      )
+
+    val animatedOffsetXProvider: () -> Float = remember(editor, startX, endX) {
+      if (editor) {
+        { lerp(startX, endX, editorProgress.value) }
+      } else {
+        { marqueeOffsetState.value }
+      }
+    }
+
+    val blinkTransition = rememberInfiniteTransition(label = "blink")
+    val blinkAlphaState =
+      blinkTransition.animateFloat(
         initialValue = 1f,
         targetValue = 0f,
         animationSpec =
@@ -256,116 +255,128 @@ fun RunningTextRenderer(
           ),
         label = "blinkAlpha",
       )
-    } else {
-      remember { mutableFloatStateOf(1f) }
-    }
 
-
-    Canvas(
-      modifier =
-        Modifier.fillMaxSize().graphicsLayer {
-          alpha = blinkAlpha
-          val textWidth = textLayoutResult.size.width.toFloat()
-          val textHeight = textLayoutResult.size.height.toFloat()
-          
-          val currentCenterX = extraPaddingPx + (textWidth / 2f)
-          val currentCenterY = (size.height - textHeight) / 2f + (textHeight / 2f)
-
-          if (isVertical) {
-            translationY = animatedOffsetX - currentCenterY
-            translationX = (containerWidthPx / 2f) - currentCenterX
-          } else {
-            translationX = animatedOffsetX - currentCenterX
-          }
-          clip = false
-        }
-    ) {
-      val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
-      val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
-
-      val drawContent: DrawScope.() -> Unit = {
-        if (settings.shadow.isEnabled) {
-          val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
-          val baseDistancePx = distanceShadow.dp.toPx()
-          val strokeOffsetPx =
-            if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-              settings.stroke.width.dp.toPx()
-            } else {
-              0f
-            }
-
-          val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
-          val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()
-          val shadowOffsetY = (totalShadowDistancePx * sin(angleInRadians)).toFloat()
-
-          drawText(
-            textLayoutResult = textLayoutResult,
-            color = settings.shadow.colorArgb.toComposeColor(),
-            topLeft = baseTopLeft,
-            shadow =
-              Shadow(
-                color = settings.shadow.colorArgb.toComposeColor(),
-                offset = Offset(shadowOffsetX, shadowOffsetY),
-                blurRadius = settings.shadow.radius,
-              ),
-          )
-        }
-
-        if (settings.stroke.isEnabled && settings.stroke.width > 0) {
-          val scaledStrokeWidthPx = settings.stroke.width.dp.toPx()
-
-          drawText(
-            textLayoutResult = textLayoutResult,
-            color = settings.stroke.colorArgb.toComposeColor(),
-            topLeft = baseTopLeft,
-            drawStyle =
-              Stroke(
-                width = scaledStrokeWidthPx * 2f,
-                join = StrokeJoin.Round,
-              ),
-          )
-        }
-
-        if (mainBrush != null) {
-          drawText(
-            textLayoutResult = textLayoutResult,
-            brush = mainBrush,
-            topLeft = baseTopLeft,
-            drawStyle = Fill,
-            shadow = Shadow.None,
-          )
-        } else {
-          drawText(
-            textLayoutResult = textLayoutResult,
-            color = settings.textStyle.colorArgb.toComposeColor(),
-            topLeft = baseTopLeft,
-            drawStyle = Fill,
-            shadow = Shadow.None,
-          )
-        }
-      }
-
-      val textCenterX = baseTopLeft.x + (textLayoutResult.size.width / 2f)
-      val textCenterY = baseTopLeft.y + (textLayoutResult.size.height / 2f)
-      val pivot = Offset(textCenterX, textCenterY)
-
-      val drawMirroredContent: DrawScope.() -> Unit = {
-        if (settings.isMirrorMode) {
-          scale(scaleX = -1f, scaleY = 1f, pivot = pivot) {
-            drawContent()
-          }
-        } else {
-          drawContent()
-        }
-      }
-
-      if (isVertical) {
-        rotate(degrees = 90F, pivot = pivot) {
-          drawMirroredContent()
-        }
+    val blinkAlphaProvider: () -> Float = remember(settings.isBlink) {
+      if (settings.isBlink) {
+        { blinkAlphaState.value }
       } else {
-        drawMirroredContent()
+        { 1f }
       }
     }
+
+    Spacer(
+      modifier =
+        Modifier.fillMaxSize()
+          .graphicsLayer {
+            alpha = blinkAlphaProvider()
+            val textWidth = textLayoutResult.size.width.toFloat()
+            val textHeight = textLayoutResult.size.height.toFloat()
+
+            val currentCenterX = extraPaddingPx + (textWidth / 2f)
+            val currentCenterY = (size.height - textHeight) / 2f + (textHeight / 2f)
+
+            val currentOffsetX = animatedOffsetXProvider()
+            if (isVertical) {
+              translationY = currentOffsetX - currentCenterY
+              translationX = (containerWidthPx / 2f) - currentCenterX
+            } else {
+              translationX = currentOffsetX - currentCenterX
+            }
+            clip = false
+          }
+          .drawWithCache {
+            val topOffsetY = (size.height - textLayoutResult.size.height) / 2f
+            val baseTopLeft = Offset(extraPaddingPx, topOffsetY)
+
+            val isShadowEnabled = settings.shadow.isEnabled
+            val shadowColor = settings.shadow.colorArgb.toComposeColor()
+            val shadowRadius = settings.shadow.radius
+            val angleInRadians = Math.toRadians(settings.shadow.rotation.toDouble())
+            val baseDistancePx = distanceShadow.dp.toPx()
+            val strokeWidthPx = settings.stroke.width.dp.toPx()
+            val isStrokeEnabled = settings.stroke.isEnabled && settings.stroke.width > 0
+            val strokeOffsetPx = if (isStrokeEnabled) strokeWidthPx else 0f
+            val totalShadowDistancePx = baseDistancePx + strokeOffsetPx
+            val shadowOffsetX = (totalShadowDistancePx * cos(angleInRadians)).toFloat()
+            val shadowOffsetY = (totalShadowDistancePx * sin(angleInRadians)).toFloat()
+            val shadowObj =
+              Shadow(
+                color = shadowColor,
+                offset = Offset(shadowOffsetX, shadowOffsetY),
+                blurRadius = shadowRadius,
+              )
+
+            val strokeColor = settings.stroke.colorArgb.toComposeColor()
+            val strokeStyle =
+              Stroke(
+                width = strokeWidthPx * 2f,
+                join = StrokeJoin.Round,
+              )
+
+            val textColor = settings.textStyle.colorArgb.toComposeColor()
+
+            val textCenterX = baseTopLeft.x + (textLayoutResult.size.width / 2f)
+            val textCenterY = baseTopLeft.y + (textLayoutResult.size.height / 2f)
+            val pivot = Offset(textCenterX, textCenterY)
+
+            onDrawWithContent {
+              val drawContent: DrawScope.() -> Unit = {
+                if (isShadowEnabled) {
+                  drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = shadowColor,
+                    topLeft = baseTopLeft,
+                    shadow = shadowObj,
+                  )
+                }
+
+                if (isStrokeEnabled) {
+                  drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = strokeColor,
+                    topLeft = baseTopLeft,
+                    drawStyle = strokeStyle,
+                  )
+                }
+
+                if (mainBrush != null) {
+                  drawText(
+                    textLayoutResult = textLayoutResult,
+                    brush = mainBrush,
+                    topLeft = baseTopLeft,
+                    drawStyle = Fill,
+                    shadow = Shadow.None,
+                  )
+                } else {
+                  drawText(
+                    textLayoutResult = textLayoutResult,
+                    color = textColor,
+                    topLeft = baseTopLeft,
+                    drawStyle = Fill,
+                    shadow = Shadow.None,
+                  )
+                }
+              }
+
+              val drawMirroredContent: DrawScope.() -> Unit = {
+                if (settings.isMirrorMode) {
+                  scale(scaleX = -1f, scaleY = 1f, pivot = pivot) {
+                    drawContent()
+                  }
+                } else {
+                  drawContent()
+                }
+              }
+
+              if (isVertical) {
+                rotate(degrees = 90F, pivot = pivot) {
+                  drawMirroredContent()
+                }
+              } else {
+                drawMirroredContent()
+              }
+            }
+          },
+    )
   }
 }

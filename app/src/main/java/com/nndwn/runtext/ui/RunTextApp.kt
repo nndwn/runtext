@@ -1,6 +1,7 @@
 package com.nndwn.runtext.ui
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -82,6 +83,8 @@ fun RunTextApp(
       }
     }
   }
+  Log.d("test", shouldShowSupportDialog.toString())
+  Log.d("test", isPremium.toString())
 
   val handleMenuOption: (MenuOptions) -> Unit = { menu ->
     isSidebarOpen = false

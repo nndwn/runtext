@@ -35,6 +35,7 @@ data class TextConfig(
   val bgColorArgb: Long = Palette.White.toArgbLong(),
   val isMirrorMode: Boolean = false,
   val isBlink : Boolean = false,
+  val isMove : Boolean = true,
   val textStyle: TextStyleConfig = TextStyleConfig(),
   val stroke: StrokeConfig = StrokeConfig(),
   val shadow: ShadowConfig = ShadowConfig(),

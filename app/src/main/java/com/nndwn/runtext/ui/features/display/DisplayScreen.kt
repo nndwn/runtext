@@ -64,6 +64,14 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
 
   ScreenBrightness(brightnessValue = 1.0f)
 
+  DisposableEffect(Unit) {
+    val startTime = System.currentTimeMillis()
+    onDispose {
+      val duration = System.currentTimeMillis() - startTime
+      viewModel.recordUsageDuration(duration)
+    }
+  }
+
   DisposableEffect(view) {
     val activity = context as? Activity
     val window = activity?.window
