@@ -246,6 +246,24 @@
     "googleFontName": "Black Han Sans"
   },
   {
+    "idFont": "JUA",
+    "displayName": "Jua (주아)",
+    "scriptCategory": "KOREAN",
+    "googleFontName": "Jua"
+  },
+  {
+    "idFont": "DO_HYEON",
+    "displayName": "Do Hyeon (도현)",
+    "scriptCategory": "KOREAN",
+    "googleFontName": "Do Hyeon"
+  },
+  {
+    "idFont": "NANUM_GOTHIC",
+    "displayName": "Nanum Gothic (나눔고딕)",
+    "scriptCategory": "KOREAN",
+    "googleFontName": "Nanum Gothic"
+  },
+  {
     "idFont": "ZCOOL_KUAILE",
     "displayName": "ZCOOL KuaiLe (简体中文)",
     "scriptCategory": "CHINESE",

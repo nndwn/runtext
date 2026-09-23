@@ -163,6 +163,37 @@ val Presets =
         ),
     ),
     TextPreset(
+      name = "Retro Arcade",
+      settings =
+        TextConfig(
+          bgColorArgb = Color(0xFF0F051D).toArgbLong(), // Dark Arcade Purple
+          textStyle =
+            TextStyleConfig(
+              colorType = TextColorType.GRADIENT,
+              gradientColorsArgb =
+                listOf(
+                  Color(0xFF00E5FF).toArgbLong(), // Neon Cyan
+                  Color(0xFF00FF66).toArgbLong(), // Arcade Lime Green
+                ),
+              fontId = "PRESS_START_2P",
+              isGradientHorizontal = true,
+            ),
+          stroke =
+            StrokeConfig(
+              isEnabled = true,
+              width = 2f,
+              colorArgb = Color(0xFF1F0038).toArgbLong(),
+            ),
+          shadow =
+            ShadowConfig(
+              isEnabled = true,
+              colorArgb = Color(0xFF00FF66).toArgbLong(),
+              radius = 12f,
+              rotation = 45f,
+            ),
+        ),
+    ),
+    TextPreset(
       name = "Comic Pop",
       settings =
         TextConfig(
