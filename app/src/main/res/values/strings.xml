@@ -49,5 +49,7 @@
     <string name="btn_maybe_later">Maybe later</string>
     <string name="msg_premium_activated">Thank you for your support.</string>
     <string name="set_config_text_blink">Blink</string>
-    <string name="set_config_text_blink_desc">Blink text effect</string>
+    <string name="set_config_text_blink_desc">Blink text animate</string>
+    <string name="set_config_text_move">Move</string>
+    <string name="set_config_text_move_desc">Move text animate</string>"
 </resources>

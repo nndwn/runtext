@@ -97,6 +97,7 @@ constructor(
       is MainUiEvent.UpdateBgColor,
       is MainUiEvent.UpdateMirrorMode,
       is MainUiEvent.UpdateBlinkMode,
+      is MainUiEvent.UpdateTextMove,
       is MainUiEvent.UpdateShadowRotation -> handleRunningText(event)
 
       // Navigation & General
@@ -122,6 +123,7 @@ constructor(
       is MainUiEvent.UpdateSpeed -> updateTextConfig { copy(speed = event.speed) }
       is MainUiEvent.UpdateBgColor -> updateTextConfig { copy(bgColorArgb = event.colorArgb) }
       is MainUiEvent.UpdateMirrorMode -> updateTextConfig { copy(isMirrorMode = event.mirror) }
+      is MainUiEvent.UpdateTextMove -> updateTextConfig { copy( isMove = event.move) }
       is MainUiEvent.UpdateBlinkMode -> updateTextConfig { copy(isBlink = event.blink) }
       is MainUiEvent.ToggleStroke -> updateStroke { copy(isEnabled = event.isEnabled) }
       is MainUiEvent.UpdateStrokeWidth -> updateStroke { copy(width = event.width.coerceIn(1f, 10f)) }

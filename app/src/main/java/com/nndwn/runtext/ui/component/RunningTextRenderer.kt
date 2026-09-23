@@ -40,6 +40,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -49,11 +53,11 @@ import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.ui.LocalSizeHeight
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
+import java.text.Bidi
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.isActive
-import java.text.Bidi
 
 @Composable
 fun RunningTextRenderer(
@@ -100,38 +104,145 @@ fun RunningTextRenderer(
     val containerHeightPx = constraints.maxHeight.toFloat()
     val containerWidthPx = constraints.maxWidth.toFloat()
 
-    val dynamicFontSizeSp =
-      remember(containerHeightPx, density) {
-        with(density) {
-          (containerHeightPx * 0.55f).toSp().value.coerceIn(14f, 120f).sp
-        }
-      }
-
-    val baseTextStyle =
-      remember(fontFamily, dynamicFontSizeSp) {
-        TextStyle(
-          fontFamily = fontFamily,
-          fontWeight = FontWeight.Normal,
-          fontSize = dynamicFontSizeSp,
-        )
-      }
-
-    val textLayoutResult =
-      remember(baseTextStyle, fontLoadState, rawText) {
-        textMeasurer.measure(
-          text = rawText,
-          style = baseTextStyle,
-          maxLines = 1,
-          softWrap = false,
-        )
-      }
-
     val extraPaddingPx =
       remember(settings.shadow, settings.stroke, density) {
         with(density) {
           val strokePadding = if (settings.stroke.isEnabled) settings.stroke.width else 0f
           val shadowPadding = if (settings.shadow.isEnabled) (distanceShadow + settings.shadow.radius) else 0f
           (maxOf(strokePadding, shadowPadding) + 5f).dp.toPx()
+        }
+      }
+
+    val isVertical = (localSizeHeight == WindowHeightSizeClass.Compact || localSizeHeight == WindowHeightSizeClass.Medium) && !editor
+    val displayContainerDim = if (isVertical) containerHeightPx else containerWidthPx
+    val maxAvailableWidthPx = (displayContainerDim - (extraPaddingPx * 2)).toInt().coerceAtLeast(1)
+
+    val largeFontSizeSp =
+      remember(containerHeightPx, density) {
+        with(density) {
+          (containerHeightPx * 0.55f).toSp().value.coerceIn(12f, 120f).sp
+        }
+      }
+
+    val largeTextStyle =
+      remember(fontFamily, largeFontSizeSp) {
+        TextStyle(
+          fontFamily = fontFamily,
+          fontWeight = FontWeight.Normal,
+          fontSize = largeFontSizeSp,
+          textAlign = TextAlign.Center,
+          lineHeight = largeFontSizeSp * 1.05f,
+          lineHeightStyle =
+            LineHeightStyle(
+              alignment = LineHeightStyle.Alignment.Center,
+              trim = LineHeightStyle.Trim.Both,
+            ),
+        )
+      }
+
+    val fitsInSingleLineAtLarge =
+      remember(largeTextStyle, fontLoadState, rawText, maxAvailableWidthPx) {
+        val singleLineResult =
+          textMeasurer.measure(
+            text = rawText,
+            style = largeTextStyle,
+            maxLines = 1,
+            softWrap = false,
+          )
+        singleLineResult.size.width <= maxAvailableWidthPx
+      }
+
+    val isSingleWord = remember(rawText) { !rawText.contains(" ") && !rawText.contains("\n") }
+
+    val fontScale =
+      remember(
+        settings.isMove,
+        fitsInSingleLineAtLarge,
+        isSingleWord,
+        fontFamily,
+        containerHeightPx,
+        density,
+        fontLoadState,
+        rawText,
+        maxAvailableWidthPx,
+      ) {
+        if (settings.isMove || fitsInSingleLineAtLarge) {
+          0.55f
+        } else if (isSingleWord) {
+          val testFontSizeSp = with(density) { (containerHeightPx * 0.26f).toSp().value.coerceIn(12f, 120f).sp }
+          val testStyle =
+            TextStyle(
+              fontFamily = fontFamily,
+              fontWeight = FontWeight.Normal,
+              fontSize = testFontSizeSp,
+              textAlign = TextAlign.Center,
+              lineHeight = testFontSizeSp * 1.05f,
+              lineHeightStyle =
+                LineHeightStyle(
+                  alignment = LineHeightStyle.Alignment.Center,
+                  trim = LineHeightStyle.Trim.Both,
+                ),
+            )
+          val singleWordWidthPx =
+            textMeasurer.measure(
+              text = rawText,
+              style = testStyle,
+              maxLines = 1,
+              softWrap = false,
+            ).size.width.toFloat()
+
+          if (singleWordWidthPx > maxAvailableWidthPx) {
+            val scaleRatio = (maxAvailableWidthPx / singleWordWidthPx).coerceIn(0.15f, 1f)
+            (0.26f * scaleRatio).coerceAtLeast(0.12f)
+          } else {
+            0.26f
+          }
+        } else {
+          0.26f
+        }
+      }
+
+    val dynamicFontSizeSp =
+      remember(containerHeightPx, density, fontScale) {
+        with(density) {
+          (containerHeightPx * fontScale).toSp().value.coerceIn(12f, 120f).sp
+        }
+      }
+
+    val baseTextStyle =
+      remember(fontFamily, dynamicFontSizeSp, settings.isMove) {
+        TextStyle(
+          fontFamily = fontFamily,
+          fontWeight = FontWeight.Normal,
+          fontSize = dynamicFontSizeSp,
+          textAlign = if (settings.isMove) TextAlign.Start else TextAlign.Center,
+          lineHeight = dynamicFontSizeSp * 1.05f,
+          lineHeightStyle =
+            LineHeightStyle(
+              alignment = LineHeightStyle.Alignment.Center,
+              trim = LineHeightStyle.Trim.Both,
+            ),
+        )
+      }
+
+    val textLayoutResult =
+      remember(baseTextStyle, fontLoadState, rawText, settings.isMove, fitsInSingleLineAtLarge, isSingleWord, maxAvailableWidthPx) {
+        if (settings.isMove || fitsInSingleLineAtLarge || isSingleWord) {
+          textMeasurer.measure(
+            text = rawText,
+            style = baseTextStyle,
+            maxLines = 1,
+            softWrap = false,
+          )
+        } else {
+          textMeasurer.measure(
+            text = rawText,
+            style = baseTextStyle,
+            maxLines = 2,
+            softWrap = true,
+            overflow = TextOverflow.Ellipsis,
+            constraints = Constraints(maxWidth = maxAvailableWidthPx),
+          )
         }
       }
 
@@ -164,9 +275,7 @@ fun RunningTextRenderer(
         } else null
       }
 
-    val isVertical = (localSizeHeight == WindowHeightSizeClass.Compact || localSizeHeight == WindowHeightSizeClass.Medium) && !editor
     val totalTextWidth = textLayoutResult.size.width.toFloat() + (extraPaddingPx * 2)
-    val displayContainerDim = if (isVertical) containerHeightPx else containerWidthPx
 
     val (startX, endX) =
       remember(
@@ -200,7 +309,7 @@ fun RunningTextRenderer(
 
     val editorProgress = remember { Animatable(0f) }
 
-    if (editor) {
+    if (editor && settings.isMove) {
       LaunchedEffect(durationMillis) {
         while (isActive) {
           val remainingRatio = (1f - editorProgress.value).coerceIn(0f, 1f)
@@ -235,8 +344,11 @@ fun RunningTextRenderer(
         label = "offsetX",
       )
 
-    val animatedOffsetXProvider: () -> Float = remember(editor, startX, endX) {
-      if (editor) {
+    val animatedOffsetXProvider: () -> Float = remember(settings.isMove, editor, startX, endX, displayContainerDim) {
+      if (!settings.isMove) {
+        val staticCenterPos = displayContainerDim / 2f
+        { staticCenterPos }
+      } else if (editor) {
         { lerp(startX, endX, editorProgress.value) }
       } else {
         { marqueeOffsetState.value }
