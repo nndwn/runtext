@@ -12,10 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.ui.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.LocalSizeHeight
@@ -25,7 +24,9 @@ import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MainLayoutState
 import com.nndwn.runtext.ui.features.main.MainScreenContent
 import com.nndwn.runtext.ui.features.main.MainUiState
-import com.nndwn.runtext.ui.navigation.Routes
+import com.nndwn.runtext.ui.navigation.AppRoute
+import com.nndwn.runtext.ui.navigation.rememberNavigationState
+import com.nndwn.runtext.ui.navigation.toEntries
 import com.nndwn.runtext.ui.theme.RuntextTheme
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -34,13 +35,14 @@ private fun InteractivePreviewWrapper(
   widowSizeHeight: WindowHeightSizeClass = WindowHeightSizeClass.Compact,
   windowWidth: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
-  val navController = rememberNavController()
+  val navigationState = rememberNavigationState(
+    startRoute = AppRoute.Input,
+    topLevelRoutes = setOf(AppRoute.Input)
+  )
 
-  val currentBackStackEntry by navController.currentBackStackEntryAsState()
-  val currentRoute = currentBackStackEntry?.destination?.route
-
+  val currentRoute = navigationState.backStacks[navigationState.topLevelRoute]?.last()
   var isSidebarOpen by remember { mutableStateOf(false) }
-  val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
+  val sidebarAllowed = isSidebarOpen && currentRoute != AppRoute.Display
 
   var settings by remember {
     mutableStateOf(AppSettings(lastText = "test preview"))
@@ -65,22 +67,26 @@ private fun InteractivePreviewWrapper(
         onCloseSidebar = { isSidebarOpen = false },
         sideBarEnd = {},
       ) { innerPadding ->
-        NavHost(
-          navController = navController,
-          startDestination = Routes.INPUT,
-        ) {
-          composable(Routes.INPUT) {
-            MainScreenContent(
-              uiState = MainUiState.Success(settings, settings.lastText),
-              fonts = emptyList(),
-              onEvent = {},
-              padding = innerPadding,
-            )
-          }
-          composable(Routes.DISPLAY) {
-            // Display Screen
+        val entryProvider = remember(innerPadding) {
+          entryProvider<NavKey> {
+            entry<AppRoute.Input> {
+              MainScreenContent(
+                uiState = MainUiState.Success(settings, settings.lastText),
+                fonts = emptyList(),
+                onEvent = {},
+                padding = innerPadding,
+              )
+            }
+            entry<AppRoute.Display> {
+              // Display Screen
+            }
           }
         }
+
+        NavDisplay(
+          entries = navigationState.toEntries(entryProvider),
+          onBack = {}
+        )
       }
     }
   }

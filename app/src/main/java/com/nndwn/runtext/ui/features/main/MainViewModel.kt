@@ -15,7 +15,7 @@ import com.nndwn.runtext.data.repository.FontRepository
 import com.nndwn.runtext.data.repository.SettingsRepository
 import com.nndwn.runtext.ui.UiEffect
 import com.nndwn.runtext.ui.UiEffectController
-import com.nndwn.runtext.ui.navigation.Routes
+import com.nndwn.runtext.ui.navigation.AppRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -206,7 +206,7 @@ constructor(
         return
       }
     }
-    uiEffectController.sendEffect(UiEffect.RequestNavigationWithSupportDialogCheck(Routes.DISPLAY))
+    uiEffectController.sendEffect(UiEffect.RequestNavigationWithSupportDialogCheck(AppRoute.Display))
   }
 
   private fun handleMorseOutputToggle(isFlashScreen: Boolean? = null, isTorchEnabled: Boolean? = null) {

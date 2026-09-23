@@ -139,7 +139,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     //Navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
 
     //Datastore and Serization
     implementation(libs.androidx.datastore.preferences)

@@ -17,17 +17,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.ui.component.MainLayout
 import com.nndwn.runtext.ui.component.MainLayoutState
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.component.OverlayScreen
 import com.nndwn.runtext.ui.component.OverlayScreenState
-import com.nndwn.runtext.ui.navigation.AppNavigation
-import com.nndwn.runtext.ui.navigation.Routes
+import com.nndwn.runtext.ui.features.debug.DebugScreen
+import com.nndwn.runtext.ui.features.display.DisplayScreen
+import com.nndwn.runtext.ui.features.main.MainScreen
+import com.nndwn.runtext.ui.navigation.AppRoute
+import com.nndwn.runtext.ui.navigation.Navigator
+import com.nndwn.runtext.ui.navigation.rememberNavigationState
+import com.nndwn.runtext.ui.navigation.toEntries
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.gotoMail
 import com.nndwn.runtext.ui.utils.gotoPlayStore
@@ -36,7 +41,6 @@ import com.nndwn.runtext.ui.utils.handleSupportAction
 @Composable
 fun RunTextApp(
   appViewModel: AppViewModel = hiltViewModel(),
-  navController: NavHostController = rememberNavController(),
 ) {
   val context = LocalContext.current
   val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -48,25 +52,31 @@ fun RunTextApp(
   var isSidebarOpen by remember { mutableStateOf(false) }
   var noticeMessage by remember { mutableStateOf<Int?>(null) }
   var showDialogSupport by remember { mutableStateOf(false) }
-  var pendingRoute by remember { mutableStateOf<String?>(null) }
+  var pendingRoute by remember { mutableStateOf<AppRoute?>(null) }
 
-  val currentBackStackEntry by navController.currentBackStackEntryAsState()
-  val currentRoute = currentBackStackEntry?.destination?.route
-  val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
+  val navigationState = rememberNavigationState(
+    startRoute = AppRoute.Input,
+    topLevelRoutes = setOf(AppRoute.Input)
+  )
+  val navigator = remember { Navigator(navigationState) }
+
+  val currentRoute = navigationState.backStacks[navigationState.topLevelRoute]?.last()
+  val sidebarAllowed = isSidebarOpen && currentRoute != AppRoute.Display
   val isPlayStore = AppFlavor.current == AppFlavor.PLAYSTORE
+
   // UI Effects handling
   LaunchedEffect(appViewModel.uiEffect, lifecycle) {
     appViewModel.uiEffect.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { effect ->
       when (effect) {
         is UiEffect.ShowToast -> noticeMessage = effect.message
-        is UiEffect.NavigateTo -> navController.navigate(effect.route)
-        is UiEffect.NavigateBack -> navController.popBackStack()
+        is UiEffect.NavigateTo -> navigator.navigate(effect.route)
+        is UiEffect.NavigateBack -> navigator.goBack()
         is UiEffect.RequestNavigationWithSupportDialogCheck -> {
           if (isPlayStore && shouldShowSupportDialog && !isPremium) {
             pendingRoute = effect.targetRoute
             showDialogSupport = true
           } else {
-            navController.navigate(effect.targetRoute)
+            navigator.navigate(effect.targetRoute)
           }
         }
       }
@@ -76,7 +86,7 @@ fun RunTextApp(
   val handleMenuOption: (MenuOptions) -> Unit = { menu ->
     isSidebarOpen = false
     when (menu) {
-      MenuOptions.DEBUG -> navController.navigate(Routes.DEBUG)
+      MenuOptions.DEBUG -> navigator.navigate(AppRoute.Debug)
       MenuOptions.RATE_APP -> gotoPlayStore(context)
       MenuOptions.SUPPORT -> handleSupportAction(context) { showDialogSupport = true }
       MenuOptions.REPORT_ISSUE -> gotoMail(context)
@@ -103,7 +113,7 @@ fun RunTextApp(
           onDismissSupportDialog = {
             showDialogSupport = false
             pendingRoute?.let { route ->
-              navController.navigate(route)
+              navigator.navigate(route)
               pendingRoute = null
             }
             appViewModel.resetCooldownSupportDialog()
@@ -117,7 +127,18 @@ fun RunTextApp(
         )
       },
     ) { innerPadding ->
-      AppNavigation(navController = navController, padding = innerPadding)
+      val entryProvider = remember(innerPadding) {
+        entryProvider<NavKey> {
+          entry<AppRoute.Input> { MainScreen(padding = innerPadding) }
+          entry<AppRoute.Display> { DisplayScreen() }
+          entry<AppRoute.Debug> { DebugScreen(onBack = { navigator.goBack() }) }
+        }
+      }
+
+      NavDisplay(
+        entries = navigationState.toEntries(entryProvider),
+        onBack = { navigator.goBack() }
+      )
     }
   }
 }
