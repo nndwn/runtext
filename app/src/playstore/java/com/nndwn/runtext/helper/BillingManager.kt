@@ -3,11 +3,11 @@ package com.nndwn.runtext.helper
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -16,8 +16,6 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.nndwn.runtext.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,6 +26,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class BillingManager @Inject constructor(@param:ApplicationContext private val context: Context) :
@@ -125,20 +125,18 @@ class BillingManager @Inject constructor(@param:ApplicationContext private val c
     val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
     billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
       if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-        val isPurchased = purchases.any { item ->
+        val hasPremium = purchases.any { item ->
           item.products.contains(SUPPORT_PRODUCT_ID) && item.purchaseState == Purchase.PurchaseState.PURCHASED
         }
-        setPurchased(isPurchased)
+        setPurchased(hasPremium)
       }
-      purchases
-        .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged }
-        .forEach { acknowledgePurchase(it) }
+      purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }.forEach { consumePurchase(it) }
     }
   }
 
-  private fun acknowledgePurchase(purchase: Purchase) {
-    val params = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
-    billingClient.acknowledgePurchase(params) { billingResult ->
+  private fun consumePurchase(purchase: Purchase) {
+    val params = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
+    billingClient.consumeAsync(params) { billingResult, _ ->
       if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
         onPurchasedListener?.invoke(true)
         _purchaseSuccessEvent.tryEmit(Unit)
@@ -150,11 +148,7 @@ class BillingManager @Inject constructor(@param:ApplicationContext private val c
     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
       for (purchase in purchases) {
         if (purchase?.purchaseState == Purchase.PurchaseState.PURCHASED) {
-          if (!purchase.isAcknowledged) {
-            acknowledgePurchase(purchase)
-          } else {
-            onPurchasedListener?.invoke(true)
-          }
+          consumePurchase(purchase)
         }
       }
     }

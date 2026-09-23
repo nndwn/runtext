@@ -23,8 +23,8 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
     val APP_SETTINGS = stringPreferencesKey("app_settings")
 
     val IS_PREMIUM = booleanPreferencesKey("is_premium")
-    val LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY = longPreferencesKey("last_support_dialog_shown_timestamp")
-    const val SUPPORT_DIALOG_COOLDOWN_MS = 1_500_000L
+    val ACCUMULATED_USAGE_TIME_KEY = longPreferencesKey("accumulated_usage_time")
+    const val SUPPORT_DIALOG_COOLDOWN_MS = 900_000L
   }
 
   private val json = Json {
@@ -42,24 +42,29 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
         val isPremium = preferences[IS_PREMIUM] ?: false
         if (isPremium) return@map false
 
-        val lastTimestamp = preferences[LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY] ?: return@map false
-
-        val currentTime = System.currentTimeMillis()
-        (currentTime - lastTimestamp) >= SUPPORT_DIALOG_COOLDOWN_MS
+        val accumulatedTime = preferences[ACCUMULATED_USAGE_TIME_KEY] ?: 0L
+        accumulatedTime >= SUPPORT_DIALOG_COOLDOWN_MS
       }
+
+  suspend fun incrementUsageTime(durationMs: Long) {
+    dataStore.edit { preferences ->
+      val current = preferences[ACCUMULATED_USAGE_TIME_KEY] ?: 0L
+      preferences[ACCUMULATED_USAGE_TIME_KEY] = current + durationMs
+    }
+  }
 
   suspend fun setPremiumStatus(isPremium: Boolean) {
     dataStore.edit { preferences -> preferences[IS_PREMIUM] = isPremium }
   }
 
   suspend fun recordSupportDialogShown() {
-    dataStore.edit { preferences -> preferences[LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY] = System.currentTimeMillis() }
+    dataStore.edit { preferences -> preferences[ACCUMULATED_USAGE_TIME_KEY] = 0L }
   }
 
   suspend fun recordSupportDialogShownIfFirstTime() {
     dataStore.edit { preferences ->
-      if (preferences[LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY] == null) {
-        preferences[LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY] = System.currentTimeMillis()
+      if (preferences[ACCUMULATED_USAGE_TIME_KEY] == null) {
+        preferences[ACCUMULATED_USAGE_TIME_KEY] = 0L
       }
     }
   }
@@ -72,7 +77,7 @@ class SettingsDataStore @Inject constructor(private val dataStore: DataStore<Pre
 
   suspend fun debugForceShowSupportDialog() {
     if (BuildConfig.DEBUG) {
-      dataStore.edit { preferences -> preferences[LAST_SUPPORT_DIALOG_SHOWN_TIMESTAMP_KEY] = 0L }
+      dataStore.edit { preferences -> preferences[ACCUMULATED_USAGE_TIME_KEY] = SUPPORT_DIALOG_COOLDOWN_MS }
     }
   }
 

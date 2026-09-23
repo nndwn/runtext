@@ -34,4 +34,8 @@ class SettingsRepository @Inject constructor(private val dataStore: SettingsData
   suspend fun initialCooldownSupportDialog() {
     dataStore.recordSupportDialogShownIfFirstTime()
   }
+
+  suspend fun incrementUsageTime(durationMs: Long) {
+    dataStore.incrementUsageTime(durationMs)
+  }
 }

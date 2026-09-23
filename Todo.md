@@ -18,9 +18,9 @@
 - [ ] 🔼 fix CI workflows GitHub because use build tool version old #development #v1.4.1-beta 🆔 ygnpkX
 - [ ] 🔼 integration CI triple T before upload F-droid for get metadata from Google Play Store and automation release #development #v1.4.1-beta 🆔 MJYdaS
 - [ ] 🔼 integration f-droid #v1.4.1-beta #development 🆔 wBCI3F
-- [/] 🔺 change record show dialog support for duration start #v1.4.1-beta #development #feature 🛫 2026-09-22 19:57 🆔 U2Daoc
+- [x] 🔺 change record show dialog support for duration start #v1.4.1-beta #development #feature 🛫 2026-09-22 19:57 ✅ 2026-09-23 07:36 🆔 U2Daoc
 - [x] 🔼 mungkin perlu penambahan effect blink ? #feature #v1.4.1-beta #development 🛫 2026-09-19 04:58 ✅ 2026-09-23 02:12 ➕ 2026-09-15 22:39 🆔 c9OpU4
-- [ ] 🔽 apa perlu animasi running dapat di matikan ? ➕ 2026-09-15 22:44 🆔 JAze93
+- [ ] 🔽 apa perlu animasi running dapat di matikan ? #feature ➕ 2026-09-15 22:44 🆔 JAze93
 - [x] 🔼 #remove untuk spacing seperti tidak diperlukan #v1.4.1-beta #production 🛫 2026-09-17 17:49 ✅ 2026-09-17 18:32 ➕ 2026-09-15 22:45 📝 2026-09-17 03:45 🆔 FEp2vY
 - [x] 🔺 ada issue di layout edge to edge frame nya #issue pada saat mobile rotate #issue #production #v1.4.1-beta 🛫 2026-09-15 23:49 ✅ 2026-09-17 04:30 ➕ 2026-09-15 23:45 🆔 yWBZjm
 - [x] ⏫ di preview jika scrool keatas terlalu mepet dengan status bar berikan jarak dengan status padding #issue #production #v1.4.1-beta 🛫 2026-09-17 15:29 ✅ 2026-09-17 18:07 ➕ 2026-09-16 00:26 🆔 G3UcQp

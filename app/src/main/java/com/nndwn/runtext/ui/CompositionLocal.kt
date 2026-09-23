@@ -13,7 +13,6 @@ val LocalSizeHeight = compositionLocalOf {
 val LocalSizeWidth = compositionLocalOf {
   WindowWidthSizeClass.Compact
 }
-val LocalIsPremium = compositionLocalOf { false }
 
 val LocalToggleSidebar =
   staticCompositionLocalOf<() -> Unit> {

@@ -31,6 +31,7 @@ import com.nndwn.runtext.ui.navigation.Routes
 import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.gotoMail
 import com.nndwn.runtext.ui.utils.gotoPlayStore
+import com.nndwn.runtext.ui.utils.handleSupportAction
 
 @Composable
 fun RunTextApp(
@@ -52,7 +53,7 @@ fun RunTextApp(
   val currentBackStackEntry by navController.currentBackStackEntryAsState()
   val currentRoute = currentBackStackEntry?.destination?.route
   val sidebarAllowed = isSidebarOpen && currentRoute != Routes.DISPLAY
-
+  val isPlayStore = AppFlavor.current == AppFlavor.PLAYSTORE
   // UI Effects handling
   LaunchedEffect(appViewModel.uiEffect, lifecycle) {
     appViewModel.uiEffect.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { effect ->
@@ -61,7 +62,6 @@ fun RunTextApp(
         is UiEffect.NavigateTo -> navController.navigate(effect.route)
         is UiEffect.NavigateBack -> navController.popBackStack()
         is UiEffect.RequestNavigationWithSupportDialogCheck -> {
-          val isPlayStore = AppFlavor.current == AppFlavor.PLAYSTORE
           if (isPlayStore && shouldShowSupportDialog && !isPremium) {
             pendingRoute = effect.targetRoute
             showDialogSupport = true
@@ -78,13 +78,12 @@ fun RunTextApp(
     when (menu) {
       MenuOptions.DEBUG -> navController.navigate(Routes.DEBUG)
       MenuOptions.RATE_APP -> gotoPlayStore(context)
-      MenuOptions.SUPPORT -> if (!isPremium) showDialogSupport = true
+      MenuOptions.SUPPORT -> handleSupportAction(context) { showDialogSupport = true }
       MenuOptions.REPORT_ISSUE -> gotoMail(context)
     }
   }
 
   CompositionLocalProvider(
-    LocalIsPremium provides isPremium,
     LocalToggleSidebar provides { isSidebarOpen = !isSidebarOpen },
     LocalMenuOptionHandler provides handleMenuOption,
   ) {

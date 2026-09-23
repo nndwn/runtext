@@ -85,4 +85,27 @@ class SettingsDataStoreTest {
       val isPremium = settingsDataStore.isPremium.first()
       assertEquals(true, isPremium)
     }
+
+  @Test
+  fun `incrementUsageTime accumulates time and shouldShowSupportDialog becomes true when threshold met`() =
+    runTest(testDispatcher) {
+      // Pastikan awalnya false karena akumulasi = 0
+      var shouldShow = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShow)
+
+      // Tambah waktu di bawah threshold (misal 5 menit = 300_000ms)
+      settingsDataStore.incrementUsageTime(300_000L)
+      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShow)
+
+      // Tambah waktu lagi hingga melewati threshold (900_000ms)
+      settingsDataStore.incrementUsageTime(600_000L)
+      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(true, shouldShow)
+
+      // Setelah dialog direset (muncul), waktu akumulasi kembali ke 0 dan flag harus kembali false
+      settingsDataStore.recordSupportDialogShown()
+      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShow)
+    }
 }

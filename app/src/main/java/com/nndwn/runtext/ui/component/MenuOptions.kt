@@ -24,10 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.BuildConfig
 import com.nndwn.runtext.R
-import com.nndwn.runtext.ui.LocalIsPremium
 import com.nndwn.runtext.ui.theme.RuntextTheme
 import com.nndwn.runtext.ui.theme.dimens
 
@@ -40,7 +38,6 @@ enum class MenuOptions(@param:StringRes val label: Int, @param:DrawableRes val i
 
 @Composable
 fun MenuOptions(modifier: Modifier = Modifier, onMenuSelected: (MenuOptions) -> Unit) {
-  val isPremium = LocalIsPremium.current
   Column(
     modifier = modifier.fillMaxHeight(),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.extraSmall),
@@ -49,7 +46,6 @@ fun MenuOptions(modifier: Modifier = Modifier, onMenuSelected: (MenuOptions) -> 
       .filter {
         when (it) {
           MenuOptions.DEBUG -> BuildConfig.DEBUG
-          MenuOptions.SUPPORT -> !isPremium || AppFlavor.current == AppFlavor.PLAYSTORE
           else -> true
         }
       }
