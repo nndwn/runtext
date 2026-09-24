@@ -381,6 +381,11 @@ private fun LazyListScope.successContent(
 
   item {
     Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
+
+  }
+
+  item {
+    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
     AppModeSettings(
       currentMode = settings.mode,
       onModeChange = { dispatch(MainUiEvent.UpdateMode(it)) },

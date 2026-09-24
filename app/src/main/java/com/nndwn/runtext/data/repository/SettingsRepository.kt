@@ -14,21 +14,27 @@ class SettingsRepository @Inject constructor(private val dataStore: SettingsData
   /** Emits the latest [AppSettings]. Always emits at least the default values. */
   val settingsFlow: Flow<AppSettings> = dataStore.settingsFlow
 
-  val isPremium: Flow<Boolean> = dataStore.isPremium
+  val hasTipped: Flow<Boolean> = dataStore.hasTipped
 
   val shouldShowSupportDialog: Flow<Boolean> = dataStore.shouldShowSupportDialog
+
+  val shouldShowReviewPrompt: Flow<Boolean> = dataStore.shouldShowReviewPrompt
 
   /** Persist the entire [AppSettings] object to DataStore. */
   suspend fun saveSettings(settings: AppSettings) {
     dataStore.saveSettings(settings)
   }
 
-  suspend fun setPremiumStatus(isPremium: Boolean) {
-    dataStore.setPremiumStatus(isPremium)
+  suspend fun setTippedStatus(hasTipped: Boolean) {
+    dataStore.setTippedStatus(hasTipped)
   }
 
   suspend fun resetCooldownSupportDialog() {
     dataStore.recordSupportDialogShown()
+  }
+
+  suspend fun resetCooldownReviewPrompt() {
+    dataStore.recordReviewPromptShown()
   }
 
   suspend fun initialCooldownSupportDialog() {

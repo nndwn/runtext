@@ -11,9 +11,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class SettingsDataStoreQualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DeviceStatsDataStoreQualifier
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,13 +32,24 @@ object AppModule {
 
   @Provides
   @Singleton
-  fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+  @SettingsDataStoreQualifier
+  fun provideSettingsDataStoreFile(@ApplicationContext context: Context): DataStore<Preferences> {
     return PreferenceDataStoreFactory.create(produceFile = { context.preferencesDataStoreFile("app_settings") })
   }
 
   @Provides
   @Singleton
-  fun provideSettingsDataStore(dataStore: DataStore<Preferences>): SettingsDataStore {
-    return SettingsDataStore(dataStore)
+  @DeviceStatsDataStoreQualifier
+  fun provideDeviceStatsDataStoreFile(@ApplicationContext context: Context): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.create(produceFile = { context.preferencesDataStoreFile("device_stats") })
+  }
+
+  @Provides
+  @Singleton
+  fun provideSettingsDataStore(
+    @SettingsDataStoreQualifier settingsDataStore: DataStore<Preferences>,
+    @DeviceStatsDataStoreQualifier deviceStatsDataStore: DataStore<Preferences>,
+  ): SettingsDataStore {
+    return SettingsDataStore(settingsDataStore, deviceStatsDataStore)
   }
 }

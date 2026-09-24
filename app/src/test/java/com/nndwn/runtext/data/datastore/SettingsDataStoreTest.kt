@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.nndwn.runtext.AppFlavor
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.TextConfig
 import java.io.File
@@ -78,34 +79,58 @@ class SettingsDataStoreTest {
     }
 
   @Test
-  fun `setPremiumStatus persists premium flag independently`() =
+  fun `setTippedStatus persists tipped flag independently`() =
     runTest(testDispatcher) {
-      settingsDataStore.setPremiumStatus(true)
+      settingsDataStore.setTippedStatus(true)
 
-      val isPremium = settingsDataStore.isPremium.first()
-      assertEquals(true, isPremium)
+      val hasTipped = settingsDataStore.hasTipped.first()
+      assertEquals(true, hasTipped)
     }
 
   @Test
-  fun `incrementUsageTime accumulates time and shouldShowSupportDialog becomes true when threshold met`() =
+  fun `incrementUsageTime accumulates time for support dialog after 15 mins`() =
     runTest(testDispatcher) {
-      // Pastikan awalnya false karena akumulasi = 0
-      var shouldShow = settingsDataStore.shouldShowSupportDialog.first()
-      assertEquals(false, shouldShow)
+      // Pastikan awalnya false
+      var shouldShowSupport = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShowSupport)
 
       // Tambah waktu di bawah threshold (misal 5 menit = 300_000ms)
       settingsDataStore.incrementUsageTime(300_000L)
-      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
-      assertEquals(false, shouldShow)
+      shouldShowSupport = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShowSupport)
 
-      // Tambah waktu lagi hingga melewati threshold (900_000ms)
+      // Tambah waktu lagi hingga melewati threshold 15 menit (900_000ms)
       settingsDataStore.incrementUsageTime(600_000L)
-      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
-      assertEquals(true, shouldShow)
+      shouldShowSupport = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(true, shouldShowSupport)
 
-      // Setelah dialog direset (muncul), waktu akumulasi kembali ke 0 dan flag harus kembali false
+      // Setelah dialog direset (muncul), waktu akumulasi kembali ke 0
       settingsDataStore.recordSupportDialogShown()
-      shouldShow = settingsDataStore.shouldShowSupportDialog.first()
-      assertEquals(false, shouldShow)
+      shouldShowSupport = settingsDataStore.shouldShowSupportDialog.first()
+      assertEquals(false, shouldShowSupport)
+    }
+
+  @Test
+  fun `incrementUsageTime accumulates time for review prompt after 1 hour on playstore and shows only once`() =
+    runTest(testDispatcher) {
+      val isPlaystore = AppFlavor.current == AppFlavor.PLAYSTORE
+
+      var shouldShowReview = settingsDataStore.shouldShowReviewPrompt.first()
+      assertEquals(false, shouldShowReview)
+
+      // Tambah total waktu hingga 1 jam (3_600_000ms)
+      settingsDataStore.incrementUsageTime(3_600_000L)
+      shouldShowReview = settingsDataStore.shouldShowReviewPrompt.first()
+      assertEquals(isPlaystore, shouldShowReview)
+
+      // Tandai review prompt sudah pernah ditampilkan
+      settingsDataStore.recordReviewPromptShown()
+      shouldShowReview = settingsDataStore.shouldShowReviewPrompt.first()
+      assertEquals(false, shouldShowReview)
+
+      // Tambah waktu lagi (misal 1 jam lagi), review prompt harus TETAP false (hanya muncul sekali)
+      settingsDataStore.incrementUsageTime(3_600_000L)
+      shouldShowReview = settingsDataStore.shouldShowReviewPrompt.first()
+      assertEquals(false, shouldShowReview)
     }
 }

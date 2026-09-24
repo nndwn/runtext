@@ -8,7 +8,7 @@ sealed interface UiEffect {
 
   data class NavigateTo(val route: AppRoute) : UiEffect
 
-  data class RequestNavigationWithSupportDialogCheck(val targetRoute: AppRoute) : UiEffect
-
   data object NavigateBack : UiEffect
+
+  data object RequestNavigateBackWithSupportDialogCheck : UiEffect
 }

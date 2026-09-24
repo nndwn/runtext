@@ -22,7 +22,7 @@ class RunApplication : Application() {
     super.onCreate()
 
     billingHelper.startConnection(
-      setPurchased = { isPremium -> applicationScope.launch { settingsRepository.setPremiumStatus(isPremium) } },
+      setPurchased = { hasTipped -> applicationScope.launch { settingsRepository.setTippedStatus(hasTipped) } },
       billingDisconnected = {
         // Handle disconnection
       },

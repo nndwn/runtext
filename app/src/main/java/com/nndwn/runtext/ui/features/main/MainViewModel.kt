@@ -208,7 +208,7 @@ constructor(
         return
       }
     }
-    uiEffectController.sendEffect(UiEffect.RequestNavigationWithSupportDialogCheck(AppRoute.Display))
+    uiEffectController.sendEffect(UiEffect.NavigateTo(AppRoute.Display))
   }
 
   private fun handleMorseOutputToggle(isFlashScreen: Boolean? = null, isTorchEnabled: Boolean? = null) {

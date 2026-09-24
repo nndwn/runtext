@@ -34,4 +34,5 @@
 - [ ] ⏫ yang perlu di test unit di runtext ini adalah morse yang lebih ideal #development #test ➕ 2026-09-22 23:00 📝 2026-09-23 19:07 🆔 7uFc05
 - [ ] ⏫ mengubah template sidebarEnd dengan konsep navigation3 SupportingPaneScene #development #feature ➕ 2026-09-23 16:44 🆔 f9iD5G
 - [x] 🔼 buatkan test untuk font apakah ada atau tidak di file atau di google font #feature #development #v1.4.1-beta #test 🛫 2026-09-24 05:00 ✅ 2026-09-24 05:02 ➕ 2026-09-23 19:05 🆔 5vokcW
-- [ ] 🔼 apa perlu ada export share nanti nya animasi teks aatau morse dapat di share ? masalah nanti nya adalah size ketika melakukan upload ke media sosial #feature #development ➕ 2026-09-23 19:15 🆔 xkvy0K
+- [/] 🔼 apa perlu ada export share nanti nya animasi teks aatau morse dapat di share ? masalah nanti nya adalah size ketika melakukan upload ke media sosial #feature #development #v1.4.1-beta 🛫 2026-09-24 22:52 ➕ 2026-09-23 19:15 🆔 xkvy0K
+- [x] ⏫ penambahan trigger review in playstore #v1.4.1-beta #feature #development 🛫 2026-09-24 21:19 ✅ 2026-09-24 22:52 ➕ 2026-09-24 21:12 🆔 Ki2UG4

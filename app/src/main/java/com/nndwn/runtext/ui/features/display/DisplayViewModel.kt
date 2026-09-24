@@ -33,8 +33,13 @@ constructor(
 
   val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
-  fun navigateBack() {
-    uiEffectController.sendEffect(UiEffect.NavigateBack)
+  fun navigateBack(durationMs: Long = 0L) {
+    viewModelScope.launch {
+      if (durationMs > 0) {
+        repository.incrementUsageTime(durationMs)
+      }
+      uiEffectController.sendEffect(UiEffect.RequestNavigateBackWithSupportDialogCheck)
+    }
   }
 
   fun recordUsageDuration(durationMs: Long) {

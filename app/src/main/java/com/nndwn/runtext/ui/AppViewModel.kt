@@ -24,11 +24,14 @@ constructor(
 ) : ViewModel() {
   val uiEffect = uiEffectController.uiEffect
 
-  val isPremium: StateFlow<Boolean> =
-    repository.isPremium.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+  val hasTipped: StateFlow<Boolean> =
+    repository.hasTipped.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
   val shouldShowSupportDialog: StateFlow<Boolean> =
     repository.shouldShowSupportDialog.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+  val shouldShowReviewPrompt: StateFlow<Boolean> =
+    repository.shouldShowReviewPrompt.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
   val appPrice: StateFlow<String?> = billingHelper.appPrice
 
@@ -44,6 +47,10 @@ constructor(
 
   fun resetCooldownSupportDialog() {
     viewModelScope.launch { repository.resetCooldownSupportDialog() }
+  }
+
+  fun resetCooldownReviewPrompt() {
+    viewModelScope.launch { repository.resetCooldownReviewPrompt() }
   }
 
   fun onBuyApp(activity: Activity) {

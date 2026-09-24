@@ -119,7 +119,7 @@ dependencies {
 
     "playstoreImplementation"(libs.app.update.ktx)
     "playstoreImplementation"(libs.billing.ktx)
-
+    "playstoreImplementation"(libs.review.ktx)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)

@@ -64,11 +64,16 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
 
   ScreenBrightness(brightnessValue = 1.0f)
 
+  val startTime = remember { System.currentTimeMillis() }
+  var isDurationRecorded by remember { mutableStateOf(false) }
+
   DisposableEffect(Unit) {
-    val startTime = System.currentTimeMillis()
     onDispose {
-      val duration = System.currentTimeMillis() - startTime
-      viewModel.recordUsageDuration(duration)
+      if (!isDurationRecorded) {
+        isDurationRecorded = true
+        val duration = System.currentTimeMillis() - startTime
+        viewModel.recordUsageDuration(duration)
+      }
     }
   }
 
@@ -149,7 +154,13 @@ fun DisplayScreen(viewModel: DisplayViewModel = hiltViewModel()) {
     ) {
       Surface(
         onClick = {
-          viewModel.navigateBack()
+          if (!isDurationRecorded) {
+            isDurationRecorded = true
+            val duration = System.currentTimeMillis() - startTime
+            viewModel.navigateBack(duration)
+          } else {
+            viewModel.navigateBack(0L)
+          }
         },
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),

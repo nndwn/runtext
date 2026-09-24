@@ -38,6 +38,7 @@ import com.nndwn.runtext.ui.theme.dimens
 import com.nndwn.runtext.ui.utils.gotoMail
 import com.nndwn.runtext.ui.utils.gotoPlayStore
 import com.nndwn.runtext.ui.utils.handleSupportAction
+import com.nndwn.runtext.ui.utils.launchInAppReview
 
 @Composable
 fun RunTextApp(
@@ -46,8 +47,9 @@ fun RunTextApp(
   val context = LocalContext.current
   val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-  val isPremium by appViewModel.isPremium.collectAsStateWithLifecycle()
+  val hasTipped by appViewModel.hasTipped.collectAsStateWithLifecycle()
   val shouldShowSupportDialog by appViewModel.shouldShowSupportDialog.collectAsStateWithLifecycle()
+  val shouldShowReviewPrompt by appViewModel.shouldShowReviewPrompt.collectAsStateWithLifecycle()
   val appPrice by appViewModel.appPrice.collectAsStateWithLifecycle()
 
   var isSidebarOpen by remember { mutableStateOf(false) }
@@ -72,19 +74,18 @@ fun RunTextApp(
         is UiEffect.ShowToast -> noticeMessage = effect.message
         is UiEffect.NavigateTo -> navigator.navigate(effect.route)
         is UiEffect.NavigateBack -> navigator.goBack()
-        is UiEffect.RequestNavigationWithSupportDialogCheck -> {
-          if (isPlayStore && shouldShowSupportDialog && !isPremium) {
-            pendingRoute = effect.targetRoute
+        is UiEffect.RequestNavigateBackWithSupportDialogCheck -> {
+          navigator.goBack()
+          if (isPlayStore && shouldShowReviewPrompt) {
+            launchInAppReview(context)
+            appViewModel.resetCooldownReviewPrompt()
+          } else if (shouldShowSupportDialog && !hasTipped) {
             showDialogSupport = true
-          } else {
-            navigator.navigate(effect.targetRoute)
           }
         }
       }
     }
   }
-  Log.d("test", shouldShowSupportDialog.toString())
-  Log.d("test", isPremium.toString())
 
   val handleMenuOption: (MenuOptions) -> Unit = { menu ->
     isSidebarOpen = false
