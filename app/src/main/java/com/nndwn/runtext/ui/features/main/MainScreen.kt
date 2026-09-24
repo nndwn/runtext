@@ -16,7 +16,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,14 +30,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -48,9 +55,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nndwn.runtext.R
 import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontData
@@ -58,6 +69,7 @@ import com.nndwn.runtext.ui.LocalMenuOptionHandler
 import com.nndwn.runtext.ui.LocalSizeHeight
 import com.nndwn.runtext.ui.LocalSizeWidth
 import com.nndwn.runtext.ui.LocalToggleSidebar
+import com.nndwn.runtext.ui.component.LoadingScreen
 import com.nndwn.runtext.ui.component.MenuOptions
 import com.nndwn.runtext.ui.component.Skeleton
 import com.nndwn.runtext.ui.component.ThreeDotsHorizontal
@@ -116,6 +128,7 @@ fun MainScreenContent(
     LocalLimitText provides limitText,
     LocalFonts provides fonts,
   ) {
+
     MainScreenLayout(
       uiState = uiState,
       expandedPickerId = expandedPickerId,
@@ -139,6 +152,8 @@ fun MainScreenContent(
         dispatch(MainUiEvent.UpdateFontType(fontId))
       },
     )
+
+    LoadingScreen(show = (uiState as? MainUiState.Success)?.isExportingVideo == true)
   }
 }
 
@@ -381,7 +396,7 @@ private fun LazyListScope.successContent(
 
   item {
     Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium))
-
+    ButtonDownloadAndShare(onClick = { dispatch(MainUiEvent.ExportAndShareVideo) })
   }
 
   item {
@@ -405,6 +420,49 @@ private fun LazyListScope.successContent(
   }
 }
 
+
+@Composable fun ButtonDownloadAndShare(onClick: () -> Unit = {}) {
+  Box(
+    modifier =
+      Modifier
+        .fillMaxWidth()
+        .height(56.dp)
+        .clip(MaterialTheme.shapes.medium)
+        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+        .clickable(
+          indication = ripple(),
+          interactionSource = remember { MutableInteractionSource() },
+          onClick = onClick,
+        )
+        .padding(
+          horizontal = MaterialTheme.dimens.small,
+          vertical = MaterialTheme.dimens.small,
+        ),
+    contentAlignment = Alignment.Center,
+  ) {
+    Row(
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.small),
+    ) {
+      Icon(
+        painter = painterResource(R.drawable.ic_share),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.size(MaterialTheme.dimens.iconMedium),
+      )
+      Spacer(modifier = Modifier.width(MaterialTheme.dimens.extraSmall))
+      Text(
+        text = stringResource(R.string.btn_download_and_share),
+        style =
+          MaterialTheme.typography.titleSmall.copy(
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+          ),
+      )
+    }
+  }
+}
 @Composable
 private fun ModeSpecificSettings(
   settings: AppSettings,

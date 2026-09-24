@@ -23,7 +23,8 @@
     <string name="set_config_text_mirror">Mirror Mode</string>
     <string name="set_config_text_mirror_desc">Flip text for mirror reflection</string>
     <string name="set_config_text_presets">Presets</string>
-    <string name="btn_start">Start</string>
+    <string name="btn_start">Start Screen</string>
+    <string name="btn_download_and_share">Share Animate</string>
     <string name="set_config_morse_color">Morse Color</string>
     <string name="speed">Speed</string>
     <string name="set_config_morse_flash_screen">Flash Screen</string>
@@ -37,6 +38,7 @@
     <string name="notice_camera_permission_denied">Camera access is needed to use the flashlight. You can enable it anytime!</string>
     <string name="notice_camera_permission_permanently_denied">Camera permission is turned off. Please allow it in your phone settings to turn on the flashlight.</string>
     <string name="notice_morse_output_required">Enable Screen Flash or Flashlight to display the Morse code.</string>
+    <string name="notice_something_wrong">Something wrong please report developer %1$s</string>
     <string name="clear">Clear</string>
     <string name="stop">Stop</string>
     <string name="menu_support">Coffee Tip</string>
@@ -47,7 +49,7 @@
     <string name="text_dialog_support">Enjoying the app? Supporting my work with a coffee tip helps keep the project alive!</string>
     <string name="btn_text_remove_ad">Treat me to a coffee</string>
     <string name="btn_maybe_later">Maybe later</string>
-    <string name="msg_premium_activated">Thank you for your support.</string>
+    <string name="msg_has_support">Thank you for your support.</string>
     <string name="set_config_text_blink">Blink</string>
     <string name="set_config_text_blink_desc">Blink text animate</string>
     <string name="set_config_text_move">Move</string>

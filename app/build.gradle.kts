@@ -145,6 +145,12 @@ dependencies {
     //Datastore and Serization
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
+
+    //Media3 Video Export
+    implementation(libs.androidx.media3.transformer)
+    implementation(libs.androidx.media3.effect)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.muxer)
     //DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

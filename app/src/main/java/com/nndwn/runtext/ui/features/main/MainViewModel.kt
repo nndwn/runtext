@@ -1,5 +1,6 @@
 package com.nndwn.runtext.ui.features.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nndwn.runtext.R
@@ -13,6 +14,8 @@ import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.data.repository.FontRepository
 import com.nndwn.runtext.data.repository.SettingsRepository
+import com.nndwn.runtext.helper.Mp4VideoExporter
+import com.nndwn.runtext.ui.ToastData
 import com.nndwn.runtext.ui.UiEffect
 import com.nndwn.runtext.ui.UiEffectController
 import com.nndwn.runtext.ui.navigation.AppRoute
@@ -35,19 +38,21 @@ constructor(
   private val repository: SettingsRepository,
   private val fontRepository: FontRepository,
   private val uiEffectController: UiEffectController,
+  private val mp4VideoExporter: Mp4VideoExporter,
 ) : ViewModel() {
 
   val limitText = 100
 
   private val _settings = MutableStateFlow<AppSettings?>(null)
   private val _enteredText = MutableStateFlow("")
+  private val _isExportingVideo = MutableStateFlow(false)
 
   val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
   val uiState: StateFlow<MainUiState> =
-    combine(_settings, _enteredText) { settings, enteredText ->
+    combine(_settings, _enteredText, _isExportingVideo) { settings, enteredText, isExporting ->
       if (settings == null) MainUiState.Loading
-      else MainUiState.Success(settings, enteredText)
+      else MainUiState.Success(settings, enteredText, isExporting)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -103,10 +108,11 @@ constructor(
       // Navigation & General
       is MainUiEvent.NavigateToDisplay -> handleNavigateToDisplay()
       is MainUiEvent.NavigateBack -> uiEffectController.sendEffect(UiEffect.NavigateBack)
-      is MainUiEvent.Toast -> uiEffectController.sendEffect(UiEffect.ShowToast(event.message))
+      is MainUiEvent.Toast -> uiEffectController.sendEffect(UiEffect.ShowToast(ToastData(event.message) ))
       is MainUiEvent.UpdateText -> updateText(event.text)
       is MainUiEvent.ClearText -> updateText("")
       is MainUiEvent.UpdateMode -> updateSettings { it.copy(mode = event.mode) }
+      is MainUiEvent.ExportAndShareVideo -> handleExportAndShareVideo()
     }
   }
 
@@ -204,11 +210,31 @@ constructor(
     if (currentSettings.mode == AppMode.MORSE_CODE) {
       val morse = currentSettings.morseConfig
       if (!morse.isFlashScreen && !morse.isTorchEnabled) {
-        uiEffectController.sendEffect(UiEffect.ShowToast(R.string.notice_morse_output_required))
+        uiEffectController.sendEffect(UiEffect.ShowToast(
+          ToastData(R.string.notice_morse_output_required)
+          ))
         return
       }
     }
     uiEffectController.sendEffect(UiEffect.NavigateTo(AppRoute.Display))
+  }
+
+  private fun handleExportAndShareVideo() {
+    if (_isExportingVideo.value) return
+    viewModelScope.launch {
+      val currentSettings = _settings.value ?: return@launch
+      _isExportingVideo.value = true
+      try {
+        val videoUri = mp4VideoExporter.exportVideo(currentSettings)
+        uiEffectController.sendEffect(UiEffect.ShareVideo(videoUri))
+      } catch (e: Exception) {
+        Log.e("TEST",e.message.toString())
+        uiEffectController.sendEffect(UiEffect.ShowToast(
+          ToastData(R.string.notice_something_wrong, e.message)))
+      } finally {
+        _isExportingVideo.value = false
+      }
+    }
   }
 
   private fun handleMorseOutputToggle(isFlashScreen: Boolean? = null, isTorchEnabled: Boolean? = null) {
@@ -218,7 +244,9 @@ constructor(
     val newTorch = isTorchEnabled ?: currentMorse.isTorchEnabled
 
     if (!newFlash && !newTorch) {
-      uiEffectController.sendEffect(UiEffect.ShowToast(R.string.notice_morse_output_required))
+      uiEffectController.sendEffect(UiEffect.ShowToast(
+        ToastData(R.string.notice_morse_output_required)
+        ))
       return
     }
 

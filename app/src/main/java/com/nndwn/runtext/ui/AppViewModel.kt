@@ -40,7 +40,7 @@ constructor(
 
     viewModelScope.launch {
       billingHelper.purchaseSuccessEvent.collectLatest {
-        uiEffectController.sendEffect(UiEffect.ShowToast(R.string.msg_premium_activated))
+        uiEffectController.sendEffect(UiEffect.ShowToast(ToastData(message = R.string.msg_has_support)))
       }
     }
   }

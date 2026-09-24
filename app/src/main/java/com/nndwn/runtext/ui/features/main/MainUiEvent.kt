@@ -14,6 +14,8 @@ sealed interface MainUiEvent {
 
   data class Toast(@field:StringRes val message: Int) : MainUiEvent
 
+  data object ExportAndShareVideo : MainUiEvent
+
   // ── General / Text Input ──
   data class ApplyPreset(val settings: TextConfig) : MainUiEvent
 

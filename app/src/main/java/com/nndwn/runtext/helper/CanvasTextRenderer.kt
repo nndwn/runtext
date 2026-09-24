@@ -1,0 +1,265 @@
+package com.nndwn.runtext.helper
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Shader
+import android.graphics.Typeface
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
+import com.nndwn.runtext.data.model.AppSettings
+import com.nndwn.runtext.data.model.FontData
+import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.domain.morse.MorseElement
+import com.nndwn.runtext.domain.morse.MorseEngine
+import com.nndwn.runtext.ui.utils.fontFamilyFor
+import java.text.Bidi
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
+
+object CanvasTextRenderer {
+
+  fun drawRunningText(
+    canvas: Canvas,
+    width: Int,
+    height: Int,
+    text: String,
+    settings: AppSettings,
+    progress: Float,
+    fonts: List<FontData>,
+    context: Context,
+    isVertical: Boolean = false,
+    paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+  ) {
+    val textConfig = settings.textConfig
+    val textStyle = textConfig.textStyle
+
+    // 1. Font Typeface Resolution via Compose FontFamilyResolver
+    val fontData = fonts.find { it.idFont == textStyle.fontId }
+    val fontFamily = fontData?.let { fontFamilyFor(context, it) } ?: FontFamily.Default
+    val fontFamilyResolver = createFontFamilyResolver(context)
+    val typeface = (fontFamilyResolver.resolve(
+      fontFamily = fontFamily,
+      fontWeight = FontWeight.Normal,
+      fontStyle = FontStyle.Normal,
+      fontSynthesis = FontSynthesis.All,
+    ).value as? Typeface) ?: Typeface.DEFAULT
+
+    paint.reset()
+    paint.isAntiAlias = true
+    paint.typeface = typeface
+
+    // 2. Extra Padding & Density Calculation (Shadow & Stroke Margin)
+    val density = height / 360f
+    val strokeWidthPx = textConfig.stroke.width * density
+    val shadowRadiusPx = textConfig.shadow.radius * density
+    val distanceShadowPx = 4f * density
+
+    val strokePadding = if (textConfig.stroke.isEnabled) strokeWidthPx else 0f
+    val shadowPadding = if (textConfig.shadow.isEnabled) (distanceShadowPx + shadowRadiusPx) else 0f
+    val extraPaddingPx = maxOf(strokePadding, shadowPadding) + (5f * density)
+    val availableWidthPx = (width - extraPaddingPx * 2).coerceAtLeast(1f)
+
+    // 3. Dynamic Font Scaling (Single Word Fitting vs Marquee vs Multi-Word)
+    val largeFontSizePx = height * 0.55f
+    paint.textSize = largeFontSizePx
+    val largeTextWidth = paint.measureText(text)
+    val fitsInSingleLineAtLarge = largeTextWidth <= availableWidthPx
+    val isSingleWord = !text.contains(" ") && !text.contains("\n")
+
+    val fontScale = if (textConfig.isMove || fitsInSingleLineAtLarge) {
+      0.55f
+    } else if (isSingleWord) {
+      val testFontSizePx = height * 0.26f
+      paint.textSize = testFontSizePx
+      val singleWordWidthPx = paint.measureText(text)
+      if (singleWordWidthPx > availableWidthPx) {
+        val scaleRatio = (availableWidthPx / singleWordWidthPx).coerceIn(0.15f, 1f)
+        (0.26f * scaleRatio).coerceAtLeast(0.12f)
+      } else {
+        0.26f
+      }
+    } else {
+      0.26f
+    }
+
+    paint.textSize = height * fontScale
+    paint.color = textStyle.colorArgb.toInt()
+    paint.textAlign = Paint.Align.CENTER
+
+    val textWidth = paint.measureText(text)
+    val textBounds = Rect()
+    paint.getTextBounds(text, 0, text.length, textBounds)
+    val textHeight = textBounds.height().toFloat()
+
+    // 4. BiDi RTL Detection & Start/End Positioning
+    val isRtl = Bidi(text, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
+    val moveRightToLeft = !isRtl
+    val effectiveMoveRightToLeft = if (textConfig.isMirrorMode) !moveRightToLeft else moveRightToLeft
+
+    val containerDim = (if (isVertical) height else width).toFloat()
+    val totalTextWidth = textWidth + extraPaddingPx * 2
+    val startPos = containerDim + totalTextWidth / 2f
+    val endPos = -totalTextWidth / 2f
+
+    val (startX, endX) = if (effectiveMoveRightToLeft) {
+      startPos to endPos
+    } else {
+      endPos to startPos
+    }
+
+    val currentX = if (textConfig.isMove) {
+      startX + progress * (endX - startX)
+    } else {
+      width / 2f
+    }
+
+    val currentY = (height + textHeight) / 2f - textBounds.bottom
+
+    // 5. Gradient Brush / Shader
+    if (textStyle.colorType == TextColorType.GRADIENT && textStyle.gradientColorsArgb.isNotEmpty()) {
+      val color1 = textStyle.gradientColorsArgb.getOrElse(0) { textStyle.colorArgb }.toInt()
+      val color2 = textStyle.gradientColorsArgb.getOrElse(1) { textStyle.colorArgb }.toInt()
+      val dist = textStyle.gradientDistance.coerceIn(0f, 1f)
+
+      val (x0, y0, x1, y1) = if (textStyle.isGradientHorizontal) {
+        val shift = (dist - 0.5f) * 2f * textWidth
+        listOf(currentX - textWidth / 2f + shift, currentY, currentX + textWidth / 2f + shift, currentY)
+      } else {
+        val shift = (dist - 0.5f) * 2f * textHeight
+        listOf(currentX, currentY - textHeight + shift, currentX, currentY + shift)
+      }
+      paint.shader = LinearGradient(x0, y0, x1, y1, intArrayOf(color1, color2), null, Shader.TileMode.CLAMP)
+    } else {
+      paint.shader = null
+    }
+
+    // 6. Mirror Mode & Vertical Transformation
+    if (isVertical) {
+      canvas.save()
+      canvas.rotate(90f, width / 2f, height / 2f)
+    }
+
+    if (textConfig.isMirrorMode) {
+      canvas.save()
+      canvas.scale(-1f, 1f, width / 2f, height / 2f)
+    }
+
+    // 7. Blink Mode Alpha Check & Layer Drawing
+    val isBlinkOn = if (textConfig.isBlink) {
+      (progress * 10).toInt() % 2 == 0
+    } else true
+
+    if (isBlinkOn) {
+      // Shadow Layer
+      if (textConfig.shadow.isEnabled) {
+        val strokeOffsetPx = if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) strokeWidthPx else 0f
+        val totalShadowDistancePx = distanceShadowPx + strokeOffsetPx
+        val rad = Math.toRadians(textConfig.shadow.rotation.toDouble())
+        val dx = (totalShadowDistancePx * cos(rad)).toFloat()
+        val dy = (totalShadowDistancePx * sin(rad)).toFloat()
+
+        val shadowPaint = Paint(paint).apply {
+          shader = null
+          style = Paint.Style.FILL
+          color = textConfig.shadow.colorArgb.toInt()
+          setShadowLayer(shadowRadiusPx, dx, dy, textConfig.shadow.colorArgb.toInt())
+        }
+        canvas.drawText(text, currentX, currentY, shadowPaint)
+      }
+
+      // Stroke Layer
+      if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) {
+        val strokePaint = Paint(paint).apply {
+          shader = null
+          style = Paint.Style.STROKE
+          strokeWidth = strokeWidthPx * 2f
+          color = textConfig.stroke.colorArgb.toInt()
+          strokeJoin = Paint.Join.ROUND
+          clearShadowLayer()
+        }
+        canvas.drawText(text, currentX, currentY, strokePaint)
+      }
+
+      // Main Fill Layer
+      paint.style = Paint.Style.FILL
+      paint.color = textStyle.colorArgb.toInt()
+      paint.clearShadowLayer()
+      canvas.drawText(text, currentX, currentY, paint)
+    }
+
+    if (textConfig.isMirrorMode) {
+      canvas.restore()
+    }
+
+    if (isVertical) {
+      canvas.restore()
+    }
+  }
+
+  fun drawMorseSignal(
+    canvas: Canvas,
+    elements: List<MorseElement>,
+    unitMs: Long,
+    timeMs: Long,
+    totalMorseTimeMs: Long,
+    settings: AppSettings,
+  ) {
+    if (elements.isEmpty()) return
+
+    val currentCycleTimeMs = timeMs % totalMorseTimeMs
+    var elapsed = 0L
+    var isSignalOn = false
+
+    for (element in elements) {
+      val dur = element.durationMultiplier * unitMs
+      if (currentCycleTimeMs >= elapsed && currentCycleTimeMs < elapsed + dur) {
+        isSignalOn = MorseEngine.isSignalElement(element)
+        break
+      }
+      elapsed += dur
+    }
+
+    val bg = if (isSignalOn && settings.morseConfig.isFlashScreen) {
+      settings.morseConfig.bgColorMorse.toInt()
+    } else {
+      0xFF000000.toInt()
+    }
+    canvas.drawColor(bg)
+  }
+
+  fun calculateMarqueeDurationMillis(
+    width: Int,
+    height: Int,
+    text: String,
+    settings: AppSettings,
+    paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+  ): Int {
+    val textConfig = settings.textConfig
+    val density = height / 360f
+    paint.textSize = height * 0.55f
+    val textWidth = paint.measureText(text)
+    val strokeWidthPx = textConfig.stroke.width * density
+    val shadowRadiusPx = textConfig.shadow.radius * density
+    val distanceShadowPx = 4f * density
+
+    val strokePadding = if (textConfig.stroke.isEnabled) strokeWidthPx else 0f
+    val shadowPadding = if (textConfig.shadow.isEnabled) (distanceShadowPx + shadowRadiusPx) else 0f
+    val extraPaddingPx = maxOf(strokePadding, shadowPadding) + (5f * density)
+
+    val totalTextWidth = textWidth + extraPaddingPx * 2
+    val startPos = width.toFloat() + totalTextWidth / 2f
+    val endPos = -totalTextWidth / 2f
+    val dist = abs(endPos - startPos)
+
+    val speedFactor = settings.textConfig.speed.coerceAtLeast(1f)
+    val baseDurationSeconds = (dist / width.toFloat()) * (1000f / speedFactor)
+    return (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
+  }
+}

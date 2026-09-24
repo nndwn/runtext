@@ -1,7 +1,7 @@
 package com.nndwn.runtext.ui
 
 import android.app.Activity
-import android.util.Log
+import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -53,7 +53,7 @@ fun RunTextApp(
   val appPrice by appViewModel.appPrice.collectAsStateWithLifecycle()
 
   var isSidebarOpen by remember { mutableStateOf(false) }
-  var noticeMessage by remember { mutableStateOf<Int?>(null) }
+  var noticeMessage by remember { mutableStateOf<ToastData?>(null) }
   var showDialogSupport by remember { mutableStateOf(false) }
   var pendingRoute by remember { mutableStateOf<AppRoute?>(null) }
 
@@ -82,6 +82,15 @@ fun RunTextApp(
           } else if (shouldShowSupportDialog && !hasTipped) {
             showDialogSupport = true
           }
+        }
+        is UiEffect.ShareVideo -> {
+          val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "video/mp4"
+            putExtra(Intent.EXTRA_STREAM, effect.videoUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+          }
+          val chooser = Intent.createChooser(shareIntent, "Share Animation Video")
+          context.startActivity(chooser)
         }
       }
     }
