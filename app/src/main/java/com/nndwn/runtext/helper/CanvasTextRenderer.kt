@@ -7,6 +7,10 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
+import android.text.TextUtils
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -15,6 +19,8 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.TextColorType
+import com.nndwn.runtext.data.model.TextConfig
+import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.domain.morse.MorseElement
 import com.nndwn.runtext.domain.morse.MorseEngine
 import com.nndwn.runtext.ui.utils.fontFamilyFor
@@ -22,6 +28,7 @@ import java.text.Bidi
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.core.graphics.withTranslation
 
 object CanvasTextRenderer {
 
@@ -40,10 +47,9 @@ object CanvasTextRenderer {
     val textConfig = settings.textConfig
     val textStyle = textConfig.textStyle
 
-    // 1. Font Typeface Resolution via Compose FontFamilyResolver
     val fontData = fonts.find { it.idFont == textStyle.fontId }
     val fontFamily = fontData?.let { fontFamilyFor(context, it) } ?: FontFamily.Default
-    val fontFamilyResolver = createFontFamilyResolver(context)
+    val fontFamilyResolver:  FontFamily.Resolver = createFontFamilyResolver(context)
     val typeface = (fontFamilyResolver.resolve(
       fontFamily = fontFamily,
       fontWeight = FontWeight.Normal,
@@ -55,7 +61,6 @@ object CanvasTextRenderer {
     paint.isAntiAlias = true
     paint.typeface = typeface
 
-    // 2. Extra Padding & Density Calculation (Shadow & Stroke Margin)
     val density = height / 360f
     val strokeWidthPx = textConfig.stroke.width * density
     val shadowRadiusPx = textConfig.shadow.radius * density
@@ -66,7 +71,6 @@ object CanvasTextRenderer {
     val extraPaddingPx = maxOf(strokePadding, shadowPadding) + (5f * density)
     val availableWidthPx = (width - extraPaddingPx * 2).coerceAtLeast(1f)
 
-    // 3. Dynamic Font Scaling (Single Word Fitting vs Marquee vs Multi-Word)
     val largeFontSizePx = height * 0.55f
     paint.textSize = largeFontSizePx
     val largeTextWidth = paint.measureText(text)
@@ -93,12 +97,13 @@ object CanvasTextRenderer {
     paint.color = textStyle.colorArgb.toInt()
     paint.textAlign = Paint.Align.CENTER
 
+    val useSingleLine = textConfig.isMove || fitsInSingleLineAtLarge || isSingleWord
+
     val textWidth = paint.measureText(text)
     val textBounds = Rect()
     paint.getTextBounds(text, 0, text.length, textBounds)
     val textHeight = textBounds.height().toFloat()
 
-    // 4. BiDi RTL Detection & Start/End Positioning
     val isRtl = Bidi(text, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
     val moveRightToLeft = !isRtl
     val effectiveMoveRightToLeft = if (textConfig.isMirrorMode) !moveRightToLeft else moveRightToLeft
@@ -122,25 +127,6 @@ object CanvasTextRenderer {
 
     val currentY = (height + textHeight) / 2f - textBounds.bottom
 
-    // 5. Gradient Brush / Shader
-    if (textStyle.colorType == TextColorType.GRADIENT && textStyle.gradientColorsArgb.isNotEmpty()) {
-      val color1 = textStyle.gradientColorsArgb.getOrElse(0) { textStyle.colorArgb }.toInt()
-      val color2 = textStyle.gradientColorsArgb.getOrElse(1) { textStyle.colorArgb }.toInt()
-      val dist = textStyle.gradientDistance.coerceIn(0f, 1f)
-
-      val (x0, y0, x1, y1) = if (textStyle.isGradientHorizontal) {
-        val shift = (dist - 0.5f) * 2f * textWidth
-        listOf(currentX - textWidth / 2f + shift, currentY, currentX + textWidth / 2f + shift, currentY)
-      } else {
-        val shift = (dist - 0.5f) * 2f * textHeight
-        listOf(currentX, currentY - textHeight + shift, currentX, currentY + shift)
-      }
-      paint.shader = LinearGradient(x0, y0, x1, y1, intArrayOf(color1, color2), null, Shader.TileMode.CLAMP)
-    } else {
-      paint.shader = null
-    }
-
-    // 6. Mirror Mode & Vertical Transformation
     if (isVertical) {
       canvas.save()
       canvas.rotate(90f, width / 2f, height / 2f)
@@ -151,47 +137,41 @@ object CanvasTextRenderer {
       canvas.scale(-1f, 1f, width / 2f, height / 2f)
     }
 
-    // 7. Blink Mode Alpha Check & Layer Drawing
     val isBlinkOn = if (textConfig.isBlink) {
       (progress * 10).toInt() % 2 == 0
     } else true
 
     if (isBlinkOn) {
-      // Shadow Layer
-      if (textConfig.shadow.isEnabled) {
-        val strokeOffsetPx = if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) strokeWidthPx else 0f
-        val totalShadowDistancePx = distanceShadowPx + strokeOffsetPx
-        val rad = Math.toRadians(textConfig.shadow.rotation.toDouble())
-        val dx = (totalShadowDistancePx * cos(rad)).toFloat()
-        val dy = (totalShadowDistancePx * sin(rad)).toFloat()
-
-        val shadowPaint = Paint(paint).apply {
-          shader = null
-          style = Paint.Style.FILL
-          color = textConfig.shadow.colorArgb.toInt()
-          setShadowLayer(shadowRadiusPx, dx, dy, textConfig.shadow.colorArgb.toInt())
-        }
-        canvas.drawText(text, currentX, currentY, shadowPaint)
+      if (useSingleLine) {
+        drawSingleLine(
+          canvas = canvas,
+          text = text,
+          paint = paint,
+          textStyle = textStyle,
+          textConfig = textConfig,
+          currentX = currentX,
+          currentY = currentY,
+          textWidth = textWidth,
+          textHeight = textHeight,
+          strokeWidthPx = strokeWidthPx,
+          shadowRadiusPx = shadowRadiusPx,
+          distanceShadowPx = distanceShadowPx,
+        )
+      } else {
+        drawWrappedTwoLines(
+          canvas = canvas,
+          text = text,
+          basePaint = paint,
+          textStyle = textStyle,
+          textConfig = textConfig,
+          width = width,
+          height = height,
+          layoutMaxWidthPx = availableWidthPx.toInt().coerceAtLeast(1),
+          strokeWidthPx = strokeWidthPx,
+          shadowRadiusPx = shadowRadiusPx,
+          distanceShadowPx = distanceShadowPx,
+        )
       }
-
-      // Stroke Layer
-      if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) {
-        val strokePaint = Paint(paint).apply {
-          shader = null
-          style = Paint.Style.STROKE
-          strokeWidth = strokeWidthPx * 2f
-          color = textConfig.stroke.colorArgb.toInt()
-          strokeJoin = Paint.Join.ROUND
-          clearShadowLayer()
-        }
-        canvas.drawText(text, currentX, currentY, strokePaint)
-      }
-
-      // Main Fill Layer
-      paint.style = Paint.Style.FILL
-      paint.color = textStyle.colorArgb.toInt()
-      paint.clearShadowLayer()
-      canvas.drawText(text, currentX, currentY, paint)
     }
 
     if (textConfig.isMirrorMode) {
@@ -202,6 +182,203 @@ object CanvasTextRenderer {
       canvas.restore()
     }
   }
+
+  /** Original single-line drawing path (shadow -> stroke -> fill), unchanged in behavior. */
+  private fun drawSingleLine(
+    canvas: Canvas,
+    text: String,
+    paint: Paint,
+    textStyle: TextStyleConfig,
+    textConfig: TextConfig,
+    currentX: Float,
+    currentY: Float,
+    textWidth: Float,
+    textHeight: Float,
+    strokeWidthPx: Float,
+    shadowRadiusPx: Float,
+    distanceShadowPx: Float,
+  ) {
+
+    applyGradientShader(
+      paint = paint,
+      textStyle = textStyle,
+      blockWidth = textWidth,
+      blockHeight = textHeight,
+      centerX = currentX,
+      centerY = currentY,
+    )
+
+    if (textConfig.shadow.isEnabled) {
+      val strokeOffsetPx = if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) strokeWidthPx else 0f
+      val totalShadowDistancePx = distanceShadowPx + strokeOffsetPx
+      val rad = Math.toRadians(textConfig.shadow.rotation.toDouble())
+      val dx = (totalShadowDistancePx * cos(rad)).toFloat()
+      val dy = (totalShadowDistancePx * sin(rad)).toFloat()
+
+      val shadowPaint = Paint(paint).apply {
+        shader = null
+        style = Paint.Style.FILL
+        color = textConfig.shadow.colorArgb.toInt()
+        setShadowLayer(shadowRadiusPx, dx, dy, textConfig.shadow.colorArgb.toInt())
+      }
+      canvas.drawText(text, currentX, currentY, shadowPaint)
+    }
+
+    if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) {
+      val strokePaint = Paint(paint).apply {
+        shader = null
+        style = Paint.Style.STROKE
+        strokeWidth = strokeWidthPx * 2f
+        color = textConfig.stroke.colorArgb.toInt()
+        strokeJoin = Paint.Join.ROUND
+        clearShadowLayer()
+      }
+      canvas.drawText(text, currentX, currentY, strokePaint)
+    }
+
+    paint.style = Paint.Style.FILL
+    paint.color = textStyle.colorArgb.toInt()
+    paint.clearShadowLayer()
+    canvas.drawText(text, currentX, currentY, paint)
+  }
+
+  /**
+   * [FIX] New: wraps text onto up to 2 lines and ellipsizes anything beyond that,
+   * mirroring Compose's `maxLines = 2, overflow = TextOverflow.Ellipsis` path.
+   * Draws shadow -> stroke -> fill as separate StaticLayout passes so each keeps
+   * its own Paint.Style / color / shadow layer, same layering order as before.
+   */
+  private fun drawWrappedTwoLines(
+    canvas: Canvas,
+    text: String,
+    basePaint: Paint,
+    textStyle: TextStyleConfig,
+    textConfig: TextConfig,
+    width: Int,
+    height: Int,
+    layoutMaxWidthPx: Int,
+    strokeWidthPx: Float,
+    shadowRadiusPx: Float,
+    distanceShadowPx: Float,
+  ) {
+    fun buildLayout(textPaint: TextPaint): StaticLayout {
+      return StaticLayout.Builder
+        .obtain(text, 0, text.length, textPaint, layoutMaxWidthPx)
+        .setAlignment(Layout.Alignment.ALIGN_CENTER)
+        .setMaxLines(2)
+        .setEllipsize(TextUtils.TruncateAt.END)
+        .setEllipsizedWidth(layoutMaxWidthPx)
+        .setLineSpacing(0f, 1.05f)
+        .setIncludePad(false)
+        .build()
+    }
+
+    val measurePaint = TextPaint(basePaint).apply {
+      shader = null
+      style = Paint.Style.FILL
+      clearShadowLayer()
+      textAlign = Paint.Align.LEFT
+    }
+    val measureLayout = buildLayout(measurePaint)
+    val blockHeight = measureLayout.height.toFloat()
+    var blockWidth = 0f
+    for (i in 0 until measureLayout.lineCount) {
+      blockWidth = maxOf(blockWidth, measureLayout.getLineWidth(i))
+    }
+
+    val blockLeft = (width - layoutMaxWidthPx) / 2f
+    val blockTop = (height - blockHeight) / 2f
+    val centerX = width / 2f
+    val centerY = blockTop + blockHeight / 2f
+
+    applyGradientShader(
+      paint = basePaint,
+      textStyle = textStyle,
+      blockWidth = blockWidth,
+      blockHeight = blockHeight,
+      centerX = centerX,
+      centerY = centerY,
+    )
+
+    fun drawLayer(textPaint: TextPaint) {
+      val layout = buildLayout(textPaint)
+      canvas.withTranslation(blockLeft, blockTop) {
+          layout.draw(this)
+      }
+    }
+
+    if (textConfig.shadow.isEnabled) {
+      val strokeOffsetPx = if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) strokeWidthPx else 0f
+      val totalShadowDistancePx = distanceShadowPx + strokeOffsetPx
+      val rad = Math.toRadians(textConfig.shadow.rotation.toDouble())
+      val dx = (totalShadowDistancePx * cos(rad)).toFloat()
+      val dy = (totalShadowDistancePx * sin(rad)).toFloat()
+
+      val shadowPaint = TextPaint(basePaint).apply {
+        shader = null
+        style = Paint.Style.FILL
+        color = textConfig.shadow.colorArgb.toInt()
+        setShadowLayer(shadowRadiusPx, dx, dy, textConfig.shadow.colorArgb.toInt())
+        textAlign = Paint.Align.LEFT
+      }
+      drawLayer(shadowPaint)
+    }
+
+    if (textConfig.stroke.isEnabled && textConfig.stroke.width > 0) {
+      val strokePaint = TextPaint(basePaint).apply {
+        shader = null
+        style = Paint.Style.STROKE
+        strokeWidth = strokeWidthPx * 2f
+        color = textConfig.stroke.colorArgb.toInt()
+        strokeJoin = Paint.Join.ROUND
+        clearShadowLayer()
+        textAlign = Paint.Align.LEFT
+      }
+      drawLayer(strokePaint)
+    }
+
+    val fillPaint = TextPaint(basePaint).apply {
+      style = Paint.Style.FILL
+      color = textStyle.colorArgb.toInt()
+      clearShadowLayer()
+      textAlign = Paint.Align.LEFT
+    }
+    drawLayer(fillPaint)
+  }
+
+  /** Shared gradient shader setup, parameterized by the drawn block's size/center. */
+  private fun applyGradientShader(
+    paint: Paint,
+    textStyle: TextStyleConfig,
+    blockWidth: Float,
+    blockHeight: Float,
+    centerX: Float,
+    centerY: Float,
+  ) {
+    if (textStyle.colorType == TextColorType.GRADIENT && textStyle.gradientColorsArgb.isNotEmpty()) {
+      val color1 = textStyle.gradientColorsArgb.getOrElse(0) { textStyle.colorArgb }.toInt()
+      val color2 = textStyle.gradientColorsArgb.getOrElse(1) { textStyle.colorArgb }.toInt()
+      val dist = textStyle.gradientDistance.coerceIn(0f, 1f)
+
+      val (x0, y0, x1, y1) = if (textStyle.isGradientHorizontal) {
+        val shift = (dist - 0.5f) * 2f * blockWidth
+        listOf(
+          centerX - blockWidth / 2f + shift, centerY,
+          centerX + blockWidth / 2f + shift, centerY,
+        )
+      } else {
+        val shift = (dist - 0.5f) * 2f * blockHeight
+        listOf(
+          centerX, centerY - blockHeight / 2f + shift,
+          centerX, centerY + blockHeight / 2f + shift,
+        )
+      }
+      paint.shader = LinearGradient(x0, y0, x1, y1, intArrayOf(color1, color2), null, Shader.TileMode.CLAMP)
+    } else {
+      paint.shader = null
+    }
+  }
+
 
   fun drawMorseSignal(
     canvas: Canvas,

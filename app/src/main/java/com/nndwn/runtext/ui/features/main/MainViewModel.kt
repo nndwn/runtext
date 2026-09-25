@@ -41,7 +41,7 @@ constructor(
   private val mp4VideoExporter: Mp4VideoExporter,
 ) : ViewModel() {
 
-  val limitText = 100
+  val limitText = 40
 
   private val _settings = MutableStateFlow<AppSettings?>(null)
   private val _enteredText = MutableStateFlow("")
