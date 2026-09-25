@@ -3,6 +3,7 @@ package com.nndwn.runtext
 import android.app.Application
 import com.nndwn.runtext.data.repository.SettingsRepository
 import com.nndwn.runtext.helper.BillingHelper
+import com.nndwn.runtext.utils.DisplayRatioManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,8 @@ class RunApplication : Application() {
 
   override fun onCreate() {
     super.onCreate()
+
+    DisplayRatioManager.init(this)
 
     billingHelper.startConnection(
       setPurchased = { hasTipped -> applicationScope.launch { settingsRepository.setTippedStatus(hasTipped) } },

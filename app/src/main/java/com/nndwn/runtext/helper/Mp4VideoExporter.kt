@@ -16,6 +16,7 @@ import com.nndwn.runtext.data.model.AppMode
 import com.nndwn.runtext.data.model.AppSettings
 import com.nndwn.runtext.data.repository.FontRepository
 import com.nndwn.runtext.domain.morse.MorseEngine
+import com.nndwn.runtext.utils.DisplayRatioManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.text.SimpleDateFormat
@@ -35,14 +36,27 @@ class Mp4VideoExporter @Inject constructor(
 ) {
 
   private companion object Config {
-    const val VIDEO_WIDTH = 854
-    const val VIDEO_HEIGHT = 480
     const val VIDEO_FPS = 30
     const val DEFAULT_DURATION_SECONDS = 5
-    const val BIT_RATE = 2_000_000 // 2 Mbps
   }
 
   suspend fun exportVideo(settings: AppSettings): Uri = withContext(dispatcher) {
+    DisplayRatioManager.init(context)
+
+    val currentRatio = DisplayRatioManager.ratio.takeIf { it > 0f } ?: (16f / 9f)
+
+    // Batasi maksimum lebar ke 1920 (Full HD) untuk mencegah OOM atau MediaCodec error pada HP resolusi tinggi (4K/1440p),
+    // sambil tetap mempertahankan rasio lanskap yang presisi.
+    val rawWidth = DisplayRatioManager.width.takeIf { it > 0f } ?: 854f
+
+    val cappedWidth = rawWidth.coerceAtMost(1920f)
+    val cappedHeight = cappedWidth / currentRatio
+
+    // MediaCodec H.264 memerlukan dimensi angka genap (divisible by 2) & minimal 320x180
+    val videoWidth = ((cappedWidth.toInt() / 2) * 2).coerceAtLeast(320)
+    val videoHeight = ((cappedHeight.toInt() / 2) * 2).coerceAtLeast(180)
+    val bitRate = (videoWidth * videoHeight * 3.5f).toInt().coerceIn(2_000_000, 10_000_000)
+
     val rawText = settings.lastText.ifEmpty { "RUNNING TEXT" }
     val fonts = fontRepository.fonts.value
 
@@ -55,8 +69,8 @@ class Mp4VideoExporter @Inject constructor(
 
     val durationMs = if (settings.mode == AppMode.RUNNING_TEXT && settings.textConfig.isMove) {
       CanvasTextRenderer.calculateMarqueeDurationMillis(
-        width = VIDEO_WIDTH,
-        height = VIDEO_HEIGHT,
+        width = videoWidth,
+        height = videoHeight,
         text = rawText,
         settings = settings,
       )
@@ -78,9 +92,9 @@ class Mp4VideoExporter @Inject constructor(
     if (videoFile.exists()) videoFile.delete()
 
     val mimeType = MediaFormat.MIMETYPE_VIDEO_AVC
-    val format = MediaFormat.createVideoFormat(mimeType, VIDEO_WIDTH, VIDEO_HEIGHT).apply {
+    val format = MediaFormat.createVideoFormat(mimeType, videoWidth, videoHeight).apply {
       setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-      setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
+      setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
       setInteger(MediaFormat.KEY_FRAME_RATE, VIDEO_FPS)
       setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
     }
@@ -97,7 +111,7 @@ class Mp4VideoExporter @Inject constructor(
 
     val bufferInfo = MediaCodec.BufferInfo()
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    val bitmap = createBitmap(VIDEO_WIDTH, VIDEO_HEIGHT)
+    val bitmap = createBitmap(videoWidth, videoHeight)
     val canvas = Canvas(bitmap)
 
     for (frame in 0 until totalFrames) {
@@ -115,8 +129,8 @@ class Mp4VideoExporter @Inject constructor(
       if (settings.mode == AppMode.RUNNING_TEXT) {
         CanvasTextRenderer.drawRunningText(
           canvas = canvas,
-          width = VIDEO_WIDTH,
-          height = VIDEO_HEIGHT,
+          width = videoWidth,
+          height = videoHeight,
           text = rawText,
           settings = settings,
           progress = progress,

@@ -50,11 +50,11 @@ import androidx.compose.ui.util.lerp
 import com.nndwn.runtext.data.model.FontData
 import com.nndwn.runtext.data.model.TextColorType
 import com.nndwn.runtext.data.model.TextConfig
+import com.nndwn.runtext.domain.runtext.RunningTextLayoutCalculator
 import com.nndwn.runtext.ui.LocalSizeHeight
 import com.nndwn.runtext.ui.theme.toComposeColor
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import java.text.Bidi
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.isActive
@@ -152,7 +152,7 @@ fun RunningTextRenderer(
         singleLineResult.size.width <= maxAvailableWidthPx
       }
 
-    val isSingleWord = remember(rawText) { !rawText.contains(" ") && !rawText.contains("\n") }
+    val isSingleWord = remember(rawText) { RunningTextLayoutCalculator.isSingleWord(rawText) }
 
     val fontScale =
       remember(
@@ -166,40 +166,39 @@ fun RunningTextRenderer(
         rawText,
         maxAvailableWidthPx,
       ) {
-        if (settings.isMove || fitsInSingleLineAtLarge) {
-          0.55f
-        } else if (isSingleWord) {
-          val testFontSizeSp = with(density) { (containerHeightPx * 0.26f).toSp().value.coerceIn(12f, 120f).sp }
-          val testStyle =
-            TextStyle(
-              fontFamily = fontFamily,
-              fontWeight = FontWeight.Normal,
-              fontSize = testFontSizeSp,
-              textAlign = TextAlign.Center,
-              lineHeight = testFontSizeSp * 1.05f,
-              lineHeightStyle =
-                LineHeightStyle(
-                  alignment = LineHeightStyle.Alignment.Center,
-                  trim = LineHeightStyle.Trim.Both,
-                ),
-            )
-          val singleWordWidthPx =
+        val singleWordWidthPx =
+          if (!settings.isMove && !fitsInSingleLineAtLarge && isSingleWord) {
+            val testFontSizeSp = with(density) { (containerHeightPx * 0.26f).toSp().value.coerceIn(12f, 120f).sp }
+            val testStyle =
+              TextStyle(
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = testFontSizeSp,
+                textAlign = TextAlign.Center,
+                lineHeight = testFontSizeSp * 1.05f,
+                lineHeightStyle =
+                  LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.Both,
+                  ),
+              )
             textMeasurer.measure(
               text = rawText,
               style = testStyle,
               maxLines = 1,
               softWrap = false,
             ).size.width.toFloat()
-
-          if (singleWordWidthPx > maxAvailableWidthPx) {
-            val scaleRatio = (maxAvailableWidthPx / singleWordWidthPx).coerceIn(0.15f, 1f)
-            (0.26f * scaleRatio).coerceAtLeast(0.12f)
           } else {
-            0.26f
+            0f
           }
-        } else {
-          0.26f
-        }
+
+        RunningTextLayoutCalculator.calculateFontScale(
+          isMove = settings.isMove,
+          fitsInSingleLineAtLarge = fitsInSingleLineAtLarge,
+          isSingleWord = isSingleWord,
+          availableWidth = maxAvailableWidthPx.toFloat(),
+          singleWordWidth = singleWordWidthPx,
+        )
       }
 
     val dynamicFontSizeSp =
@@ -285,26 +284,21 @@ fun RunningTextRenderer(
         settings.isMirrorMode,
         isVertical,
       ) {
-        val halfText = totalTextWidth / 2f
-        val moveRightToLeft = !isRtl
-        val effectiveMoveRightToLeft = if (settings.isMirrorMode) !moveRightToLeft else moveRightToLeft
-
-        val startPos = displayContainerDim + halfText
-        val endPos = -halfText
-
-        if (effectiveMoveRightToLeft) {
-          startPos to endPos
-        } else {
-          endPos to startPos
-        }
+        RunningTextLayoutCalculator.calculateMarqueeRange(
+          containerDim = displayContainerDim,
+          totalTextWidth = totalTextWidth,
+          isRtl = isRtl,
+          isMirrorMode = settings.isMirrorMode,
+        )
       }
 
     val durationMillis =
       remember(settings.speed, totalTextWidth, displayContainerDim) {
-        val dist = abs(endX - startX)
-        val speedFactor = settings.speed.coerceAtLeast(1f)
-        val baseDurationSeconds = (dist / displayContainerDim) * (1000f / speedFactor)
-        (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
+        RunningTextLayoutCalculator.calculateMarqueeDurationMillis(
+          containerDim = displayContainerDim,
+          totalTextWidth = totalTextWidth,
+          speed = settings.speed,
+        )
       }
 
     val editorProgress = remember { Animatable(0f) }

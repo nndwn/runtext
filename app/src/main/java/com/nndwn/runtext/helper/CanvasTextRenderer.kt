@@ -23,9 +23,9 @@ import com.nndwn.runtext.data.model.TextConfig
 import com.nndwn.runtext.data.model.TextStyleConfig
 import com.nndwn.runtext.domain.morse.MorseElement
 import com.nndwn.runtext.domain.morse.MorseEngine
+import com.nndwn.runtext.domain.runtext.RunningTextLayoutCalculator
 import com.nndwn.runtext.ui.utils.fontFamilyFor
 import java.text.Bidi
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import androidx.core.graphics.withTranslation
@@ -75,23 +75,23 @@ object CanvasTextRenderer {
     paint.textSize = largeFontSizePx
     val largeTextWidth = paint.measureText(text)
     val fitsInSingleLineAtLarge = largeTextWidth <= availableWidthPx
-    val isSingleWord = !text.contains(" ") && !text.contains("\n")
+    val isSingleWord = RunningTextLayoutCalculator.isSingleWord(text)
 
-    val fontScale = if (textConfig.isMove || fitsInSingleLineAtLarge) {
-      0.55f
-    } else if (isSingleWord) {
-      val testFontSizePx = height * 0.26f
-      paint.textSize = testFontSizePx
-      val singleWordWidthPx = paint.measureText(text)
-      if (singleWordWidthPx > availableWidthPx) {
-        val scaleRatio = (availableWidthPx / singleWordWidthPx).coerceIn(0.15f, 1f)
-        (0.26f * scaleRatio).coerceAtLeast(0.12f)
-      } else {
-        0.26f
-      }
-    } else {
-      0.26f
-    }
+    val fontScale =
+      RunningTextLayoutCalculator.calculateFontScale(
+        isMove = textConfig.isMove,
+        fitsInSingleLineAtLarge = fitsInSingleLineAtLarge,
+        isSingleWord = isSingleWord,
+        availableWidth = availableWidthPx,
+        singleWordWidth =
+          if (!textConfig.isMove && !fitsInSingleLineAtLarge && isSingleWord) {
+            val testFontSizePx = height * 0.26f
+            paint.textSize = testFontSizePx
+            paint.measureText(text)
+          } else {
+            0f
+          },
+      )
 
     paint.textSize = height * fontScale
     paint.color = textStyle.colorArgb.toInt()
@@ -105,19 +105,16 @@ object CanvasTextRenderer {
     val textHeight = textBounds.height().toFloat()
 
     val isRtl = Bidi(text, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).isRightToLeft
-    val moveRightToLeft = !isRtl
-    val effectiveMoveRightToLeft = if (textConfig.isMirrorMode) !moveRightToLeft else moveRightToLeft
 
     val containerDim = (if (isVertical) height else width).toFloat()
     val totalTextWidth = textWidth + extraPaddingPx * 2
-    val startPos = containerDim + totalTextWidth / 2f
-    val endPos = -totalTextWidth / 2f
 
-    val (startX, endX) = if (effectiveMoveRightToLeft) {
-      startPos to endPos
-    } else {
-      endPos to startPos
-    }
+    val (startX, endX) = RunningTextLayoutCalculator.calculateMarqueeRange(
+      containerDim = containerDim,
+      totalTextWidth = totalTextWidth,
+      isRtl = isRtl,
+      isMirrorMode = textConfig.isMirrorMode,
+    )
 
     val currentX = if (textConfig.isMove) {
       startX + progress * (endX - startX)
@@ -431,12 +428,10 @@ object CanvasTextRenderer {
     val extraPaddingPx = maxOf(strokePadding, shadowPadding) + (5f * density)
 
     val totalTextWidth = textWidth + extraPaddingPx * 2
-    val startPos = width.toFloat() + totalTextWidth / 2f
-    val endPos = -totalTextWidth / 2f
-    val dist = abs(endPos - startPos)
-
-    val speedFactor = settings.textConfig.speed.coerceAtLeast(1f)
-    val baseDurationSeconds = (dist / width.toFloat()) * (1000f / speedFactor)
-    return (baseDurationSeconds * 1000).toInt().coerceAtLeast(200)
+    return RunningTextLayoutCalculator.calculateMarqueeDurationMillis(
+      containerDim = width.toFloat(),
+      totalTextWidth = totalTextWidth,
+      speed = settings.textConfig.speed,
+    )
   }
 }
