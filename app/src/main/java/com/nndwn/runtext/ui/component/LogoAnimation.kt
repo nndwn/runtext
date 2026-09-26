@@ -13,9 +13,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,19 @@ fun LogoAnimation(
         "M190.03,185.95L222.77,185.95A13.18,13.18 0,0 1,235.95 199.13L235.95,203.31A13.18,13.18 0,0 1,222.77 216.49L190.03,216.49A13.18,13.18 0,0 1,176.85 203.31L176.85,199.13A13.18,13.18 0,0 1,190.03 185.95z"
       )
       .asComposePath()
+  }
+
+  val combinedBounds = remember(pathBase, pathDot, pathDash1, pathDash2) {
+    val bBase = pathBase.getBounds()
+    val bDot = pathDot.getBounds()
+    val bDash1 = pathDash1.getBounds()
+    val bDash2 = pathDash2.getBounds()
+    Rect(
+      left = minOf(bBase.left, bDot.left, bDash1.left, bDash2.left),
+      top = minOf(bBase.top, bDot.top, bDash1.top, bDash2.top),
+      right = maxOf(bBase.right, bDot.right, bDash1.right, bDash2.right),
+      bottom = maxOf(bBase.bottom, bDot.bottom, bDash1.bottom, bDash2.bottom),
+    )
   }
 
   val infiniteTransition = rememberInfiniteTransition(label = "TransmitterTransition")
@@ -101,28 +116,30 @@ fun LogoAnimation(
     )
 
   Canvas(modifier = modifier.size(sizeLogo)) {
-    val viewportSize = 305.32f
-    val scaleX = size.width / viewportSize
-    val scaleY = size.height / viewportSize
+    val scaleFactor = minOf(size.width / combinedBounds.width, size.height / combinedBounds.height)
+    val leftOffset = center.x - combinedBounds.center.x * scaleFactor
+    val topOffset = center.y - combinedBounds.center.y * scaleFactor
 
-    scale(scaleX, scaleY, pivot = Offset.Zero) {
-      drawPath(
-        path = pathBase,
-        color = tint,
-      )
+    translate(left = leftOffset, top = topOffset) {
+      scale(scaleFactor, pivot = Offset.Zero) {
+        drawPath(
+          path = pathBase,
+          color = tint,
+        )
 
-      drawPath(
-        path = pathDot,
-        color = tint.copy(alpha = dotAlpha),
-      )
-      drawPath(
-        path = pathDash1,
-        color = tint.copy(alpha = dash1Alpha),
-      )
-      drawPath(
-        path = pathDash2,
-        color = tint.copy(alpha = dash2Alpha),
-      )
+        drawPath(
+          path = pathDot,
+          color = tint.copy(alpha = dotAlpha),
+        )
+        drawPath(
+          path = pathDash1,
+          color = tint.copy(alpha = dash1Alpha),
+        )
+        drawPath(
+          path = pathDash2,
+          color = tint.copy(alpha = dash2Alpha),
+        )
+      }
     }
   }
 }

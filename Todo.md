@@ -36,5 +36,7 @@
 - [x] 🔼 buatkan test untuk font apakah ada atau tidak di file atau di google font #feature #development #v1.4.1-beta #test 🛫 2026-09-24 05:00 ✅ 2026-09-24 05:02 ➕ 2026-09-23 19:05 🆔 5vokcW
 - [x] 🔼 apa perlu ada export share nanti nya animasi teks aatau morse dapat di share ? masalah nanti nya adalah size ketika melakukan upload ke media sosial #feature #development #v1.4.1-beta 🛫 2026-09-24 22:52 ✅ 2026-09-25 09:19 ➕ 2026-09-23 19:15 🆔 xkvy0K
 - [x] ⏫ penambahan trigger review in playstore #v1.4.1-beta #feature #development 🛫 2026-09-24 21:19 ✅ 2026-09-24 22:52 ➕ 2026-09-24 21:12 🆔 Ki2UG4
-- [/] 🔺 sekarang #issue itu adalah duplikasi antara download, preview, dan download memiliki ratio yang berbeda-berbeda serta ukurannya. ini membuat tidak konsisten #development #v1.4.1-beta 🛫 2026-09-25 13:31 ➕ 2026-09-25 09:41 🆔 BbP47p
+- [x] 🔺 sekarang #issue itu adalah duplikasi antara download, preview, dan download memiliki ratio yang berbeda-berbeda serta ukurannya. ini membuat tidak konsisten #development #v1.4.1-beta 🛫 2026-09-25 13:31 ✅ 2026-09-25 19:49 ➕ 2026-09-25 09:41 🆔 BbP47p
 - [x] ⏫ buat seluruh ukuran mengikutin ratio ukuran device sehingga ketika mengatur width nya dinamis tinggi akan mengikutin width tersebut #issue #production #v1.4.1-beta 🛫 2026-09-25 13:33 ✅ 2026-09-25 14:26 ➕ 2026-09-25 13:33 🆔 S4XPp9
+- [/] ⏫ pada loading seperti nya perlu indikasi angka berapa persen proses nya terkadang memakan waktu cukup lama #feature #development #v1.4.1-beta 🛫 2026-09-25 23:14 ➕ 2026-09-25 19:50 🆔 CGCbLU
+- [ ] ⏫ apa perlu menambahkan google anality untuk variant Playstore ? #v1.4.1-beta #development #feature , jika iya tapi apa saja perlu di analisis? ➕ 2026-09-26 07:30 📝 2026-09-26 07:33 🆔 znPnuE

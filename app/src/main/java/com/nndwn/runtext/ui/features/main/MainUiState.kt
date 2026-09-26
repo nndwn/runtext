@@ -9,5 +9,6 @@ sealed interface MainUiState {
     val settings: AppSettings,
     val enteredText: String,
     val isExportingVideo: Boolean = false,
+    val exportProgress: Int = 0,
   ) : MainUiState
 }

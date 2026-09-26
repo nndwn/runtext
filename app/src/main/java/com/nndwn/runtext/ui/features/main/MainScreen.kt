@@ -153,7 +153,11 @@ fun MainScreenContent(
       },
     )
 
-    LoadingScreen(show = (uiState as? MainUiState.Success)?.isExportingVideo == true)
+    val successState = uiState as? MainUiState.Success
+    LoadingScreen(
+      show = successState?.isExportingVideo == true,
+      value = successState?.exportProgress ?: 0,
+    )
   }
 }
 

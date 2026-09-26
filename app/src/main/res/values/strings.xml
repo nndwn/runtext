@@ -53,5 +53,6 @@
     <string name="set_config_text_blink">Blink</string>
     <string name="set_config_text_blink_desc">Blink text animate</string>
     <string name="set_config_text_move">Move</string>
-    <string name="set_config_text_move_desc">Move text animate</string>"
+    <string name="set_config_text_move_desc">Move text animate</string>
+    <string name="loading_creating">Creating animation %1$s</string>
 </resources>

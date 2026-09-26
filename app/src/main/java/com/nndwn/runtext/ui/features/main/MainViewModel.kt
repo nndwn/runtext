@@ -46,13 +46,19 @@ constructor(
   private val _settings = MutableStateFlow<AppSettings?>(null)
   private val _enteredText = MutableStateFlow("")
   private val _isExportingVideo = MutableStateFlow(false)
+  private val _exportProgress = MutableStateFlow(0)
 
   val fonts: StateFlow<List<FontData>> = fontRepository.fonts
 
   val uiState: StateFlow<MainUiState> =
-    combine(_settings, _enteredText, _isExportingVideo) { settings, enteredText, isExporting ->
+    combine(_settings, _enteredText, _isExportingVideo, _exportProgress) { settings, enteredText, isExporting, progress ->
       if (settings == null) MainUiState.Loading
-      else MainUiState.Success(settings, enteredText, isExporting)
+      else MainUiState.Success(
+        settings = settings,
+        enteredText = enteredText,
+        isExportingVideo = isExporting,
+        exportProgress = progress,
+      )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -224,8 +230,13 @@ constructor(
     viewModelScope.launch {
       val currentSettings = _settings.value ?: return@launch
       _isExportingVideo.value = true
+      _exportProgress.value = 0
       try {
-        val videoUri = mp4VideoExporter.exportVideo(currentSettings)
+        val videoUri = mp4VideoExporter.exportVideo(currentSettings) { progress ->
+          _exportProgress.value = progress
+        }
+        _exportProgress.value = 100
+        delay(300.milliseconds)
         uiEffectController.sendEffect(UiEffect.ShareVideo(videoUri))
       } catch (e: Exception) {
         Log.e("TEST",e.message.toString())
